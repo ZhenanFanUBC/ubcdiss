@@ -1,18 +1,593 @@
-% This file provides examples of some useful macros for typesetting
-% dissertations.  None of the macros defined here are necessary beyond
-% for the template documentation, so feel free to change, remove, and add
-% your own definitions.
-%
-% We recommend that you define macros to separate the semantics
-% of the things you write from how they are presented.  For example,
-% you'll see definitions below for a macro \file{}: by using
-% \file{} consistently in the text, we can change how filenames
-% are typeset simply by changing the definition of \file{} in
-% this file.
-% 
-%% The following is a directive for TeXShop to indicate the main file
-%%!TEX root = diss.tex
+\RequirePackage{amssymb}
+\RequirePackage{mathtools}
 
+\RequirePackage{amssymb}
+\RequirePackage{mathtools}
+
+%%%%%%%%%%%%%%%%%%%%
+% DeclareMathOperator  is awesome! But it doesn't have a
+% "ReDeclare" option. Here's one.
+%%%%%%%%%%%%%%%%%%%%
+\makeatletter
+\newcommand\RedeclareMathOperator{%
+  \@ifstar{\def\rmo@s{m}\rmo@redeclare}{\def\rmo@s{o}\rmo@redeclare}%
+}
+% this is taken from \renew@command
+\newcommand\rmo@redeclare[2]{%
+  \begingroup \escapechar\m@ne\xdef\@gtempa{{\string#1}}\endgroup
+  \expandafter\@ifundefined\@gtempa
+     {\@latex@error{\noexpand#1undefined}\@ehc}%
+     \relax
+  \expandafter\rmo@declmathop\rmo@s{#1}{#2}}
+% This is just \@declmathop without \@ifdefinable
+\newcommand\rmo@declmathop[3]{%
+  \DeclareRobustCommand{#2}{\qopname\newmcodes@#1{#3}}%
+}
+\@onlypreamble\RedeclareMathOperator
+\makeatother
+
+%%%%%%%%%%%%%%%%%%%
+% BibTeX macro.  Taken from /usr/share/texmf/doc/bibtex/base/btxdoc.tex.
+%%%%%%%%%%%%%%%%%%%
+\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
+    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
+\def\tild{\raisebox{-0.5ex}{\~{}}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Minimize, maximize, subject to
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\minim{\mathop{\hbox{\rm minimize}}}
+\def\maxim{\mathop{\hbox{\rm maximize}}}
+\def\minimize#1{\displaystyle\minim_{#1}\enspace}
+\def\maximize#1{\displaystyle\maxim_{#1}\enspace}
+\def\st{\mathop{\hbox{\rm subject to}}}
+\def\find{\mathop{\hbox{\rm Find}}\enspace}
+\def\sut{\enspace\mathop{\hbox{\rm such that}}\enspace}
+\def\tand{\enspace\mathop{\hbox{\rm and}}\enspace}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Max/Min Problems
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\makeatletter
+\def\uncprob#1#2#3{\fbox
+  {\begin{tabular*}{0.84\textwidth}
+      {@{}l@{\extracolsep{\fill}}l@{\extracolsep{9pt}}l@{\extracolsep{\fill}}l@{}}
+      #1 & $\minimize{#2}$ & $#3$ & $ $
+    \end{tabular*}}}
+\def\problem#1#2#3#4{\fbox
+  {\begin{tabular*}{0.84\textwidth}
+      {@{}l@{\extracolsep{\fill}}l@{\extracolsep{6pt}}l@{\extracolsep{\fill}}l@{}}
+      #1 & $\minimize{#2}$ & $#3$ & $ $ \\[5pt]
+         & $\st          $ & $#4$ & $ $
+    \end{tabular*}}}
+\def\problemnb#1#2#3#4{
+  {\begin{tabular*}{0.84\textwidth}
+      {@{}l@{\extracolsep{\fill}}l@{\extracolsep{6pt}}l@{\extracolsep{\fill}}l@{}}
+      #1 & $\minimize{#2}$ & $#3$ & $ $ \\[5pt]
+         & $\st          $ & $#4$ & $ $
+    \end{tabular*}}}
+\def\probwide#1#2#3#4{\fbox
+  {\begin{tabular*}{.98\textwidth}
+      {@{}l@{\extracolsep{\fill}}l@{\extracolsep{6pt}}l@{\extracolsep{\fill}}l@{}}
+      #1 & $\minimize{#2}$ & $#3$ & $ $ \\[5pt]
+         & $\st          $ & $#4$ & $ $
+    \end{tabular*}}}
+\def\probnarrow#1#2#3#4{\fbox
+  {\begin{tabular*}{0.7\paperwidth}
+      {@{}l@{\extracolsep{\fill}}c@{\extracolsep{6pt}}l@{\extracolsep{\fill}}l@{}}
+      #1 & $\minimize{#2}$ & $#3$ & $ $ \\[5pt]
+         & $\st          $ & $#4$ & $ $
+    \end{tabular*}}}
+\makeatother
+
+\DeclarePairedDelimiterX{\ip}[2]{\langle}{\rangle}{#1, #2}
+%\def\ip#1#2{\langle #1,#2\rangle}
+\def\clink#1{\mkern2mu\overline{\mkern-2mu c\mkern2mu}\mkern-2mu\k(#1)}
+\def\ul#1{\underline{#1}}
+\newcommand{\Real}{\Re}\renewcommand{\Re}{\mathbb{R}} % swap \Real & \Re
+\newcommand{\Na}{\mathbb{N}}
+\newcommand{\Symm}{\mathbb{S}}
+\newcommand{\Complex}{\mathbb{C}}
+\def\m{\phantom-}
+\newcommand{\pmat}[1]{\begin{pmatrix}#1\end{pmatrix}}
+\newcommand{\pmatr}[1]{\begin{pmatrix*}[r]#1\end{pmatrix*}}
+\newcommand{\bmat}[1]{\begin{bmatrix}#1\end{bmatrix}}
+\newcommand{\bmatr}[1]{\begin{bmatrix*}[r]#1\end{bmatrix*}}
+\def\defd{\mathrel{\mathop:}=} % As per Higham's ``Accuracy & Stability...''
+
+%%%%%%%%%%%%%%%%%%%%%
+% Norm-like functions
+%%%%%%%%%%%%%%%%%%%%%
+\def\abs#1{|#1|}
+\def\norm#1{\|#1\|}
+\def\onenorm#1{\|#1\|_1}
+\def\twonorm#1{\|#1\|_2}
+\def\infnorm#1{\norm{#1}_\infty}
+
+%%%%%%%%%%%%%%%%%%%%%
+% Convex analysis
+%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\lev}[2]{\mathop{lev}({#1}\mid#2)}
+\newcommand{\indicator}[2]{\delta_{#2}{#1}}
+\newcommand{\Ball}{\mathbb{B}}
+% \DeclareMathOperator{\argmin}{arg\,min}
+% \DeclareMathOperator{\argmax}{arg\,max}
+\newcommand{\argmin}[1]{\underset{#1}{\textrm{arg}\,{\min}}\enskip}
+\newcommand{\argmax}[1]{\underset{#1}{\textrm{arg}\,{\max}}\enskip}
+\newcommand{\argsup}[1]{\underset{#1}{\textrm{arg}\,{\sup}}\enskip}
+\DeclareMathOperator{\bnd}{bnd}
+\DeclareMathOperator{\cl}{cl}
+\DeclareMathOperator{\cond}{cond}
+\DeclareMathOperator{\conv}{conv}
+\DeclareMathOperator{\cone}{cone}
+\DeclareMathOperator{\diag}{diag}
+\DeclareMathOperator{\Diag}{Diag}
+\DeclareMathOperator{\Dim}{dim}
+\DeclareMathOperator{\dist}{dist}
+\DeclareMathOperator{\dom}{dom}
+\DeclareMathOperator{\epi}{epi}
+\DeclareMathOperator{\Null}{null}
+\DeclareMathOperator{\proj}{proj}
+\DeclareMathOperator{\prox}{prox}
+\DeclareMathOperator{\range}{range}
+\DeclareMathOperator{\sgn}{sgn}
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\card}{card}
+\DeclareMathOperator{\oracle}{oracle}
+\DeclareMathOperator{\rec}{rec}
+\DeclareMathOperator{\ri}{ri}
+\DeclareMathOperator{\sign}{sign}
+\DeclareMathOperator{\Span}{span}
+\DeclareMathOperator{\trace}{tr}
+\DeclareMathOperator{\Id}{Id}
+\DeclareMathOperator{\orthog}{orthog}
+\DeclareMathOperator{\diam}{diam}
+\RedeclareMathOperator{\vec}{vec}
+\def\blackslug{\hbox{\hskip 1pt \vrule width 4pt height 6pt depth 1.5pt
+  \hskip 1pt}}
+\newcommand\chull{\mathop{\hbox{\rm co}}}
+\newcommand\infc{\mathop\square}
+\newcommand{\eReal}{\overline\Real}
+\def\drop{^{\null}}
+\def\float{fl}
+\def\grad#1{\nabla_{#1}}
+\def\Hess#1{\nabla^2_{#1}}
+\def\one{\mathbf{1}}
+\def\half{{\textstyle{\frac{1}{2}}}}
+\def\third{{\textstyle{\frac{1}{3}}}}
+\def\fourth{{\textstyle{\frac{1}{4}}}}
+\def\inv{^{-1}}
+\def\invsq{^{-2}}
+\def\limk{\lim_{k\to\infty}}
+\def\mystrut{\vrule height10.5pt depth5.5pt width0pt}
+\def\spose#1{\hbox to 0pt{#1\hss}}
+\def\text #1{\hbox{\quad#1\quad}}
+\def\textt#1{\hbox{\qquad#1\qquad}}
+\def\invT{^{-T}\!}
+\def\T{^T\!}
+\newcommand{\adj}{^*\!}
+\def\pT{^{+T}}
+\def\xint{{x_{\rm int}}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Fixed-size glue, only for math mode
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\pthinsp{\mskip  2   mu}    %           thin space
+\def\pmedsp {\mskip  2.75mu}    %         medium space
+\def\pthiksp{\mskip  3.5 mu}    %          thick space
+\def\nthinsp{\mskip -2   mu}
+\def\nmedsp {\mskip -2.75mu}
+\def\nthiksp{\mskip -3.5 mu}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Specially lowered subscripts (see \sub above)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\Asubk{A\sub{\nthinsp k}}
+\def\Bsubk{B\sub{\nthinsp k}}
+\def\Fsubk{F\sub{\nmedsp k}}
+\def\Gsubk{G\sub{\nthinsp k}}
+\def\Hsubk{H\sub{\nthinsp k}}
+\def\HsubB{H\sub{\nthinsp  \scriptscriptstyle{B}}}
+\def\HsubS{H\sub{\nthinsp  \scriptscriptstyle{S}}}
+\def\HsubBS{H\sub{\nthinsp \scriptscriptstyle{BS}}}
+\def\Hz{H\sub{\nthinsp \scriptscriptstyle{Z}}}
+\def\Jsubk{J\sub{\nmedsp k}}
+\def\Psubk{P\sub{\nthiksp k}}
+\def\Qsubk{Q\sub{\nthinsp k}}
+\def\Vsubk{V\sub{\nmedsp k}}
+\def\Vsubone{V\sub{\nmedsp 1}}
+\def\Vsubtwo{V\sub{\nmedsp 2}}
+\def\Ysubk{Y\sub{\nmedsp k}}
+\def\Wsubk{W\sub{\nthiksp k}}
+\def\Zsubk{Z\sub{\nthinsp k}}
+\def\Zsubi{Z\sub{\nthinsp i}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Subscripts
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\submax{_{\max}}
+\def\submin{_{\min}}
+\def\subminus{_{\scriptscriptstyle -}}
+\def\subplus {_{\scriptscriptstyle +}}
+
+\def\A{_{\scriptscriptstyle A}}
+\def\B{_{\scriptscriptstyle B}}
+\def\C{_{\scriptscriptstyle C}}
+\def\D{_{\scriptscriptstyle D}}
+\def\E{_{\scriptscriptstyle E}}
+\def\F{_{\scriptscriptstyle F}}
+\def\G{_{\scriptscriptstyle G}}
+\def\H{_{\scriptscriptstyle H}}
+\def\I{_{\scriptscriptstyle I}}
+\def\J{_{\scriptscriptstyle J}}
+\def\K{_{\scriptscriptstyle K}}
+\def\L{_{\scriptscriptstyle L}}
+\def\M{_{\scriptscriptstyle M}}
+\def\N{_{\scriptscriptstyle N}}
+\def\O{_{\scriptscriptstyle O}}
+\def\Q{_{\scriptscriptstyle Q}}
+\def\R{_{\scriptscriptstyle R}}
+\def\U{_{\scriptscriptstyle U}}
+\def\V{_{\scriptscriptstyle V}}
+\def\W{_{\scriptscriptstyle W}}
+\def\Y{_{\scriptscriptstyle Y}}
+\def\Z{_{\scriptscriptstyle Z}}
+\def\k{^{(k)}}
+\def\kp#1{^{(k+#1)}}
+\def\km#1{^{(k-#1)}}
+\def\j{^{(j)}}
+\def\jp#1{^{(j+#1)}}
+\def\jm#1{^{(j-#1)}}
+\def\subb{\B}
+\def\subc{\C}
+\def\subf{\F}
+\def\subh{\H}
+\def\subk{\K}
+\def\subm{\M}
+\def\subn{\N}
+\def\subp{\P}
+\def\subs{_{\scriptscriptstyle S}}
+\def\subt{_{\scriptscriptstyle T}}
+\def\subr{\R}
+\def\subz{\Z}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  bars, hats, tildes  (\skew4 is the default)
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\alphabar{\bar \alpha}
+\def\alphahat{\skew3\hat \alpha}
+\def\alphatilde{\skew3\tilde \alpha}
+\def\betabar{\skew{2.8}\bar\beta}
+\def\betahat{\skew{2.8}\hat\beta}
+\def\betatilde{\skew{2.8}\tilde\beta}
+\def\deltabar{\bar\delta}
+\def\deltilde{\skew5\tilde \delta}
+\def\deltatilde{\deltilde}
+\def\etabar{\bar\eta}
+\def\gammabar{\bar\gamma}
+\def\lambar{\bar\lambda}
+\def\lamhat{\skew{2.8}\hat \lambda}
+\def\lambdahat{\lamhat}
+\def\lambdatilde{\tilde{\lambda}}
+\def\lambdabar{\bar \lambda}
+\def\mubar{\skew3\bar \mu}
+\def\muhat{\skew3\hat \mu}
+\def\mutilde{\skew3\tilde\mu}
+\def\nubar{\skew3\bar\nu}
+\def\nuhat{\skew3\hat\nu}
+\def\nutilde{\skew3\tilde\nu}
+\def\omegabar{\bar\omega}
+\def\omegahat{\skew3\hat\omega}
+\def\omegatilde{\tilde\omega}
+\def\phibar{\bar\phi}
+\def\pibar{\bar\pi}
+\def\pihat{\skew1\widehat \pi}
+\def\sigmaB{\mkern 3mu\overline {\mkern-3mu\sigma\mkern 1mu}\mkern-1mu}
+\def\sigmab{\mkern-2mu\underline{\mkern 2mu\sigma\mkern-3mu}\mkern 3mu}
+\def\sigmabar{\bar\sigma}
+\def\rhobar{\bar\rho}
+\def\rhohat{\widehat\rho}
+\def\taubar{\bar\tau}
+\def\tautilde{\tilde\tau}
+\def\tauhat{\hat\tau}
+\def\thetabar{\bar\theta}
+\def\xibar{\skew4\bar\xi}
+
+\def\abar{\skew3\bar a}
+\def\ahat{\skew2\widehat a}
+\def\atilde{\skew2\widetilde a}
+\def\Abar{\skew7\bar A}
+\def\Ahat{\widehat A}
+\def\Atilde{\widetilde A}
+\def\bbar{\skew3\bar b}
+\def\bhat{\skew2\widehat b}
+\def\btilde{\skew2\widetilde b}
+\def\Bbar{\bar B}
+\def\Bhat{\widehat B}
+\def\cbar{\skew3\bar c}
+\def\chat{\skew3\widehat c}
+\def\ctilde{\widetilde c}
+\def\Cbar{\bar C}
+\def\Chat{\widehat C}
+\def\Ctilde{\widetilde C}
+\def\dbar{\bar d}
+\def\dhat{\widehat d}
+\def\dtilde{\widetilde d}
+\def\Dbar{\bar D}
+\def\Dhat{\widehat D}
+\def\Dtilde{\widetilde D}
+\def\ehat{\skew3\widehat e}
+\def\ebar{\bar e}
+\def\Ebar{\bar E}
+\def\Ehat{\widehat E}
+\def\Etilde{\widetilde E}
+\def\fbar{\bar f}
+\def\fhat{\widehat f}
+\def\ftilde{\widetilde f}
+\def\Fbar{\bar F}
+\def\Fhat{\widehat F}
+\def\Ftilde{\widetilde F}
+\def\gbar{\skew{4.3}\bar g}
+\def\ghat{\skew{3}\widehat g}
+\def\gtilde{\skew{4.5}\widetilde g}
+\def\Gbar{\bar G}
+\def\Ghat{\widehat G}
+\def\hbar{\skew{4.2}\bar h}
+\def\hhat{\skew2\widehat h}
+\def\htilde{\skew3\widetilde h}
+\def\Hbar{\skew5\bar H}
+\def\Hhat{\widehat H}
+\def\Htilde{\widetilde H}
+\def\Ibar{\skew5\bar I}
+\def\Itilde{\widetilde I}
+\def\Jbar{\skew6\bar J}
+\def\Jhat{\widehat J}
+\def\Jtilde{\widetilde J}
+\def\kbar{\skew{4.4}\bar k}
+\def\Khat{\widehat K}
+\def\Kbar{\skew{4.4}\bar K}
+\def\Ktilde{\widetilde K}
+\def\ellbar{\bar \ell}
+\def\lhat{\skew2\widehat l}
+\def\lbar{\skew2\bar l}
+\def\Lbar{\skew{4.3}\bar L}
+\def\Lhat{\widehat L}
+\def\Ltilde{\widetilde L}
+\def\mbar{\skew2\bar m}
+\def\mhat{\widehat m}
+\def\Mbar{\skew{4.4}\bar M}
+\def\Mhat{\widehat M}
+\def\Mtilde{\widetilde M}
+\def\Nbar{\skew{4.4}\bar N}
+\def\Ntilde{\widetilde N}
+\def\nbar{\skew2\bar n}
+\def\pbar{\skew2\bar p}
+\def\phat{\skew2\widehat p}
+\def\ptilde{\skew2\widetilde p}
+\def\Pbar{\skew5\bar P}
+\def\Phat{\widehat P}
+\def\Ptilde{\skew5\widetilde P}
+\def\qbar{\bar q}
+\def\qhat{\skew2\widehat q}
+\def\qtilde{\widetilde q}
+\def\Qbar{\bar Q}
+\def\Qhat{\widehat Q}
+\def\Qtilde{\widetilde Q}
+\def\rbar{\skew3\bar r}
+\def\rhat{\skew3\widehat r}
+\def\rtilde{\skew3\widetilde r}
+\def\Rbar{\skew5\bar R}
+\def\Rhat{\widehat R}
+\def\Rtilde{\widetilde R}
+\def\sbar{\bar s}
+\def\shat{\widehat s}
+\def\stilde{\widetilde s}
+\def\Shat{\widehat S}
+\def\Sbar{\skew2\bar S}
+\def\tbar{\bar t}
+\def\ttilde{\widetilde t}
+\def\that{\widehat t}
+\def\Tbar{\bar T}
+\def\That{\widehat T}
+\def\Ttilde{\widetilde T}
+\def\ubar{\skew3\bar u}
+\def\uhat{\skew3\widehat u}
+\def\utilde{\skew3\widetilde u}
+\def\Ubar{\skew2\bar U}
+\def\Uhat{\widehat U}
+\def\Utilde{\widetilde U}
+\def\vbar{\skew3\bar v}
+\def\vhat{\skew3\widehat v}
+\def\vtilde{\skew3\widetilde v}
+\def\Vbar{\skew2\bar V}
+\def\Vhat{\widehat V}
+\def\Vtilde{\widetilde V}
+\def\wbar{\skew3\bar w}
+\def\what{\skew3\widehat w}
+\def\wtilde{\skew3\widetilde w}
+\def\Wbar{\skew3\bar W}
+\def\What{\widehat W}
+\def\Wtilde{\widetilde W}
+\def\xbar{\bar{x}}
+\def\xhat{\skew{2.8}\widehat x}
+\def\xtilde{\skew3\widetilde x}
+\def\Xhat{\widehat X}
+\def\ybar{\skew3\bar y}
+\def\yhat{\skew2\widehat y}
+\def\ytilde{\skew3\widetilde y}
+\def\Ybar{\skew2\bar Y}
+\def\Yhat{\widehat Y}
+\def\zbar{\skew{2.8}\bar z}
+\def\zhat{\skew{2.8}\widehat z}
+\def\ztilde{\skew{2.8}\widetilde z}
+\def\Zbar{\skew5\bar Z}
+\def\Zhat{\widehat Z}
+\def\Ztilde{\widetilde Z}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Stars
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\lamstar{\lambda^*}
+\def\lamstark{\lambda^*\k}
+\def\lambarstark{\lambar^*\k}
+\def\pistar{\pi^*}
+\def\pistark{\pi^*_k}
+\def\rhostar{\rho^*}
+\def\mustar{\mu^*}
+\def\taustar{\tau^*}
+\def\cstar{c^*}
+\def\dstar{d^*}
+\def\fstar{f_*}
+\def\gstar{g^*}
+\def\Jstar{J^*}
+\def\pstar{p^*}
+\def\rstar{r^*}
+\def\rstark{r^*\k}
+\def\vstar{v^*}
+\def\vstark{v^*\k}
+\def\wstar{w^*}
+\def\wstark{w^*\k}
+\def\xstar{x_*}
+\def\xstarhatk{\hat x^*\k}
+\def\xstark{x^*\k}
+\def\xstarzero{x^*_0}
+\def\xstarkm1{x^*\km1}
+\def\ystar{y^*}
+\def\ystarhatk{\hat y^*\k}
+\def\ystark{y^*\k}
+\def\ystarkm1{y^*\km1}
+\def\zstar{z^*}
+\def\zstark{z^*\k}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Math italic fonts
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\mit{\mathit}
+\def\Deltait{{\mit \Delta}}
+\def\Gammait{{\mit \Gamma}}
+\def\Lambdait{{\mit \Lambda}}
+\def\Sigmait{{\mit \Sigma}}
+\def\Lambarit{\skew5\bar{\mit \Lambda}}
+\def\Omegait{{\mit \Omega}}
+\def\Omegaitbar{\skew5\bar{\mit \Omega}}
+\def\Thetait{{\mit \Theta}}
+\def\Piitbar{\skew5\bar{\mit \Pi}}
+\def\Piit{{\mit \Pi}}
+\def\Phiit{{\mit \Phi}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Math calligraphy fonts
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\Ascr}{\mathcal{A}}
+\newcommand{\Bscr}{\mathcal{B}}
+\newcommand{\Cscr}{\mathcal{C}}
+\newcommand{\Dscr}{\mathcal{D}}
+\newcommand{\Escr}{\mathcal{E}}
+\newcommand{\Fscr}{\mathcal{F}}
+\newcommand{\Gscr}{\mathcal{G}}
+\newcommand{\Hscr}{\mathcal{H}}
+\newcommand{\Iscr}{\mathcal{I}}
+\newcommand{\Jscr}{\mathcal{J}}
+\newcommand{\Kscr}{\mathcal{K}}
+\newcommand{\Lscr}{\mathcal{L}}
+\newcommand{\Mscr}{\mathcal{M}}
+\newcommand{\Nscr}{\mathcal{N}}
+\newcommand{\Oscr}{\mathcal{O}}
+\newcommand{\Pscr}{\mathcal{P}}
+\newcommand{\Qscr}{\mathcal{Q}}
+\newcommand{\Rscr}{\mathcal{R}}
+\newcommand{\Sscr}{\mathcal{S}}
+\newcommand{\Tscr}{\mathcal{T}}
+\newcommand{\Uscr}{\mathcal{U}}
+\newcommand{\Vscr}{\mathcal{V}}
+\newcommand{\Wscr}{\mathcal{W}}
+\newcommand{\Xscr}{\mathcal{X}}
+\newcommand{\Yscr}{\mathcal{Y}}
+\newcommand{\Zscr}{\mathcal{Z}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Mathbb
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\mA}{\mathbb{A}}
+\newcommand{\mB}{\mathbb{B}}
+\newcommand{\mC}{\mathbb{C}}
+\newcommand{\mD}{\mathbb{D}}
+\newcommand{\mE}{\mathbb{E}}
+\newcommand{\mF}{\mathbb{F}}
+\newcommand{\mG}{\mathbb{G}}
+\newcommand{\mH}{\mathbb{H}}
+\newcommand{\mI}{\mathbb{I}}
+\newcommand{\mJ}{\mathbb{J}}
+\newcommand{\mK}{\mathbb{K}}
+\newcommand{\mL}{\mathbb{L}}
+\newcommand{\mM}{\mathbb{M}}
+\newcommand{\mN}{\mathbb{N}}
+\newcommand{\mO}{\mathbb{O}}
+\newcommand{\mP}{\mathbb{P}}
+\newcommand{\mQ}{\mathbb{Q}}
+\newcommand{\mR}{\mathbb{R}}
+\newcommand{\mS}{\mathbb{S}}
+\newcommand{\mT}{\mathbb{T}}
+\newcommand{\mU}{\mathbb{U}}
+\newcommand{\mV}{\mathbb{V}}
+\newcommand{\mW}{\mathbb{W}}
+\newcommand{\mX}{\mathbb{X}}
+\newcommand{\mY}{\mathbb{Y}}
+\newcommand{\mZ}{\mathbb{Z}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%  Delta quantities
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\dd{\Deltait d}
+\def\dx{\Deltait x}
+\def\dy{\Deltait y}
+\def\dz{\Deltait z}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Computer packages
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\Matlab{\textsc{Matlab}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Abbreviations
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\Sec{\S}
+\def\seq#1{\ensuremath{\{#1\}}}
+\newcommand{\e}[1]{e\raisebox{.2ex}{\tiny$#1$}} % scientific not. (e)
+\newcommand{\ozgur}{{\"O}zg{\"u}r Y{\i}lmaz}  % Ozgur Yilmaz's name!
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Big Oh, little Oh
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\BigOh{\Oscr}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Useful macros for atomic opt
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\polar}{^\circ}
+\newcommand{\convA}{\widehat\Ascr}
+\newcommand{\Face}[1]{\Fscr_{\scriptscriptstyle #1}}
+\newcommand{\FaceA}{\Fscr_{\!\!\scriptscriptstyle\Ascr}}
+\newcommand{\FaceAp}{\Fscr_{\!\!\scriptscriptstyle\Ascr\polar}}
+\newcommand{\FaceC}{\Fscr_{\!\!\scriptscriptstyle\Cscr}}
+\newcommand{\FaceCp}{\Fscr_{\!\!\scriptscriptstyle\Cscr\polar}}
+\newcommand{\gauge}{\gamma}
+\newcommand{\As}{_{\scriptscriptstyle\Ascr}}
+\newcommand{\coAs}{_{\scriptscriptstyle\convA}}
+\newcommand{\Asp}{_{\scriptscriptstyle\Ascr^\circ}}
+\newcommand{\Cs}{_{\scriptscriptstyle\Cscr}}
+\newcommand{\Csp}{_{\scriptscriptstyle\Cscr^\circ}}
+\newcommand{\Ds}{_{\scriptscriptstyle\Dscr}}
+\newcommand{\Ks}{_{\scriptscriptstyle\Kscr}}
+\newcommand{\Ls}{_{\scriptscriptstyle\Lscr}}
+\DeclareMathOperator{\logit}{logit}
+\DeclareMathOperator{\suppa}{\Sscr\As}
+\DeclareMathOperator{\supp}{\hbox{\rm\textbf{supp}}}
+\newcommand{\Probi}{(P$_i$)}
+\newcommand{\Drobi}{(D$_i$)}
+\newcommand{\opa}[1]{\|#1\|\As}
+\newcommand{\gap}{\mbox{gap}}
+
+% original macros
 \newcommand{\NA}{\textsc{n/a}}	% for "not applicable"
 \newcommand{\eg}{e.g.,\ }	% proper form of examples (\eg a, b, c)
 \newcommand{\ie}{i.e.,\ }	% proper form for that is (\ie a, b, c)
@@ -24,7 +599,6 @@
 \newcommand{\latexpackage}[1]{\href{http://www.ctan.org/macros/latex/contrib/#1}{\texttt{#1}}}
 \newcommand{\latexmiscpackage}[1]{\href{http://www.ctan.org/macros/latex/contrib/misc/#1.sty}{\texttt{#1}}}
 \newcommand{\env}[1]{\texttt{#1}}
-\newcommand{\BibTeX}{Bib\TeX}
 
 % Define a command \doi{} to typeset a digital object identifier (DOI).
 % Note: if the following definition raise an error, then you likely
@@ -57,5 +631,3 @@
 % \FIXME{} is a useful macro for noting things needing to be changed.
 % The following definition will also output a warning to the console
 \newcommand{\FIXME}[1]{\typeout{**FIXME** #1}\textbf{[FIXME: #1]}}
-
-% END
