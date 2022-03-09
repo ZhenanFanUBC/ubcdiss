@@ -5,13 +5,27 @@
 \label{ch:Introduction}
 
 Optimization approaches have enjoyed prominence in machine learning, data mining and signal processing because of their wide applicability and attractive theoretical properties. For a
-long time, it has been recognized that looking at the dual of an optimization problem may drastically simplify its solution or enjoy better convergence rate. 
+long time, it has been recognized that looking at the dual of an optimization problem may drastically simplify its solution or enjoy better convergence rate. In this thesis, we focus on the effectiveness of duality in two classes of optimization problems: structured optimization and federated optimization. 
 
-\section{Notations}
+\section{Notations and preliminaries}
+
+In this section, we introduce some standard notations and definitions that will be used in this thesis. 
+
+\begin{definition}[Convex set]
+    A set $\Cscr \subseteq \Re^n$ is convex if for any $\lambda \in [0,1]$, any $x, y \in \Cscr$, 
+    \[\lambda x + (1-\lambda) y \in \Cscr.\]
+\end{definition}
 
 \section{Duality in optimization}
 
+Modern treatment of duality in convex optimization is based on an interpretation of multipliers as giving sensitivity information relative to perturbations in the problem data. The perturbation framework pioneered by \citet{rockafellar1970convex} plays an important rule in the duality theory. 
+
 \subsection{Lagrangian duality}
+We consider the general constrained optimization problem:
+\begin{equation} \label{prob:gco} 
+    \minimize{x \in \Re^n} f(x) \st c_i(x) \leq 0 \enspace \forall i = 1, \dots, m,
+\end{equation}
+where $f:\Re^n\to\Re$ and $c_i:\Re^n\to\Re$ for all $i\in[m]$ are convex functions. The key ingredient of the Lagrangian duality is the \emph{Lagrangian function}
 
 \subsection{Fenchel duality}
 
