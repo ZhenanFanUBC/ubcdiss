@@ -1,36 +1,226 @@
 %% The following is a directive for TeXShop to indicate the main file
 %%!TEX root = diss.tex
-
 \chapter{Introduction}
 \label{ch:Introduction}
 
-Optimization approaches have enjoyed prominence in machine learning, data mining and signal processing because of their wide applicability and attractive theoretical properties. For a
-long time, it has been recognized that looking at the dual of an optimization problem may drastically simplify its solution or enjoy better convergence rate. In this thesis, we focus on the effectiveness of duality in two classes of optimization problems: structured optimization and federated optimization. 
+\begin{itemize}
+    \item Optimization approaches have enjoyed prominence in machine learning, data mining and signal processing because of their wide applicability and attractive theoretical properties.
+    \item For a long time, it has been recognized that looking at the dual of an optimization problem may drastically simplify its solution or enjoy better convergence rate.
+    \item In this thesis, we focus on the effectiveness of duality in two classes of optimization problems: structured optimization and federated optimization. 
+\end{itemize}
+
+  
 
 \section{Notations and preliminaries}
 
 In this section, we introduce some standard notations and definitions that will be used in this thesis. 
 
-\begin{definition}[Convex set]
+\begin{definition}[Convex set] \label{def:cvx_set}
     A set $\Cscr \subseteq \Re^n$ is convex if for any $\lambda \in [0,1]$, any $x, y \in \Cscr$, 
     \[\lambda x + (1-\lambda) y \in \Cscr.\]
 \end{definition}
 
+\begin{definition}[Gauge function] \label{def:gauge}
+    Given a set $\Ascr \subseteq \Re^n$, the gauge function $\gauge\As:\Re^n\to\Re$ is defined as the Minkowski functional to the closed convex hull of $\Ascr$, i.e. 
+    \[\gauge\As(x) = \inf\left\{\mu > 0 \mid x \in \mu\cl\conv(\Ascr\cup\{0\})\right\}.\]
+\end{definition}
+
+\begin{itemize}
+    \item convex function
+    \item convex conjugate 
+    \item adjoint operator
+\end{itemize}
+
 \section{Duality in optimization}
 
-Modern treatment of duality in convex optimization is based on an interpretation of multipliers as giving sensitivity information relative to perturbations in the problem data. The perturbation framework pioneered by \citet{rockafellar1970convex} plays an important rule in the duality theory. 
+Modern treatment of duality in convex optimization is based on an interpretation of multipliers as giving sensitivity information relative to perturbations in the problem data. The perturbation framework pioneered by \citet{rockafellar1970convex} plays an important rule in the duality theory. Here we briefly summarize this framework. 
 
-\subsection{Lagrangian duality}
-We consider the general constrained optimization problem:
-\begin{equation} \label{prob:gco} 
+Consider a general convex optimization problem
+\begin{equation} \label{prob:general_cvx}
+    \minimize{x \in \Re^n} f(x),
+\end{equation}
+where $f:\Re^n \to \Re$ is a closed convex function. The perturbation framework depends on an arbitrary convex perturbation function $F: \Re^n \times \Re^m \to \Re$ such that 
+\begin{equation} \label{eq:value_fn_property}
+    F(x, 0) = f(x) \enspace \forall x \in \Re^n.
+\end{equation}
+The corresponding value function $v_F : \Re^m \to \Re$ is given by 
+\begin{equation}
+    v_F(u) = \inf_{x \in \Re^n} F(x, u).
+\end{equation}
+This set-up immediately yields the primal-dual pair
+\begin{align}
+    v_F(0) &= \inf_{x \in \Re^n} F(x, 0), \label{prob:general_primal}\\
+    v_F^{**}(0) &= \sup_{y \in \Re^m} -F^*(0, y). \label{prob:general_dual}
+\end{align}
+By the property~\eqref{eq:value_fn_property} of the perturbation function $F$, we can see that problem~\eqref{prob:general_primal} is equivalent to the general convex optimization problem~\eqref{prob:general_cvx}. The problem~\eqref{prob:general_dual} is known as the \emph{dual} problem of~\eqref{prob:general_cvx} corresponding to the perturbation function $F$. 
+The following theorem, developed by \citet{rockafellar1998variational}, describes the relationship between the primal-dual pair:~\eqref{prob:general_primal} and~\eqref{prob:general_dual}. 
+
+\begin{theorem}[Weak and strong duality~\protect{\citep[Theorem~11.39]{rockafellar1998variational}}] Consider the primal-dual pair:~\eqref{prob:general_primal} and~\eqref{prob:general_dual}, where $F: \Re^n \times \Re^m \to \Re$ is a proper, closed and convex function. The following properties shold. 
+    \begin{itemize}
+        \item \textbf{Weak duality}. The inequality $v_F(0) \geq v_F^{**}(0)$ always holds. 
+        \item \textbf{Strong duality}. If $0 \in \ri\dom v_F \cup \ri\dom v_F^{**}$, then $v_F(0) = v_F^{**}(0)$. 
+        \item \textbf{Optimal solutions.} If the strong duality holds with finite optimal values, then the following characterizations of the optimal solutions to the primal-dual pair are equivalent
+            \begin{align}
+                (x^*, 0) &\in \partial F^*(0,y^*); \\
+                (0, y^*) &\in \partial F(x^*,0); \\
+                v_F(0) = F^*(x^*, 0) &= -F^*(0,y^*) = v_F^{**}(0).
+            \end{align}
+    \end{itemize}
+\end{theorem}
+
+The perturbation function $F$ plays an important role in Fenchel-Rockafellar duality theory. Different choices of the perturbation function will lead to different dual problems. In the rest of this section, I will introduce three widely used primal-dual pairs: Lagrange dual, Fenchel dual and gauge dual. 
+
+
+\subsection{Lagrangian dual}
+Consider the general constrained convex optimization problem:
+\begin{equation} \label{prob:general_constrained} 
     \minimize{x \in \Re^n} f(x) \st c_i(x) \leq 0 \enspace \forall i = 1, \dots, m,
 \end{equation}
-where $f:\Re^n\to\Re$ and $c_i:\Re^n\to\Re$ for all $i\in[m]$ are convex functions. The key ingredient of the Lagrangian duality is the \emph{Lagrangian function}
+where $f:\Re^n\to\Re$ and $c_i:\Re^n\to\Re$ for all $i\in[m]$ are convex functions. In this case, the perturbation function is defined as 
+\begin{equation}
+    F(x, u) = f(x) + \sum_{i = 1}^m \delta_{\leq 0}(c_i(x) + u_i).
+\end{equation}
+Then we can derive the corresponding conjugate function as 
+\begin{align*}
+    -F^*(0, y) &= -\sup_{x\in\Re^n, u\in\Re^m} \ip{0}{x} + \ip{y}{u} - F(x,u)
+             \\&= -\sup_{x\in\Re^n, w\in\Re_+^m} \sum_{i=1}^m \ip{y_i}{- c_i(x) - w_i} - f(x)
+             \\&= 
+             \begin{cases}
+                 \inf_{x\in\Re^n} f(x) + \sum_{i=1}^m \ip{y_i}{c_i(x)} & \text{if} y \in\Re_+^m \\
+                 -\infty & \text{otherwise}.
+             \end{cases}
+\end{align*}
+Therefore, the Lagrangian dual to problem~\eqref{prob:general_constrained} is given by
+\begin{equation} \label{prob:general_constrained_dual}
+    \maximize{y\in\Re_+^m} \minimize{x \in \Re^n} f(x) + \sum_{i=1}^m \ip{y_i}{c_i(x)}.
+\end{equation}
+The following theorem characterizes the duality for the Lagrangian primal-dual pair. 
+
+\begin{theorem}[Lagrangian duality] 
+    Let $p^*$ and $d^*$ denote respectively the optimal values for the Lagrangian primal-dual pair:~\eqref{prob:general_constrained} and~\eqref{prob:general_constrained_dual}. 
+    \item \textbf{Weak duality}. $p^* \geq d^*$. 
+    \item \textbf{Strong duality}. 
+    If there exist an interior-point feasible point $\hat x$ for the primal problem~\eqref{prob:general_constrained}, i.e. $c_i(\hat x) < 0$ for $i = 1,\dots,m$, then $p^* = d^*$. Furthermore, let $x^*$ and $y^*$ denote respectively the optimal solutions to the primal-dual pair:~\eqref{prob:general_constrained} and~\eqref{prob:general_constrained_dual}, then 
+    \[y_i^*c_i(x^*) = 0 \enspace \forall i = 1,\dots,m.\]
+\end{theorem}
+
 
 \subsection{Fenchel duality}
+Consider the following optimization problem 
+\begin{equation} \label{prob:general_fenchel} 
+    \minimize{x \in \Re^n} f(x) + g(Mx),
+\end{equation}
+where $f:\Re^n\to\Re$ and $g:\Re^m\to\Re$ are closed convex functions, and $M:\Re^n\to\Re^m$ is a linear operator. In this case, the perturbation function is defined as 
+\begin{equation}
+    F(x, u) = f(x) + g(Mx + u).
+\end{equation}
+Then we can derive the corresponding conjugate function as
+\begin{align*}
+    -F^*(0, y) &= -\sup_{x\in\Re^n, u\in\Re^m} \ip{0}{x} + \ip{y}{u} - f(x) - g(Mx + u)
+             \\&= -\sup_{x\in\Re^n} \left\{\sup_{u\in\Re^m} \ip{y}{Mx + u} - g(Mx + u)\right\} - f(x) - \ip{y}{Mx}
+             \\&= - g^*(y) - \sup_{x\in\Re^n}\ip{-M^*y}{x} - f(x) 
+             \\&= - g^*(y) - f(-M^*y).
+\end{align*}
+Therefore, the Fenchel dual to problem~\eqref{prob:general_fenchel} is given by
+\begin{equation} \label{prob:general_fenchel_dual}
+    \maximize{y\in\Re^m} - g^*(y) - f(-M^*y).
+\end{equation}
+The following theorem characterizes the duality for the Fenchel primal-dual pair. 
+
+\begin{theorem}[Fenchel duality] 
+    Let $p^*$ and $d^*$ denote respectively the optimal values for the Fenchel primal-dual pair:~\eqref{prob:general_fenchel} and~\eqref{prob:general_fenchel_dual}. 
+    \item \textbf{Weak duality}. $p^* \geq d^*$. 
+    \item \textbf{Strong duality}. 
+    If $0\in\int(\dom g - M\dom f)$, then $p^* = d^*$. Furthermore, let $x^*$ and $y^*$ denote respectively the optimal solutions to the primal-dual pair:~\eqref{prob:general_fenchel} and~\eqref{prob:general_fenchel_dual}, then the following relationships hold
+    \begin{align*}
+          y^* &\in \partial g(Mx^*) \cap (M^*)^{-1}\partial f(x^*) \tand
+        \\x^* &\in \partial f^*(-M^*y^*)\cap M^{-1}\partial g^*(y^*).
+    \end{align*}
+\end{theorem}
+
+
+
 
 \subsection{Gauge duality}
+Consider the following gauge optimization problem 
+\begin{equation} \label{prob:general_gauge} 
+    \minimize{x \in \Re^n} \gauge\Cs(x) \st Mx = b,
+\end{equation}
+where $\Cscr\subseteq\Re^n$ is a convex set and $\gauge\Cs$ is the corresponding gauge function, $M:\Re^n\to\Re^m$ is a linear operator, and $b\in\Re^m$ is a vector. By setting 
+$\lambda \coloneqq 1/\gauge\Cs(x)$ and $w \coloneqq \lambda x$, problem~\eqref{prob:general_gauge} can be expressed as 
+\begin{equation} \label{prob:general_gauge2} 
+    \inf_{\lambda > 0, w \in \Re^n} \frac{1}{\lambda} \st w \in \Cscr \tand Mw = \lambda b.
+\end{equation}
+Note that minimizing $1/\lambda$ is equivalent to minimizing $-\lambda$ for $\lambda \geq 0$. In this case, the perturbation function is defined as 
+\begin{equation}
+    F(\lambda, w, u) = -\lambda + \delta\Cs(w) + \delta_{\{0\}}(\lambda b - Mw + u) + \delta_{\geq 0}(\lambda). 
+\end{equation}
+Then we can derive the corresponding conjugate function as
+\begin{align*}
+    -F^*(0, y) &= -\sup_{\lambda\in\Re, w\in\Re^n, u\in\Re^m} \ip{y}{u} + \lambda - \delta\Cs(w) - \delta_{\{0\}}(\lambda b - Mw + u) - \delta_{\geq 0}(\lambda)
+    \\&= -\sup_{\lambda\in\Re, w\in\Re^n} \lambda - \delta\Cs(w) - \delta_{\geq 0}(\lambda) - \ip{\lambda b - Mw}{y}
+    \\&= -\sup_{\lambda\geq 0} \delta\Cs^*(M^*y) + \lambda ( 1 - \ip{b}{y} )
+    \\&= 
+        \begin{cases}
+            -\delta\Cs^*(M^*y) & \text{if} \ip{b}{y} \geq 1 \\
+            -\infty & \text{otherwise}.
+        \end{cases}
+\end{align*}
+Therefore, the gauge dual to problem~\eqref{prob:general_gauge} is given by
+\begin{equation} \label{prob:general_gauge_dual}
+    \maximize{y\in\Re^m} -\delta\Cs^*(M^*y) \st \ip{b}{y} \geq 1.
+\end{equation}
+The following theorem characterizes the duality for the gauge primal-dual pair. 
+
+\begin{theorem}[Gauge duality] 
+    Let $p^*$ and $d^*$ denote respectively the optimal values for the gauge primal-dual pair:~\eqref{prob:general_gauge} and~\eqref{prob:general_gauge_dual}. 
+    \item \textbf{Weak duality}. If both primal problem~\eqref{prob:general_gauge} and dual problem~\eqref{prob:general_gauge_dual} are feasible, then $p^* d^* \geq 1$. 
+    \item \textbf{Strong duality}. If either primal problem~\eqref{prob:general_gauge} or dual problem~\eqref{prob:general_gauge_dual} is strictly feasible and the other is feasible, then $p^* d^* = 1$. Furthermore, let $x^*$ and $y^*$ denote respectively the optimal solutions to the primal-dual pair:~\eqref{prob:general_gauge} and~\eqref{prob:general_gauge_dual}, then 
+    \[\ip{x^*}{M^*y^*} = \gauge\Cs(x^*)\delta\Cs^*(M^*y^*).\]
+    
+\end{theorem}
 
 \section{Structured optimization}
 
+Convex optimization provides a valuable computational framework that renders many problems tractable because of the range of powerful algorithms that can be brought to the task. The key is that a certain mathematical structure, i.e., convexity of the functions and sets defining the problem—lays open an enormous range of theoretical and algorithmic tools that lend themeselves astonishingly well to computation. There are limits, however, to the scalability of general-purpose algorithms for convex optimization. As has been recognized in the optimization and related communities for at least the past decade, significant efficiencies can be gained by acknowledging the latent structure in the solution itself, coupled with the overarching structure provided by convexity.
+
+Structured optimization proceeds along these lines by using a prescribed set of atoms from which to assemble an optimal solution. The atomic decomposition of a vector $x\in\Re^n$ with respect to an atomic set
+$\Ascr\subset\Re^n$ is given by the weighted superposition
+\begin{equation}
+  x = \sum_{a\in\Ascr} c_a a, \quad c_a\ge0 \quad \forall a\in\Ascr.
+\end{equation}
+Each coefficient $c_a$ in the atomic decomposition measures the contribution of
+the corresponding atom $a$ toward the representation of $x$. Intuitively, an
+atomic decomposition reveals structural information implicit in a vector, with
+large coefficients in the decomposition indicating the more significant
+structures.
+
+Within the context of an optimization problem, the atomic decomposition reveals
+structural elements most significant in the minimization process.
+In the simplest case, the atoms $\Ascr$ may be formed from the collection of
+signed canonical unit vectors $\{\pm e_1,\ldots,\pm e_n\}$, which leads to the
+atomic decomposition
+\[
+  x = \sum_{j=1}^n c_j a_j,
+  \quad
+  c_j: = |x_j|,
+  \quad
+  a_j:= (\sgn x_j)\cdot e_j.
+\]
+Trivially, the most significant atoms thus correspond to the variables $x_j$ in
+the vector $x=(x_1,\ldots,x_n)$ with the largest magnitude.
+
+This generic model for atomic decompositions was promoted by~\citet{cds98} in the context of sparse signal decomposition, and more recently, by~\citet{chandrasekaran2012convex}, who were concerned with obtaining sparse solutions to linear inverse problems. 
+
+We are particularly interested in the question of determining which of the atoms
+in $\Ascr$ are essential to the atomic decomposition of $x$, and conversely,
+which atoms can be safely ignored. 
+
+
+
 \section{Federated optimization}
+
+
+\section{Roadmap}
+
+
