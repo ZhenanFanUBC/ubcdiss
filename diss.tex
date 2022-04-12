@@ -170,6 +170,8 @@
 \usepackage{url}
 \urlstyle{sf}	% typeset urls in sans-serif
 
+%% math
+\usepackage{amsthm}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -285,6 +287,12 @@
 \renewcommand{\sectionautorefname}{Section}
 \renewcommand{\subsectionautorefname}{Section}
 \renewcommand{\subsubsectionautorefname}{Section}
+\newcommand{\definitionautorefname}{Definition}
+\newcommand{\propositionautorefname}{Proposition}
+\newcommand{\assumptionautorefname}{Assumption}
+\newcommand{\corollaryautorefname}{Corollary}
+\newcommand{\exampleautorefname}{Example}
+\newcommand{\algorithmautorefname}{Algorithm}
 
 %% New Theorems
 \newtheorem{assumption}{Assumption}
@@ -293,6 +301,11 @@
 \newtheorem{corollary}{Corollary}
 \newtheorem{theorem}{Theorem}
 \newtheorem{lemma}{Lemma}
+\newtheorem{example}{Example}
+
+%% Algorithm
+\usepackage[ruled,vlined,linesnumbered,inoutnumbered,algochapter]{algorithm2e} 
+
 
 %% If you have long page numbers (e.g., roman numbers in the 
 %% preliminary pages for page 28 = xxviii), you might need to
@@ -428,18 +441,19 @@
 %    1. Introduction
 \include{intro}
 
-%    2. Main body
-% Generally recommended to put each chapter into a separate file
-%\include{relatedwork}
-%\include{model}
-%\include{impl}
-%\include{discussion}
-%\include{conclusions}
+%    2. Duality in structured optimization
+\include{dual-struc-opt}
 
-%    3. Notes
-%    4. Footnotes
+%    3. Applications of duality in structured optimization
+\include{app-dual-struc-opt.tex}
 
-%    5. Bibliography
+%    4. Duality in structured optimization
+\include{dual-fed-opt}
+
+%    5. Application of structured optimization in federated learning
+\include{app-struc-opt-fed-learn}
+
+%    6. Bibliography
 \begin{singlespace}
 \raggedright
 \bibliographystyle{abbrvnat}

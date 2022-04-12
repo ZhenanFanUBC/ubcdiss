@@ -11,7 +11,7 @@
 
   
 
-\section{Notations and preliminaries}
+\section{Notations and preliminaries} \label{sec:notation}
 
 In this section, we introduce some standard notations and definitions that will be used in this thesis. 
 
@@ -20,9 +20,19 @@ In this section, we introduce some standard notations and definitions that will 
     \[\lambda x + (1-\lambda) y \in \Cscr.\]
 \end{definition}
 
+\begin{definition}[Polar set] \label{def:polar_set}
+    For any convex set $\Cscr \subseteq \Re^n$, its polar set is given by 
+    \[\Cscr\polar=\{z | \ip x z \le 1 \mbox{\ for all\ } x\in\Cscr \}.\]
+\end{definition}
+
 \begin{definition}[Gauge function] \label{def:gauge}
     Given a set $\Ascr \subseteq \Re^n$, the gauge function $\gauge\As:\Re^n\to\Re$ is defined as the Minkowski functional to the closed convex hull of $\Ascr$, i.e. 
     \[\gauge\As(x) = \inf\left\{\mu > 0 \mid x \in \mu\cl\conv(\Ascr\cup\{0\})\right\}.\]
+\end{definition}
+
+\begin{definition}[Support function] \label{def:support-fn}
+    Given a set $\Ascr \subseteq \Re^n$, the support function $\sigma\As:\Re^n\to\Re$ is defined as  
+    \[\sigma\As(z) = \sup\{\ip{a}{z} | a\in\Ascr\cup\{0\}\}.\]
 \end{definition}
 
 \begin{itemize}
@@ -31,7 +41,7 @@ In this section, we introduce some standard notations and definitions that will 
     \item adjoint operator
 \end{itemize}
 
-\section{Duality in optimization}
+\section{Duality in optimization} \label{sec:dual-opt}
 
 Modern treatment of duality in convex optimization is based on an interpretation of multipliers as giving sensitivity information relative to perturbations in the problem data. The perturbation framework pioneered by \citet{rockafellar1970convex} plays an important rule in the duality theory. Here we briefly summarize this framework. 
 
@@ -55,7 +65,7 @@ This set-up immediately yields the primal-dual pair
 By the property~\eqref{eq:value_fn_property} of the perturbation function $F$, we can see that problem~\eqref{prob:general_primal} is equivalent to the general convex optimization problem~\eqref{prob:general_cvx}. The problem~\eqref{prob:general_dual} is known as the \emph{dual} problem of~\eqref{prob:general_cvx} corresponding to the perturbation function $F$. 
 The following theorem, developed by \citet{rockafellar1998variational}, describes the relationship between the primal-dual pair:~\eqref{prob:general_primal} and~\eqref{prob:general_dual}. 
 
-\begin{theorem}[Weak and strong duality~\protect{\citep[Theorem~11.39]{rockafellar1998variational}}] Consider the primal-dual pair:~\eqref{prob:general_primal} and~\eqref{prob:general_dual}, where $F: \Re^n \times \Re^m \to \Re$ is a proper, closed and convex function. The following properties shold. 
+\begin{theorem}[Weak and strong duality~\protect{\citep[Theorem~11.39]{rockafellar1998variational}}] Consider the primal-dual pair:~\eqref{prob:general_primal} and~\eqref{prob:general_dual}, where $F: \Re^n \times \Re^m \to \Re$ is a proper, closed and convex function. The following properties hold. 
     \begin{itemize}
         \item \textbf{Weak duality}. The inequality $v_F(0) \geq v_F^{**}(0)$ always holds. 
         \item \textbf{Strong duality}. If $0 \in \ri\dom v_F \cup \ri\dom v_F^{**}$, then $v_F(0) = v_F^{**}(0)$. 
@@ -180,13 +190,13 @@ The following theorem characterizes the duality for the gauge primal-dual pair.
     
 \end{theorem}
 
-\section{Structured optimization}
+\section{Structured optimization} \label{sec:struc-opt}
 
 Convex optimization provides a valuable computational framework that renders many problems tractable because of the range of powerful algorithms that can be brought to the task. The key is that a certain mathematical structure, i.e., convexity of the functions and sets defining the problem—lays open an enormous range of theoretical and algorithmic tools that lend themeselves astonishingly well to computation. There are limits, however, to the scalability of general-purpose algorithms for convex optimization. As has been recognized in the optimization and related communities for at least the past decade, significant efficiencies can be gained by acknowledging the latent structure in the solution itself, coupled with the overarching structure provided by convexity.
 
 Structured optimization proceeds along these lines by using a prescribed set of atoms from which to assemble an optimal solution. The atomic decomposition of a vector $x\in\Re^n$ with respect to an atomic set
 $\Ascr\subset\Re^n$ is given by the weighted superposition
-\begin{equation}
+\begin{equation} \label{eq:atomic-decomp}
   x = \sum_{a\in\Ascr} c_a a, \quad c_a\ge0 \quad \forall a\in\Ascr.
 \end{equation}
 Each coefficient $c_a$ in the atomic decomposition measures the contribution of
@@ -212,11 +222,7 @@ the vector $x=(x_1,\ldots,x_n)$ with the largest magnitude.
 
 This generic model for atomic decompositions was promoted by~\citet{cds98} in the context of sparse signal decomposition, and more recently, by~\citet{chandrasekaran2012convex}, who were concerned with obtaining sparse solutions to linear inverse problems. 
 
-We are particularly interested in the question of determining which of the atoms
-in $\Ascr$ are essential to the atomic decomposition of $x$, and conversely,
-which atoms can be safely ignored. 
-
-
+In this thesis, we want to answer the question of determining which of the atoms in the atomic set $\Ascr$ are essential to the atomic decomposition of $x$, and conversely, which atoms can be safely ignored. Our approach studies the atomic decomposition framework from a geometric perspective and is based on a certain duality correspondence particular to gauge functions and to convex cones that are implicit in their definition.
 
 \section{Federated optimization}
 
