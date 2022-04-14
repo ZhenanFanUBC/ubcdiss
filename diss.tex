@@ -293,6 +293,7 @@
 \newcommand{\corollaryautorefname}{Corollary}
 \newcommand{\exampleautorefname}{Example}
 \newcommand{\algorithmautorefname}{Algorithm}
+\newcommand{\lemmaautorefname}{Lemma}
 
 %% New Theorems
 \newtheorem{assumption}{Assumption}
@@ -305,6 +306,17 @@
 
 %% Algorithm
 \usepackage[ruled,vlined,linesnumbered,inoutnumbered,algochapter]{algorithm2e} 
+
+% checkmark
+\usepackage{pifont}% http://ctan.org/pkg/pifont
+\newcommand{\cmark}{\ding{51}}%
+\newcommand{\xmark}{\ding{55}}%
+
+% bbm
+\usepackage{bbm}
+
+% subfigure
+\usepackage{subcaption}
 
 
 %% If you have long page numbers (e.g., roman numbers in the 
@@ -441,14 +453,26 @@
 %    1. Introduction
 \include{intro}
 
+\part{Structured Optimization}
+
 %    2. Duality in structured optimization
 \include{dual-struc-opt}
 
-%    3. Applications of duality in structured optimization
-\include{app-dual-struc-opt.tex}
+%    3. Deconvolution of mixed signals via structured optimization
+\include{app-sig-demix.tex}
+
+%    4. Primal-rerieval strategy for structured optimization
+\include{app-primal-retrieval.tex}
+
+%    5. AtomicOpt.jl: a Julia package for structured optimization
+\include{app-atomic-opt.tex}
+
+\part{Federated Optimization}
 
 %    4. Duality in structured optimization
 \include{dual-fed-opt}
+
+\part{Application of structured optimization in federated learning}
 
 %    5. Application of structured optimization in federated learning
 \include{app-struc-opt-fed-learn}
