@@ -5,43 +5,121 @@
 
 \begin{itemize}
     \item Optimization approaches have enjoyed prominence in machine learning, data mining and signal processing because of their wide applicability and attractive theoretical properties.
+    \item Optimization formulations and methods are proving to be vital in designing algorithms to extract essential knowledge from huge volumes of data. 
     \item For a long time, it has been recognized that looking at the dual of an optimization problem may drastically simplify its solution or enjoy better convergence rate.
     \item In this thesis, we focus on the effectiveness of duality in two classes of optimization problems: structured optimization and federated optimization. 
 \end{itemize}
 
   
 
-\section{Notations and preliminaries} \label{sec:notation}
+\section{Basic definitions and notations} \label{sec:1-1}
 
-In this section, we introduce some standard notations and definitions that will be used in this thesis. 
+In this section, we introduce some basic notations and definitions that will be used in this thesis. We use capital letters $A, B, \dots$ to denote matrices or linear operators, lowercase letters $a, b, \dots$ to denote vectors, calligraphic letters $\Ascr, \Bscr, \dots$ to denote sets, and Greek letters $\alpha, \beta, \dots$ to denote scalars.
 
-\begin{definition}[Convex set] \label{def:cvx_set}
-    A set $\Cscr \subseteq \Re^n$ is convex if for any $\lambda \in [0,1]$, any $x, y \in \Cscr$, 
-    \[\lambda x + (1-\lambda) y \in \Cscr.\]
-\end{definition}
+We work with $n$-vectors in $\Real^n$ and $p$-by-$n$ matrices in $\Real^{p\times
+n}$. The restriction to real-valued vectors and matrices considerably simplifies
+our development, though many of the ideas set forth in this thesis extend to
+more general functional spaces, as described by \citet{zalinescu2002convex} and
+\citet{bauschke2011convex}.
 
-\begin{definition}[Polar set] \label{def:polar_set}
-    For any convex set $\Cscr \subseteq \Re^n$, its polar set is given by 
-    \[\Cscr\polar=\{z | \ip x z \le 1 \mbox{\ for all\ } x\in\Cscr \}.\]
-\end{definition}
+Let $e_i$ denote the $i$th canonical unit vector, i.e., the vector of all zeros
+except a single 1 in the $i$th position. The dot product of two $n$-vectors $x$
+and $z$ is $\ip x z = \sum_{j} x_j z_j$. The dot product of two $p$-by-$n$
+matrices $X$ and $Z$ is the trace inner product $\ip X Z = \trace(X\T Z) =
+\sum_{ij}X_{ij}Z_{ij}$.
 
-\begin{definition}[Gauge function] \label{def:gauge}
-    Given a set $\Ascr \subseteq \Re^n$, the gauge function $\gauge\As:\Re^n\to\Re$ is defined as the Minkowski functional to the closed convex hull of $\Ascr$, i.e. 
-    \[\gauge\As(x) = \inf\left\{\mu > 0 \mid x \in \mu\cl\conv(\Ascr\cup\{0\})\right\}.\]
-\end{definition}
+A vector norm $\|x\|$ always refers to the 2-norm, i.e., $\|x\| = \sqrt{\ip{x}{x}}$ unless otherwise specified. Matrix norms always refer to the Schatten norm, e.g., if $(s_1, s_2,\ldots)$ are
+the singular values of $X$, then
+\[
+  \|X\|_1 = \sum_i s_i,
+  \quad \|X\|_2=\Big(\sum_i s_i^2\Big)^{1/2},
+  \text{and} \|X\|_\infty=\max_i s_i.
+\]
 
-\begin{definition}[Support function] \label{def:support-fn}
-    Given a set $\Ascr \subseteq \Re^n$, the support function $\sigma\As:\Re^n\to\Re$ is defined as  
-    \[\sigma\As(z) = \sup\{\ip{a}{z} | a\in\Ascr\cup\{0\}\}.\]
-\end{definition}
+The adjoint $M^*$ of any linear map $M$ is the unique
+linear map that satisfies the relationship $\ip{Mx}{z}=\ip{x}{M^*z}$ for all $x$ and $z$. Thus, for
+the linear map $M:\Real^n\to\Real^m$, the product of the adjoint and an
+$m$-vector $y$ is $M^*y = \sum_{i=1}^m y_i (Me_i)$. For the linear map
+$M:\Real^{p\times n}\to\Real^m$, the forward and adjoint maps take the form
+\begin{equation} \label{eq:mat-map}
+  M X = \begin{bmatrix}
+    \ip{M_1}{X} \\ \vdots \\ \ip{M_m}{X}
+  \end{bmatrix}  
+  \quad\mbox{and}\quad
+  M^*y = \sum_{i=1}^m y_i M_i,
+\end{equation}
+where each $M_i$ is a $p$-by-$n$ matrix. The notation $X\succeq0$
+indicates that $X$ is symmetric positive definite.
 
-\begin{itemize}
-    \item convex function
-    \item convex conjugate 
-    \item adjoint operator
-\end{itemize}
+A set $\Cscr$ is convex if
+\[
+    \begin{cases}
+        \lambda &\in [0,1]\\
+        x &\in \Cscr\\
+        y &\in \Cscr
+    \end{cases}
+    \Rightarrow 
+    \lambda x + (1-\lambda)y \in \Cscr. 
+\]
+For any convex set $\Cscr$, its polar set is given by 
+\begin{equation} \label{eq-polar-set}
+    \Cscr\polar=\{z | \ip x z \le 1 \mbox{\ for all\ } x\in\Cscr \}.
+\end{equation}
+The indicator to $\Cscr$ is the
+function
+\[
+  \delta\Cs(x) = \begin{cases}
+    0 & \mbox{if $x\in\Cscr$;}
+\\ +\infty & \mbox{otherwise}.
+  \end{cases}
+\]
+The normal cone to $\Cscr$ at $x\in\Cscr$ is defined as
+\[\Nscr\Cs(x) = \{d \mid \ip{d}{u - x} \leq 0 \mbox{ for all } u \in \Cscr\}.\]
+The Euclidean projection onto $\Cscr$ is denoted
+\[\proj\Cs(x) = \argmin{u \in \Cscr} \ \|x - u\|_2,\]
+which defines the distance of a point to the set $\Cscr$, denoted by
+\[\dist\Cs(x) = \|x - \proj\Cs(x)\|_2.\]
 
-\section{Duality in optimization} \label{sec:dual-opt}
+For any set $\Ascr$, its convex hull contains all
+weighted averages of the elements of the set, denoted
+\[
+  \conv \Ascr =
+  \left\{\sum_{i=1}^m \alpha_i x_i ~\bigg\vert~ x_i\in\Ascr,\ \alpha_i\ge0,\ \sum_{i=1}^m\alpha_i=1 \right\},
+\]
+for some some positive integer $m$. The conic extension of $\Ascr$ is defined by 
+\[
+  \cone\Ascr = \{\alpha d ~|~ d\in\Ascr,\ \alpha\ge0\}.
+\]
+The closure, boundary and relative interior, respectively,
+of $\Ascr$ denoted $\cl\Ascr$, $\bnd\Ascr$ and $\ri\Ascr$. 
+The gauge function with respect to $\Ascr$ is defined as the Minkowski functional to the closed convex hull of $\Ascr$, i.e.,
+\begin{equation} \label{eq:gauge1}
+    \gauge\As(x) = \inf\left\{\mu > 0 ~|~ x \in \mu\cl\conv(\Ascr\cup\{0\})\right\}.
+\end{equation}
+The support function with respect to $\Ascr$ is defined as 
+\begin{equation} \label{eq:support}
+    \sigma\As(z) = \sup\{\ip{a}{z} ~|~ a\in\Ascr\cup\{0\}\}.
+\end{equation}
+The descent cone of the set $\Ascr$ at point $x$ is defined as 
+\[\Dscr(\Ascr, x) = \cone\{d\in \Re^n ~|~ \gauge\As(x + d) \leq \gauge\As(x)\}\]
+
+Consider a differentiable function $f:\Real^n\to\Real\cup\{+\infty\}$. The function $f$ is convex if $f$ satisfies
+\[f(y) \geq f(y) + \ip{\nabla f(x)}{y-x} \enspace \forall x, y \in \Re^n.\]
+The function $f$ is $\alpha$-strongly convex for some $\alpha>0$ if $f$ satisfies
+\[f(y) \geq f(x) + \ip{\nabla f(x)}{y-x} + \frac{\alpha}{2}\|x-y\|^2 \enspace \forall x, y \in \Re^n.\]
+The function $f$ is $\beta$-smooth for some $\beta>0$ if $f$ satisfies
+\[f(y) \leq f(x) + \ip{\nabla f(x)}{y-x} + \frac{\beta}{2}\|x-y\|^2 \enspace \forall x, y \in \Re^n.\]
+The function $f$ is $\vartheta$-Lipschitz for some $\vartheta>0$ if $f$ satisfies
+\[|f(x) - f(y)| \leq \vartheta\|x-y\| \enspace \forall x, y \in \Re^n.\]
+The domain is denoted
+$\dom f = \{x~|~f(x)<+\infty\}$, and the convex conjugate is denoted
+\[
+  f^*(z) = \sup_{x\in\Re^n}\{\ip x z - f(x) \}.
+\] 
+
+
+
+\section{Duality in optimization} \label{sec:1-2}
 
 Modern treatment of duality in convex optimization is based on an interpretation of multipliers as giving sensitivity information relative to perturbations in the problem data. The perturbation framework pioneered by \citet{rockafellar1970convex} plays an important rule in the duality theory. Here we briefly summarize this framework. 
 
@@ -190,7 +268,7 @@ The following theorem characterizes the duality for the gauge primal-dual pair.
     
 \end{theorem}
 
-\section{Structured optimization} \label{sec:struc-opt}
+\section{Structured optimization} \label{sec:1-3}
 
 Convex optimization provides a valuable computational framework that renders many problems tractable because of the range of powerful algorithms that can be brought to the task. The key is that a certain mathematical structure, i.e., convexity of the functions and sets defining the problem—lays open an enormous range of theoretical and algorithmic tools that lend themeselves astonishingly well to computation. There are limits, however, to the scalability of general-purpose algorithms for convex optimization. As has been recognized in the optimization and related communities for at least the past decade, significant efficiencies can be gained by acknowledging the latent structure in the solution itself, coupled with the overarching structure provided by convexity.
 
@@ -222,11 +300,53 @@ the vector $x=(x_1,\ldots,x_n)$ with the largest magnitude.
 
 This generic model for atomic decompositions was promoted by~\citet{cds98} in the context of sparse signal decomposition, and more recently, by~\citet{chandrasekaran2012convex}, who were concerned with obtaining sparse solutions to linear inverse problems. 
 
-In this thesis, we want to answer the question of determining which of the atoms in the atomic set $\Ascr$ are essential to the atomic decomposition of $x$, and conversely, which atoms can be safely ignored. Our approach studies the atomic decomposition framework from a geometric perspective and is based on a certain duality correspondence particular to gauge functions and to convex cones that are implicit in their definition.
+In this thesis, we want to answer the question of determining which of the atoms in the atomic set $\Ascr$ are essential to the atomic decomposition of $x$, and conversely, which atoms can be safely ignored. Our approach studies the atomic decomposition framework from a geometric perspective and is based on a certain duality correspondence particular to gauge functions and to convex cones that are implicit in their definition. We further show that this duality correspondence allows us to develop efficient and scalable algorithms for the structured optimization problems, and design new structured optimization model for real world applications. We provide a more detailed roadmap in \autoref{sec:1-4}. 
 
-\section{Federated optimization}
+\section{Federated learning} \label{sec:1-4}
+
+Building large and powerful machine learning models often needs large amounts of training data. In many industry-scale applications, training data is distributed in the form of silos, that is, training data is obtained and maintained by many data owners instead of being centralized at the place of a single owner or a data center. Because of industrial competition, privacy concerns, legal restrictions, and many other possible reasons, integrating or centralizing data from different sources faces enormous resistance and is often even infeasible~\cite{li2020review}. Federated learning, originally proposed by~\citet{federated2016}, is promising for training machine learning models on distributed data sources. It facilitates collaboration among a group of data owners (aka.~``clients'') and, at the same time, preserves their privacy. The central idea of federated learning is to periodically aggregate local models from clients to produce a more general and capable global model.
+
+Federated learning can be further be classified into two main categories: horizontal federated learning and vertical federated learning~\cite{yang2019federated}. Broadly speaking, horizontal federated learning refers to the scenarios where various clients' data sets share the same feature space but have separate sample IDs, and vertical federated learning refers to the scenarios where data sets owned by different clients share the identical sample IDs but have distinctive features. A simple characterization is shown in \autoref{fig:hfl_and_vfl}. 
+
+\begin{figure}[t] 
+    \begin{subfigure}{.48\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{./figures/hfl_illustration.pdf}
+      \captionsetup{justification=centering}
+      \caption{Horizontal federated learning.}
+      \label{fig:hfl}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{.48\textwidth}
+      \centering
+      \includegraphics[width=\linewidth]{./figures/vfl_illustration.pdf}
+      \captionsetup{justification=centering}
+      \caption{Vertical federated learning.}
+      \label{fig:vfl}
+    \end{subfigure}
+    \captionsetup{justification=centering}
+    \caption{Characterization of horizontal and vertical federated learning.}
+    \label{fig:hfl_and_vfl}
+\end{figure}
 
 
-\section{Roadmap}
+At the physical level, a federated learning system is often comosed of two components: clients and a central server. The learning process in federated learning can be formulated as a distributed optimization problem, which is also known as federated optimization. As characterized and formalized by~\citet{wang2021field},~\citet{li2020federated} and~\citet{li2019convergence}, there are several important characteristics that distinguish FO from standard machine learning and distributed optimization. 
+\begin{assumption}[Governing assumptions for federated optimization] \label{assum:govern}
+The following assumptions hold for FO. 
+  \begin{itemize}
+    \item \textbf{Slow Communication.}  Communication between clients and a central server is assumed to be the main bottleneck and dominates any computational work done at each of the clients. 
+    \item \textbf{Data Privacy.} Clients want to keep their local data private, i.e., their data can not be accessed by any other client nor by the central server.
+    \item \textbf{Data heterogeneity.} The training data are not independent and identically distributed (i.i.d.). In other words, a client’s local data cannot be regarded as samples drawn from single overall distribution.
+    \item \textbf{Partial Participation.} Unlike traditional distributed learning systems, an FL system does not have control over individual client devices, and clients may have limited availability for connection. 
+\end{itemize}
+\end{assumption}
+
+In this thesis, want to develop an efficient and scalable algorithm for the federated optimization problem, which satisfies these governing assumptions (\autoref{assum:govern}). We study the federated optimization problem from a dual perspective and propose a new algorithm termed federated dual coordinate descent (FedDCD), which is based on a type of coordinate descent method developed by \citet{necoara2017random}. 
+
+The effectiveness of federated learning depends on the active participation of motivated clients. Another important question in federated learning is how to ensure the clients’ long-term engagement, and how to motivate more clients' participation. One possible practical solution is to recompense the participated clients according to their contribution. In this thesis, we want to design fair and efficient contribution valuation techniques for both horizontal and vertical federated learning. Our approach relies on the concepts and tools from structured optimization. We provide a more detailed roadmap in \autoref{sec:1-4}. 
+
+
+
+\section{Roadmap} \label{sec:1-5}
 
 

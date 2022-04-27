@@ -294,6 +294,7 @@
 \newcommand{\exampleautorefname}{Example}
 \newcommand{\algorithmautorefname}{Algorithm}
 \newcommand{\lemmaautorefname}{Lemma}
+\newcommand{\observationautorefname}{Observation}
 
 %% New Theorems
 \newtheorem{assumption}{Assumption}
@@ -303,6 +304,7 @@
 \newtheorem{theorem}{Theorem}
 \newtheorem{lemma}{Lemma}
 \newtheorem{example}{Example}
+\newtheorem{observation}{Observation}
 
 %% Algorithm
 \usepackage[ruled,vlined,linesnumbered,inoutnumbered,algochapter]{algorithm2e} 
@@ -317,6 +319,9 @@
 
 % subfigure
 \usepackage{subcaption}
+
+% multirow in table
+\usepackage{multirow}
 
 
 %% If you have long page numbers (e.g., roman numbers in the 
@@ -450,6 +455,8 @@
 
 \acresetall	% reset all acronyms used so far
 
+\part{Background and roadmap}
+
 %    1. Introduction
 \include{intro}
 
@@ -459,23 +466,27 @@
 \include{dual-struc-opt}
 
 %    3. Deconvolution of mixed signals via structured optimization
-\include{app-sig-demix.tex}
+\include{app-sig-demix}
 
 %    4. Primal-rerieval strategy for structured optimization
-\include{app-primal-retrieval.tex}
+\include{app-primal-retrieval}
 
 %    5. AtomicOpt.jl: a Julia package for structured optimization
-\include{app-atomic-opt.tex}
+\include{app-atomic-opt}
 
 \part{Federated Optimization}
 
-%    4. Duality in structured optimization
+%    6. FedDCD: a dual approach for federated optimization
 \include{dual-fed-opt}
 
 \part{Application of structured optimization in federated learning}
 
-%    5. Application of structured optimization in federated learning
-\include{app-struc-opt-fed-learn}
+%    7. Fair data valuation in horizontal federated learning
+\include{val-hfl}
+
+%    8. Fair contribution valuation in vertical federated learning
+\include{val-vfl}
+
 
 %    6. Bibliography
 \begin{singlespace}
@@ -484,11 +495,11 @@
 \bibliography{biblio}
 \end{singlespace}
 
-\appendix
+% \appendix
 %    6. Appendices (including copies of all required UBC Research
 %       Ethics Board's Certificates of Approval)
 %\include{reb-coa}	% pdfpages is useful here
-\include{appendix}
+% \include{appendix}
 
 \backmatter
 %    7. Index
