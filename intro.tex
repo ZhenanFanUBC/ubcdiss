@@ -1,6 +1,6 @@
 %% The following is a directive for TeXShop to indicate the main file
 %%!TEX root = diss.tex
-\chapter{Introduction}
+\chapter{Background and roadmap}
 \label{ch:Introduction}
 
 \begin{itemize}
@@ -103,6 +103,8 @@ The support function with respect to $\Ascr$ is defined as
 The descent cone of the set $\Ascr$ at point $x$ is defined as 
 \[\Dscr(\Ascr, x) = \cone\{d\in \Re^n ~|~ \gauge\As(x + d) \leq \gauge\As(x)\}\]
 
+Let $\Nscr(0,I)$ denote the standard Gaussian distribution. For a compact set $\Sscr$, $\uniform(\Sscr)$ denotes the uniform ditribution over $\Sscr$. For a convex cone $\Dscr$, let $\delta(\Dscr) \coloneqq \mE_{g\sim\Nscr(0,I)} \|\proj_{\Dscr}(g)\|_2^2 $ denote the statistical dimension of the cone $\Dscr$.
+
 Consider a differentiable function $f:\Real^n\to\Real\cup\{+\infty\}$. The function $f$ is convex if $f$ satisfies
 \[f(y) \geq f(y) + \ip{\nabla f(x)}{y-x} \enspace \forall x, y \in \Re^n.\]
 The function $f$ is $\alpha$-strongly convex for some $\alpha>0$ if $f$ satisfies
@@ -116,7 +118,6 @@ $\dom f = \{x~|~f(x)<+\infty\}$, and the convex conjugate is denoted
 \[
   f^*(z) = \sup_{x\in\Re^n}\{\ip x z - f(x) \}.
 \] 
-
 
 
 \section{Duality in optimization} \label{sec:1-2}

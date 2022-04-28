@@ -3,7 +3,7 @@
 \chapter{Primal-rerieval strategy for structured optimization}
 \label{ch:App-Primal-Retrieval}
 
-\section{Background} \label{sec:intro}
+\section{Introduction} \label{sec:4-1}
 
 Consider the problem of fitting a model to data by selecting model parameters as the superposition of a limited set atomic elements taken from a given dictionary. Versions of this cardinality-constrained problem appear in a number of statistical-learning applications in machine learning \cite{tibshirani1996regression,yul06,Meinshausen06,aep08}, data mining, and signal processing~\cite{candes:2013}. In these applications, common atomic dictionaries include the set of one-hot vectors or matrices, rank-1 unit matrices, usually chosen as a mechanism to encode a notion of parsimony in the definition of the model parameters.
 
@@ -17,7 +17,7 @@ where $f:\Re^n\to\Re$ is an $L$-smooth and convex function, $M: \Re^n \to \Re^m$
 \end{equation}
 measures the complexity of $x$ with respect to the atomic set $\Ascr$.  The loss term $f(b - Mx)$ measures the quality of the fit. When $\Ascr = \{ \pm e_1,\pm e_2, \ldots,\pm e_n \}$ is the set of signed canonical unit vectors, the function $\card_\Ascr(x)$ simply counts the number of nonzero elements in $x$. Typically $k\ll n$, which indicates that we seek a feasible model parameter $x$ that has an efficient representation in terms of the atoms in $\Ascr$.
 
-For the application areas that we hope to target, the two characteristics of this feasibility problem that pose the biggest challenge to efficient implementation are the combinatorial nature of the cardinality constraint, and the high-dimensionality of the parameter space. To address the combinatorial challenge, we follow van den Berg and Friedlander~\cite{berg2008probing,berg2011sparse} and Chandrasekaran et al.~\cite{chandrasekaran2012convex}, and use the convex gauge function as a tractable proxy for the cardinality function~\eqref{eq-card-fcn}; see \eqref{eq:gauge2}. In tandem with the convexity of the loss function, this function allows us to formulate three alternative relaxed convex optimization problems that under certain conditions have approximate solutions that satisfy the feasibility problem; see problems~\eqref{prob:primal1},~\eqref{prob:primal2}, and~\eqref{prob:primal3} in \autoref{sec:probSetting}. 
+For the application areas that we hope to target, the two characteristics of this feasibility problem that pose the biggest challenge to efficient implementation are the combinatorial nature of the cardinality constraint, and the high-dimensionality of the parameter space. To address the combinatorial challenge, we follow van den Berg and Friedlander~\cite{berg2008probing,berg2011sparse} and Chandrasekaran et al.~\cite{chandrasekaran2012convex}, and use the convex gauge function as a tractable proxy for the cardinality function~\eqref{eq-card-fcn}; see \eqref{eq:gauge1}. In tandem with the convexity of the loss function, this function allows us to formulate three alternative relaxed convex optimization problems that under certain conditions have approximate solutions that satisfy the feasibility problem; see problems~\eqref{prob:primal1},~\eqref{prob:primal2}, and~\eqref{prob:primal3} in \autoref{sec:4-2}. 
 
 The high-dimensionality of the parameter space, however, may imply that it's inefficient---and maybe even practically impossible---to solve these convex relaxations because it's infeasible to directly store the approximations to a feasible solution $x$. Instead, we wish to develop methods that leverage the efficient representation that feasible solutions have in terms of the atoms in the dictionary $\Ascr$. For example, consider the case in which the dictionary is the set of ${n \times n}$ rank-one matrices, and $M$ is the trace linear operator that maps these matrices into $m$-vectors. Any method that iterates directly on the parameters $x$ requires $\BigOh(n^2+m)$ storage. An alternative is the widely-used conditional gradient method \cite{frank1956algorithm}, which requires $\BigOh( n t+m )$ storage after $t$ iterations~\cite{jaggi2013revisiting}, but also often requires a substantial number of iterations $t$ to converge. Instead of storing $x$ directly, we use the dual problems to the convex relaxations ~\eqref{prob:primal1},~\eqref{prob:primal2}, and~\eqref{prob:primal3}, which require only $\BigOh(m)$ storage, and still allow us to collect information on which atoms in $\Ascr$ participate in the construction of a feasible $x$.
 
@@ -34,10 +34,12 @@ We prove that when the atomic dictionary is polyhedral, we can set $\epsilon$ to
 We demonstrate via numerical experiments on real-world datasets that this approach is effective in practice.
 
 There are three important components in our primal-retrieval algorithm. The first is an arbitrary iterative oracle $\texttt{oracle}_{f,\Ascr,M,b}(\cdot)$ that can generate iterates $y^{(t)}$ converging to the optimal dual variable $y^*$ of any of the dual problem \Drobi. The second is an atom-identifier $\texttt{EssCone}_{\Ascr, M, k}(\cdot)$ which can map a dual variable $y$ to the cone generated from the essential atoms identified by $y$ such that any element in this cone will have cardinality at most $k$, i.e., 
-\[\texttt{EssCone}_{\Ascr, M, k}(y) \subseteq \{x \mid \card(A; x) \leq k\}.\]
+\begin{equation} \label{eq:ess_cone}
+  \texttt{EssCone}_{\Ascr, M, k}(y) \subseteq \{x \mid \card(A; x) \leq k\}.
+\end{equation}
 We make the definition of the function $\texttt{EssCone}_{\Ascr, M, k}$ explicit when the atomic set $\Ascr$ is polyhedral (\autoref{sec:polyhedral}) or spectral (\autoref{sec:spectral}). The third is the following reduced convex optimization problem,  
 \begin{equation} \label{eq:primal_recover} \tag{PR}
-    x^{(t)} \coloneqq \argmin{x} f(b - Mx) \enspace\text{subject to}\enspace x \in \Cscr^{(t)} := \texttt{EssCone}_{\Ascr, M, k}(y^{(t)}),
+    x^{(t)} \coloneqq \argmin{x} f(b - Mx) \text{subject to} x \in \Cscr^{(t)} := \texttt{EssCone}_{\Ascr, M, k}(y^{(t)}),
 \end{equation}
 by solving which we are able to retrieve a primal variable $x^{(t)}$ in each iteration $t$.
 The detailed algorithm is shown in \autoref{alg:primal_recover}. Note that our primal-retrieval strategy is not aiming to recover the optimal solutions to~\eqref{prob:primal1}, \eqref{prob:primal2} or~\eqref{prob:primal3}. These problems serve as a guidance for our atom-identification rule. The final output of \autoref{alg:primal_recover} maybe different from the optimal solutions to~\eqref{prob:primal1}, \eqref{prob:primal2} or~\eqref{prob:primal3}. 
@@ -53,7 +55,8 @@ The detailed algorithm is shown in \autoref{alg:primal_recover}. Note that our p
         \lIf{$f(b - Mx^{(t)}) \leq \alpha + \epsilon$}{break}
     }
     \Return{$x^{(t)}$}
-    \caption{primal-retrieval algorithm}\label{alg:primal_recover}
+    \caption{Primal-retrieval algorithm} 
+    \label{alg:primal_recover}
 \end{algorithm}
 
 
@@ -68,8 +71,8 @@ Another related work line is directly developing a memory-efficient primal-based
 The theoretical analysis of our primal-retrieval is related to atom-identification \cite{BurM88,hare2004identifying,hare2011identifying}, and especially some recently developed safe-screening rules \cite{Ghaoui12,wang2013lasso,liu2014safe,WangZLWY14,Raj2015ScreeningRF,BonnefoyERG15,XiangWR17,NdiayeFGS17,ZhangHLYCHW17,kuang2017screening,Atamtrk2020SafeSR,Bao20} for various kind of sparse optimization problems. Our \autoref{thm:p0} can be viewed as a generalization of the gap-safe screening rules to general atomic-sparse problems as well as more problem formulations. Some of the techniques used in our analysis are related to the facial reduction strategy from Krislock and Wolcowicz~\cite{krislock2010explicit}. 
 
 
-\section{Atomic-sparse optimization}
-\label{sec:probSetting}
+\section{Gauge-regularized optimization}
+\label{sec:4-2}
 
 In this section, we introduce various types of atomic-sparse optimization problems, which are known as the convex relaxations to the structured data-fitting problem~\eqref{eq:main_prob}. More specifically, 
 we consider the following three related gauge-regularized optimization
@@ -77,7 +80,7 @@ problems:
 \begin{align} 
   & \minimize{x}\enspace p_1(x) := f(b - Mx) + \lambda\gauge\As(x), \label{prob:primal1} \tag{P$_1$} \\
   & \minimize{x}\enspace p_2(x) := f(b - Mx) \enspace\text{subject to}\enspace \gauge\As(x) \leq \tau, \label{prob:primal2} \tag{P$_2$} \\
-  & \minimize{x}\enspace p_3(x) := \gauge\As(x)  \enspace\text{subject to}\enspace f(b - Mx) \leq \alpha, \label{prob:primal3} \tag{P$_3$}. 
+  & \minimize{x}\enspace p_3(x) := \gauge\As(x)  \enspace\text{subject to}\enspace f(b - Mx) \leq \alpha \label{prob:primal3} \tag{P$_3$}. 
 \end{align}
 It's well known that under mild conditions, these three formulations are equivalent to each other for appropriate choice of the positive parameters $\lambda, \tau$, and $\alpha$~\cite{FrieTsen:2006}. Practitioners often prefer one of these formulations depending on their application. For example, tasks related to machine learning, including feature selection and recommender system, typically feature one of the first two formulations~\cite{tibshirani1996regression,yul06,Meinshausen06}.  On the other hand, applications in signal processing and related fields, such as as compressed sensing and phase retrieval, usually use the third formulation~\cite{berg2008probing,candes:2013}. 
 
@@ -86,19 +89,19 @@ Our primal-retrieval strategy relies on the hypothesis that the atomic-sparse op
 \begin{assumption} \label{ass:blanket}
     Let $x^*$ denote the optimal solution to any of \eqref{prob:primal1}, \eqref{prob:primal2} or \eqref{prob:primal3}. Then $x^*$ is feasible for \eqref{eq:main_prob}, i.e., 
     \[f(b - Mx^*) \leq \alpha \tand |\suppa(x^*)| \leq k.\]
- \end{assumption}
+\end{assumption}
 
-As we mentioned in \autoref{sec:intro}, for the sake of less space complexity, people will solve the corresponding dual problems. The Fenchel-Rockafellar duals for problems~\eqref{prob:primal1}--\eqref{prob:primal3} can be formulated as:
+As we mentioned in \autoref{sec:4-1}, for the sake of less space complexity, people will solve the corresponding dual problems. The Fenchel-Rockafellar duals for problems~\eqref{prob:primal1}--\eqref{prob:primal3} can be formulated as:
 \begin{align} 
-  & \minimize{y}\enspace d_1(y) := f^*(y) - \ip{b}{y} \enspace\text{subject to}\enspace \sigma\As(M^*y) \leq \lambda, \label{prob:dual1} \tag{D$_1$}\\
-  & \minimize{y}\enspace d_2(y) := f^*(y) - \ip{b}{y} + \tau\sigma\As(M^*y), \label{prob:dual2} \tag{D$_2$}\\
-  & \minimize{y}\enspace \inf_{\beta > 0} \,d_3(y, \beta)
+  & \minimize{y}  d_1(y) := f^*(y) - \ip{b}{y} \text{subject to} \sigma\As(M^*y) \leq \lambda, \label{prob:dual1} \tag{D$_1$}\\
+  & \minimize{y} d_2(y) := f^*(y) - \ip{b}{y} + \tau\sigma\As(M^*y), \label{prob:dual2} \tag{D$_2$}\\
+  & \minimize{y} \inf_{\beta > 0} \enspace d_3(y, \beta)
     := \beta \left(
       f^*\left( y/\beta \right) + \alpha
-    \right) - \ip{b}{y} \enspace\text{subject to}\enspace \sigma\As(M^* y) \leq 1, \label{prob:dual3} \tag{D$_3$}
+    \right) - \ip{b}{y} \label{prob:dual3} \tag{D$_3$}\\
+  & \mbox{subject to}\enspace \sigma\As(M^* y) \leq 1. \nonumber
 \end{align}
-where $f^*(y) = \sup_w \enspace \ip{y}{w} - f(w)$ is the convex conjugate
-function of $f$, and $M^*:\Re^m \to \Re^n$ is the adjoint operator of $M$, which satisfies $\ip{Mx}{y} = \ip{x}{M^*y}$ for all $x\in\Re^n$ and $y\in\Re^m$. The derivation of these dual problems can be found in \autoref{app:duals}. 
+The derivation of these dual problems can be found in \autoref{app:duals}. 
 
 \section{Atom identification} \label{sec:atom_iden}
 
@@ -620,7 +623,7 @@ The proof of this Theorem relies on the duality between smoothness and strong co
 \end{proof}
 
 
-\subsection{Upper and lower bound for $\beta^*$}
+\subsection{Upper and lower bounds for \texorpdfstring{$\beta^*$}{} }
 \label{app:bounds}
 First, we consider~\eqref{prob:dual3}. Let $w = y/\beta$, then~\eqref{prob:dual3} can be equivalently expressed as 
 \[\minimize{w} \inf_{\beta>0} \beta(f^*(w) - \ip{b}{w} + \alpha) \enspace\text{subject to}\enspace \sigma\As(M^* w) \leq \beta.\]
