@@ -1,0 +1,8 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{+w}{  }\PYG{k}{struct} \PYG{k+kt}{MyType}
+\PYG{+w}{    }\PYG{n}{a}\PYG{+w}{ }\PYG{o}{::}\PYG{+w}{ }\PYG{k+kt}{Int64}
+\PYG{+w}{  }\PYG{k}{end}
+\PYG{+w}{  }\PYG{k}{function}\PYG{+w}{ }\PYG{n}{f}\PYG{p}{(}\PYG{n}{x}\PYG{+w}{ }\PYG{o}{::}\PYG{+w}{ }\PYG{n}{MyType}\PYG{p}{)}
+\PYG{+w}{    }\PYG{n}{x}\PYG{o}{.}\PYG{n}{a}\PYG{+w}{ }\PYG{o}{+}\PYG{+w}{ }\PYG{l+m+mi}{1}
+\PYG{+w}{  }\PYG{k}{end}
+\end{Verbatim}

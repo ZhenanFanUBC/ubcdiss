@@ -323,6 +323,29 @@
 % multirow in table
 \usepackage{multirow}
 
+% Julia code block 
+% \usepackage{fontspec}
+\usepackage{minted}
+\usepackage{fancyvrb}
+\usepackage{listings}
+
+\newenvironment{code}
+{%
+  \VerbatimEnvironment
+  \begin{listing}[H]
+  \begin{minted}[%
+      label = code example,%  Might want to change or remove this label
+      linenos,%
+      breaklines,%
+      style = default,%
+      fontsize=\small,%
+      frame = single%
+      ]{julia}%
+}
+{%
+  \end{minted}%
+  \end{listing}%
+}
 
 %% If you have long page numbers (e.g., roman numbers in the 
 %% preliminary pages for page 28 = xxviii), you might need to

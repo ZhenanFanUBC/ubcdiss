@@ -115,7 +115,12 @@ result, due to Fan et al.~\cite[Proposition~4.5 and Theorem~5.1]{fan2019alignmen
   \[\suppa(x^*) \subseteq \Escr\As(M^*y^*). \]
 \end{theorem}
 
-The following theorem generalizes this result to show similar atomic support identification properties that also apply to approximate dual solutions. In particular, given a feasible dual variable $y$ close to $y^*$, the support of $x^*$ is contained in the set of $\epsilon$-exposed atoms that includes $\Escr\As(M^*y^*)$. Define the atomic operator norm by $\|M\|\As:=\max_{a\in\Ascr}\|Ma\|_2$.
+The following theorem generalizes this result to show similar atomic support identification properties that also apply to approximate dual solutions. In particular, given a feasible dual variable $y$ close to $y^*$, the support of $x^*$ is contained in the set of $\epsilon$-exposed atoms, which is defined by
+\begin{equation}
+  \Escr\As(z, \epsilon) \coloneqq \{a\in\Ascr \mid \ip{a}{z} \geq \sigma\As(z) - \epsilon\}.
+\end{equation}
+Obviously, for any $\epsilon \geq 0$, we would have 
+\[\Escr\As(z) \subseteq \Escr\As(z, \epsilon).\]
 
 \begin{theorem}[Generalized atom identification]\label{thm:p0}
     Let $x_i$ and $y_i$ be feasible primal and dual vectors, respectively for
@@ -133,7 +138,8 @@ The following theorem generalizes this result to show similar atomic support ide
           \max\{d_3(y_3, \underline{\beta}), d_3(y_3, \bar{\beta})\} - d_3( y_3^* ) ) }$, 
     \end{itemize}
     where $\underline{\beta}$ and $\bar{\beta}$ are positive lower and
-    upper bounds, respectively, for $\beta^*$.
+    upper bounds, respectively, for $\beta^*$, and the atomic operator norm is defined by 
+    $\|M\|\As:=\max_{a\in\Ascr}\|Ma\|_2$.
 \end{theorem}
 
 \autoref{thm:p0} suggests that the underlying sparsity pattern of $x_i^*$ is contained by the $\epsilon$-exposed atoms of $M^* y_i$. When $\suppa(x_i^*) = \Escr\As(M^* y_i^*)$, one will have better approximation of $\suppa(x_i^*)$ as the function value of the dual problem $d_i(y_i)$ getting close to its optimal objective value $d_i(y_i^*)$. \autoref{thm:p0} can be viewed as a generalization of the gap safe-screening rule developed by Ndiaye et al.~\cite{NdiayeFGS17}, which applies to~\eqref{prob:primal1} with $\gamma\As$ being the one-norm. In the gap safe screening rule, for the sake of computation, the objective gap of the dual problem $d_i(y_i) - d_i(y_i^*)$ is upper bounded by the duality gap by leveraging the strong convexity property of the dual problem. In our work, \autoref{thm:p0} mostly serves as a technical tools for error bound analysis and we don't need to compute or approximate $d_i(y_i) - d_i(y_i^*)$ during our algorithm. For simplicity and cleanness, we use dual objective gap but not the duality gap to measure $\epsilon_i$ for \autoref{thm:p0}. Note that the development of the atom-identification rule for~\eqref{prob:primal3} is more involved than for the first two problems~\eqref{prob:primal1} and~\eqref{prob:primal2} because the dual objective contains the perspective map of $f^*(\cdot) + \alpha$~\cite{aravkin2018foundations}. The proofs for parts (a) and (b) of \autoref{thm:p0} depend on the strong convexity of $f^*$, implied by the Lipschitz smoothness of $f$. This convenient property, however, does not hold for the perspective map applied to $f^*$. We resolve this problem by imposing the additional assumption that we have bounds available on the dual optimal variable $\beta^*$. \autoref{app:bounds} describes how to obtain these bounds during the course of the level-set method developed by Aravkin et al.~\cite{aravkin2016levelset}.
@@ -146,7 +152,11 @@ Next, we show that how can we adopt the atom-identification rules to efficient p
 
 In this section, we consider the case when $\Ascr$ is polyhedral. We formalize the definition of the function $\texttt{EssCone}_{\Ascr, M, k}$ under this setting. Given a feasible dual vector $y$, we first compute the top-$k$ atoms in $\Ascr$ with respect to the inner product with $M^*y$, i.e. 
 \begin{equation} \label{eq:top-k}
-    \{a_1, \dots, a_k\} \subseteq \Ascr \text{s.t.} \ip{M^*y}{a_i} \geq \ip{M^*y}{a} \enspace\forall i \in [k] ~\mbox{and}~ a \in \Ascr\setminus\{a_1, \dots, a_k\}.
+  \begin{split}
+                & \{a_1, \dots, a_k\} \subseteq \Ascr \\
+    \text{s.t.} & \ip{M^*y}{a_i} \geq \ip{M^*y}{a} \enspace\forall i \in [k] \text{and}\\
+                & a \in \Ascr\setminus\{a_1, \dots, a_k\}.
+  \end{split}
 \end{equation}
 Then we construct the convex cone generated from these atoms, i.e., 
 \[\texttt{EssCone}_{\Ascr, M, k}(y) \coloneqq \left\{\sum_{i=1}^k c_i a_i ~\bigg\vert~ c_i \geq 0 ~\forall i\right\}.\]
@@ -189,7 +199,7 @@ Our next proposition shows that when the atomic set is polyhedral, we can guaran
 
 \begin{proposition}[Finite-time atom-identification] \label{prop:polyhedral} For each problem $i
     = 1, 2, 3$, let $\{y_i^{(t)}\}_{t=1}^\infty$
-    be sequence that converge to optimal dual solutions $
+    be the sequence that converges to optimal dual solutions $
     y_i^*$. If the atomic set $\Ascr$ is polyhedral and the problem pair (\Probi, \Drobi) is $\delta$-nondegenerate for some $\delta > 0$,
     then there exists
     $T > 0$ such that 
@@ -495,7 +505,7 @@ By \cite[Proposition~7.3]{fan2019alignment}, we know that \eqref{eq:rpca} is equ
 \end{equation}
 where $\Ascr = \lambda \Ascr_1 + \Ascr_2$, $\Ascr_1 = \{uv^T \mid u \in \mR^m,\ v \in \mR^n,\ \|u\|_2=\|v\|_2 = 1\}$ and $\Ascr_2 = \{\pm e_ie_j^T \mid i \in [m], j \in [n]\}$. The recovered low-rank component is shown in \autoref{fig:face_shadow}. As we can see from the figure, most of the shadow are successfully removed. This experiment suggests that our primal-retrieval technique can potentially be used for more complex atomic set and allow the underlying the dual-algorithm to produce satisfactory result within a reasonable number of iterations. 
 
-\section{Conclusion}
+\section{Discussion}
 In this work, we proposed a simple primal-retrieval strategy for atomic-sparse optimization. We demonstrate both theoretically and empirically that our proposed strategy can obtain desirable primal variable given a dual-based algorithm converging to the optimum dual solution. 
 
 Further research opportunities remain, particularly for designing meaningful primal-retrieval strategy for non-polyhedral and non-spectral atomic sets. The primal-retrieval technique developed in this work is algorithm-agnostic, it is possible to develop more efficient primal-retrieval rule that associated with specific optimization algorithms such as the conditional-gradient method.
@@ -660,9 +670,12 @@ Therefore, we can get upper and lower bounds for $\beta^*$ via level-set method 
   First, we show that for any $y_i$ such that $\| y_i - y_i^* \| \leq \frac{\delta}{4\| M \|_\Ascr}$, the condition 
   \[\Face\As( M^* y_i^*) \subseteq \texttt{EssCone}(\Ascr, M, y_i, k)\]
   holds. By \autoref{ass:blanket} and the definition of $\delta$-nondegeneracy, we know that 
-  \begin{align}
-      |  \Face\As( M^* y_i^*) | = k, \quad \text{and} \quad \langle Ma, y_i^* \rangle \leq \sigma_{\Ascr}( M^* y_i^* ) - \delta \quad \forall a \notin \Face\As( M^* y_i^*). \label{eq:Aprime}
-  \end{align}
+  \begin{equation} \label{eq:Aprime}
+  \begin{split}
+    |  \Face\As( M^* y_i^*) | &= k \text{and} \\
+    \langle Ma, y_i^* \rangle &\leq \sigma_{\Ascr}( M^* y_i^* ) - \delta \quad \forall a \notin \Face\As( M^* y_i^*).
+  \end{split}
+  \end{equation}
   For any $a \in \Face\As( M^* y_i^*)$, we have
   \begin{align*}
       & \langle a, M^* y_i \rangle \\
@@ -684,7 +697,9 @@ Therefore, we can get upper and lower bounds for $\beta^*$ via level-set method 
     \end{align*}
     Notice that $\texttt{EssCone}(\Ascr, M, y_i, k)$ contains only the atoms that corresponds to the $k$ largest $\langle a, M^* y_i \rangle$. Therefore $\Face\As( M^* y_i^*) \subseteq \texttt{EssCone}(\Ascr, M, y_i, k)$.
     
-    By the assumption $y_i^{(t)} \to y_i^*$. For $i \in \{1,2,3\}$, we know there exist $T_i > 0$ such that $\| y_i^{(t)} - y_i^* \| < \frac{\delta}{4\| M \|_\Ascr}$ for all $t > T$. Therefore $\Face\As( M^* y_i^*) \subseteq \texttt{EssCone}(\Ascr, M, y_i^{(t)}, k)~~\forall t > T$ and we complete the proof.
+    By the assumption $y_i^{(t)} \to y_i^*$. For $i \in \{1,2,3\}$, we know there exist $T_i > 0$ such that $\| y_i^{(t)} - y_i^* \| < \frac{\delta}{4\| M \|_\Ascr}$ for all $t > T$. Therefore 
+    \[\Face\As( M^* y_i^*) \subseteq \texttt{EssCone}(\Ascr, M, y_i^{(t)}, k)~~\forall t > T\] 
+    and we complete the proof.
 \end{proof}
 
 \subsection{Proof for \autoref{thm:svd_approx_score}}

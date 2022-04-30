@@ -3,6 +3,15 @@
 \chapter{AtomicOpt.jl: a Julia package for structured optimiztaion}
 \label{ch:App-AtomicOpt}
 
+\begin{code}
+  struct MyType
+    a :: Int64
+  end
+  function f(x :: MyType)
+    x.a + 1
+  end
+\end{code}
+
 
 
 \section{Algorithm}
@@ -14,7 +23,7 @@ In this section, we focus on solving the following gauge-regularized convex opti
 where $M:\Re^n\to\Re^m$ is a linear map, $b$ is a vector in $\Re^m$ and $\alpha$ is a nonnegative number.
 
 \subsection{Level-set method}
-Level-set method originates from the SPGL1 algorithm developed by Berg et al.~\cite{berg2011sparse,berg2008probing} for solving the basis pursuit problem and has been extended to solve general gauge optimiztion problems by Aravkin et al.~\cite{aravkin2016levelset}. Level-set method approximately solves the gauge optimization problem~\eqref{eq:main_prob2} by solving a sequence of constrained convex optimization problems with objective and constraint interchanged.Here by approximately solving~\eqref{eq:main_prob2}, we mean that it can generate a point $\overline{x}\in\Re^n$ that is super-optimal and $\epsilon$-feasible:
+Level-set method originates from the SPGL1 algorithm developed by Berg et al. \cite{berg2011sparse,berg2008probing} for solving the basis pursuit problem and has been extended to solve general gauge optimiztion problems by Aravkin et al. \cite{aravkin2016levelset}. Level-set method approximately solves the gauge optimization problem~\eqref{eq:main_prob2} by solving a sequence of constrained convex optimization problems with objective and constraint interchanged.Here by approximately solving~\eqref{eq:main_prob2}, we mean that it can generate a point $\overline{x}\in\Re^n$ that is super-optimal and $\epsilon$-feasible:
 \begin{equation} \label{eq:super-optimal}
   \gauge\As(\overline{x}) \leq \opt \enspace\text{and}\enspace \half\|M\overline{x} - b\|^2 \leq \alpha + \epsilon,
 \end{equation}

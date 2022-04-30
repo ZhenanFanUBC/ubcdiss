@@ -109,7 +109,7 @@ Early work on demixing sparse signals implicitly assumed some notion of incohere
 
 \subsection{Roadmap and contributions}
 
-\autoref{sec:3-2} shows that the decompression problem \eqref{eq:decompression} can stably recover $x\nag$. \autoref{thm:tropp} characterizes the recovery error in terms of the overall complexity of the signal, provided the measurements are random. This result follows directly from Tropp~\cite{tropp2015convex} and a conic decomposition property particular to polar convolution. \autoref{sec:3-3} shows that the deconvolution problem~\eqref{eq:deconvolution} can stably approximate each $x\nai$. The bound in the recovery error is given in terms of the error in the initial decompression process and the incoherence between signals as measured by the minimum angle between conic representations of each signal; see \autoref{thm-stability}. This result requires a general notion of incoherence based on the angle between descent cones, first analyzed by McCoy and Tropp~\cite{mccoy2013achievable}.  \autoref{sec-incoherence} shows how a random-rotation model yields a particular level of incoherence with high probability; see \autoref{thm:Incoherence}. We develop the recovery guarantee under the random-rotation model; see \autoref{corollary-stability}.  \autoref{ch:App-AtomicOpt} outlines an algorithm based on conditional-gradient and level-set methods for computing the decompression and deconvolution process. The worst-case computational complexity of this process is sublinear in the required accuracy. \autoref{sec:3-5} describes experiments on real and synthetic structured signals. Proofs of all theoretical results are given in \autoref{sec:3-7}.
+\autoref{sec:3-2} shows that the decompression problem \eqref{eq:decompression} can stably recover $x\nag$. \autoref{thm:tropp} characterizes the recovery error in terms of the overall complexity of the signal, provided the measurements are random. This result follows directly from Tropp~\cite{tropp2015convex} and a conic decomposition property particular to polar convolution. \autoref{sec:3-3} shows that the deconvolution problem~\eqref{eq:deconvolution} can stably approximate each $x\nai$. The bound in the recovery error is given in terms of the error in the initial decompression process and the incoherence between signals as measured by the minimum angle between conic representations of each signal; see \autoref{thm-stability}. This result requires a general notion of incoherence based on the angle between descent cones, first analyzed by McCoy and Tropp~\cite{mccoy2013achievable}.  \autoref{sec-incoherence} shows how a random-rotation model yields a particular level of incoherence with high probability; see \autoref{thm:Incoherence}. We develop the recovery guarantee under the random-rotation model; see \autoref{corollary-stability}. \autoref{sec:3-5} describes experiments on real and synthetic structured signals. Proofs of all theoretical results are given in \autoref{sec:3-7}.
 
 The following blanket assumption holds throughout this chapter.
 \begin{assumption}[Measurement model]\label{assume-blanket}
@@ -117,13 +117,13 @@ The following blanket assumption holds throughout this chapter.
   $M:\Re^n\to\Re^m$ has i.i.d.\@ standard Gaussian entries; the noise vector $\eta$ satisfies $\|\eta\|_2\leq \alpha$ for some scalar $\alpha$; and the relative signal powers $\{\lambda_i\}_{i=1}^k$ satisfy~\eqref{eq-lambda-def}.
 \end{assumption} 
 
-Our main contributions can be summarized as follows.
-\begin{itemize}
-  \item We propose a two-stage approach, motivated by the polar convolution of gauge functions, for tackling the compressed signal demixing problem; see \autoref{sec:3-1-2}.
-  \item Under the assumption of Gaussian measurement and randomly rotated signals, we develop explicit recovery error bound and sample complexity bound for our proposed model; see~\autoref{corollary-stability}. To the best of our knowledge, we are the first to provide explicit error bound for the compressed signal demixing problem with arbitrary number of signals. 
-  \item We propose an algorithm based on conditional-gradient and level-set method to solve our proposed model; see \autoref{ch:App-AtomicOpt}. Our implementation is publicly available at \url{https://github.com/MPF-Optimization-Laboratory/AtomicOpt.jl}. 
-  \item Extensive numerical experiments on synthetic and real data verify the correctness of our theoretical results and the effectiveness of our approach; see~\autoref{sec:3-5}.  
-\end{itemize}
+% Our main contributions can be summarized as follows.
+% \begin{itemize}
+%   \item We propose a two-stage approach, motivated by the polar convolution of gauge functions, for tackling the compressed signal demixing problem; see \autoref{sec:3-1-2}.
+%   \item Under the assumption of Gaussian measurement and randomly rotated signals, we develop explicit recovery error bound and sample complexity bound for our proposed model; see~\autoref{corollary-stability}. To the best of our knowledge, we are the first to provide explicit error bound for the compressed signal demixing problem with arbitrary number of signals. 
+%   \item We propose an algorithm based on conditional-gradient and level-set method to solve our proposed model; see \autoref{ch:App-AtomicOpt}. Our implementation is publicly available at \url{https://github.com/MPF-Optimization-Laboratory/AtomicOpt.jl}. 
+%   \item Extensive numerical experiments on synthetic and real data verify the correctness of our theoretical results and the effectiveness of our approach; see~\autoref{sec:3-5}.  
+% \end{itemize}
 
 
 \section{Decompressing the superposition}\label{sec:3-2} 
