@@ -5,7 +5,7 @@
 
 \section{Introduction} \label{sec:6-1}
 
-As we briefly introduced in \autoref{sec:1-4}, with the development of artificial intelligence, people recognize that many powerful machine learning models are driven by large distributed datasets, e.g., AlphaGo~\citep{silver2016mastering} and AlexNet~\citep{krizhevsky2012imagenet}. In many industrial scenarios, training data are maintained by different organizations, and transporting or sharing the data across these organizations is not feasible because of regulatory and privacy considerations~\citep{li2020review}. Therefore there is increasing interest in training machine learning models that operate without gathering all data in a single place. Federated learning (FL), initially proposed by~\citet{mcmahan2017communication} to train models on decentralized data from mobile devices, and later extended by~\citet{yang2019federated} and \citet{kairouz2019advances}, is a training framework that allows multiple clients to collaboratively train a model without sharing data. 
+As we briefly introduced in \autoref{sec:1-4}, building large and powerful machine learning models often needs large amounts of training data. In many industrial scenarios, training data are maintained by different organizations, and transporting or sharing the data across these organizations is not feasible because of regulatory and privacy considerations~\citep{li2020review}. Therefore there is increasing interest in training machine learning models that operate without gathering all data in a single place. Federated learning (FL), initially proposed by~\citet{mcmahan2017communication} to train models on decentralized data from mobile devices, and later extended by~\citet{yang2019federated} and \citet{kairouz2019advances}, is a training framework that allows multiple clients to collaboratively train a model without sharing data. 
 
 The learning process in FL can be formulated as a distributed optimization problem, which is also known as federated optimization (FO). Assume there are $N$ clients and each client $i$ maintains a local dataset $\Dscr_i$. FO aims to solve the  empirical-risk minimization problem
 \begin{equation} \label{eq:primal}
@@ -17,7 +17,7 @@ in a distributed manner, where $w$ is the global model parameter and each local 
 \end{equation*}
 where $\ell(\cdot, \Dscr_i)$ is a convex and differentiable loss function for each $\Dscr_i$. 
 
-As we introduced in \autoref{sec:1-4}, there are several important characteristics that distinguish FO from standard machine learning and distributed optimization (\autoref{assum:govern}). 
+As we introduced in \autoref{sec:1-4-1}, there are several important characteristics that distinguish FO from standard machine learning and distributed optimization (\autoref{assum:govern}). 
 
 Most of the previous work in FO focus on directly solving the primal empirical-risk minimization problem \eqref{eq:primal}
 \citep{mcmahan2017communication,li2018federated,yuan2021federated,karimireddy2020mime}. The broad approach taken by these FO proposals is based on requiring the clients to independently update local models that are then shared with a central server tasked with aggregating these models. 

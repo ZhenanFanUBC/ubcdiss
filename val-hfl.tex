@@ -3,28 +3,19 @@
 \chapter{Fair data valuation in horizontal federated learning}
 \label{ch:Val-HFL}
 
-\section{Introduction} \label{sec:7.1}
+\section{Introduction} \label{sec:7-1}
 
-Building large and powerful machine learning models often needs large amounts of training data. In many industry-scale applications, training data is distributed in the form of silos, that is, training data is obtained and maintained by many data owners instead of being centralized at the place of a single owner or a data center. Because of industrial competition, privacy concerns, legal restrictions, and many other possible reasons, integrating or centralizing data from different sources faces enormous resistance and is often even infeasible. Federated learning~\cite{federated2016} is promising for training machine learning models on distributed data sources. It facilitates collaboration among a group of data owners (aka.~``clients'') and, at the same time, preserves their privacy. The central idea of federated learning is to periodically aggregate local models from clients to produce a more general and capable global model.
+As we briefly introduced in \autoref{sec:1-4-2}, the success of federated learning (FL) relies on active participation by motivated data owners. The motivation of data owners partially depends on whether the collaboration and rewarding in FL are fair.  Thus, it is essential to understand how to fairly and efficiently evaluate the contributions of data owners in FL~\cite{zhang2020hierarchically,song2019profit,wei2020efficient,wang2020principled}. In this chapter, we focus on the fairness in data valuation in horizontal FL (HFL). 
 
-Federated learning can be divided into two classes: horizontal federated learning and vertical federated learning~\cite{yang2019federated}. Horizontal federated learning refers to the scenarios where data sets owned by different clients share the same feature space but differ in samples. Vertical federated learning refers to the scenarios where data sets owned by different clients share the same sample IDs, but have different features. In this work, we focus on the horizontal federated learning. 
-%\todo{Huang: do we need to mention horizontal v.s. vertical in introduction?}
+Recall that Shapley value is the unique measure that satisfies the four fundamental requirements of fairness proposed by Shapley~\cite{shapley201617}: balance, symmetry, zero element and additivity (\autoref{def:shapley}). Although Shapley value has many desirable properties, evaluating Shapley value in HFL requires exhaustive retraining and evaluating the model on every subset of clients. The costs of communication and time may be prohibitive in practice~\cite{song2019profit}.
 
-The success of federated learning relies on active participation by motivated data owners. The motivation of data owners partially depends on whether the collaboration and rewarding in federated learning are fair.  Thus, it is essential to understand how to fairly and efficiently evaluate the contributions of data owners in federated learning~\cite{zhang2020hierarchically,song2019profit,wei2020efficient,wang2020principled}. In this paper, we focus on the fairness in contribution valuation.
+To make fair evaluation of data owners practical in HFL, some variations inspired by Shapley value were proposed. For example, \citet{wang2020principled} recently proposed federated Shapley value (FedSV). The key idea is to compute the Shapley values for clients in each round of training and then report the summation over all the rounds as the final results. Compared with the classical Shapley value, FedSV does not require model retraining and retains some but not all of the desirable properties for fairness. 
 
-%Clients' participation is crucial to the success of federated learning. In order to sustain or even encourage their participation, 
-%As federated learning is getting more and more popular, 
+However, FedSV faces a challenge in large scale HFL in practice -- it may create unfairness.  In order to reduce communication costs, many widely used HFL algorithms in each round select only a subset of clients to upload their local models~\cite{mcmahan2017communication, nishio2019client}. In the design of FedSV, the unselected clients are assigned with zero credit in that round. This design causes unfairness. One particular example implied by the fundamental requirements of the Shapley fairness~\cite{shapley201617} is that if two clients provide the same data and thus have the identical capability in utility contribution, then they should receive the same rewards. While in the setting of FedSV, clients with the same local data may be assigned with very different credit due to random selection in the training (see an empirical case study in \autoref{ex:unfair}). 
 
-Shapley value~\cite{shapley201617} is a classical measure originates from cooperative game theory to fairly assess contributions by participants in a coalition. 
-The Shapley value of a participant is defined as the expectation of the marginal contribution of the participant over all possible subsets of the other participants. Shapley value is the unique measure that satisfies the four fundamental requirements of fairness proposed by Shapley~\cite{shapley201617}: balance, symmetry, zero element and additivity (see a brief review in \autoref{sec:fair}). Although Shapley value has many desirable properties, evaluating Shapley value in federated learning requires exhaustive retraining and evaluating the model on every subset of clients. The costs of communication and time may be prohibitive in practice~\cite{song2019profit}.
+The fundamental challenge of fair evaluation of data owners' contributions in HFL is that we have to retain fairness in pursuing efficiency. In this chapter, we develop a principled approach. The general idea is intuitive and effective.  We propose a novel notion of \emph{utility matrix} consisting of contributions of all possible subsets of the clients over all training rounds. Obviously, with the utility matrix, even FedSV can make a fair evaluation on all clients.  However, the utility matrix can only be partially observed because only a subset of clients is selected in each round. The weakness of FedSV is that it computes the Shapley values using only those observed entries in the utility matrix directly. Our idea is try to complete the missing entries of the utility matrix so that the unfairness can thus be eliminated. 
 
-To make fair evaluation of data owners practical in federated learning, some variations inspired by Shapley value were proposed. For example, Wang \textit{et al.}~\cite{wang2020principled} recently proposed federated Shapley value (FedSV). The key idea is to compute the Shapley values for clients in each round of training and then report the summation over all the rounds as the final results. Compared with the classical Shapley value, FedSV does not require model retraining and retains some but not all of the desirable properties for fairness. 
-
-However, FedSV faces a challenge in large scale federated learning in practice -- it may create unfairness.  In order to reduce communication costs, many widely used federated learning algorithms in each round select only a subset of clients to upload their local models~\cite{mcmahan2017communication, nishio2019client}. In the design of FedSV, the unselected clients are assigned with zero credit in that round. This design causes unfairness. One particular example implied by the fundamental requirements of the Shapley fairness~\cite{shapley201617} is that if two clients provide the same data and thus have the identical capability in utility contribution, then they should receive the same rewards. While in the setting of FedSV, clients with the same local data may be assigned with very different credit due to random selection in the training (see an empirical case study in \autoref{sec:7.6.2}). 
-
-The fundamental challenge of fair evaluation of data owners' contributions in federated learning is that we have to retain fairness in pursuing efficiency. In this paper, we develop a principled approach. The general idea is intuitive and effective.  We propose a novel notion of \emph{utility matrix} consisting of contributions of all possible subsets of the clients over all training rounds. Obviously, with the utility matrix, even FedSV can make a fair evaluation on all clients.  However, the utility matrix can only be partially observed because only a subset of clients is selected in each round. The weakness of FedSV is that it computes the Shapley values using only those observed entries in the utility matrix directly. Our idea is try to complete the missing entries of the utility matrix so that the unfairness can thus be eliminated. 
-
-Completing the unobserved entries is far from trivial. We rigorously show that the utility matrix is approximately low-rank based on a careful theoretical analysis of the similarity between contributions from different clients in successive training rounds. This theoretical insight enables us to estimate the missing entries in the utility matrix using techniques from low-rank matrix completion.  With the above insights, we propose a new measure, called \emph{completed FedSV}, to evaluate data owners' contributions in federated learning. 
+Completing the unobserved entries is far from trivial. We rigorously show that the utility matrix is approximately low-rank based on a careful theoretical analysis of the similarity between contributions from different clients in successive training rounds. This theoretical insight enables us to estimate the missing entries in the utility matrix using techniques from low-rank matrix completion.  With the above insights, we propose a new measure, called \emph{completed FedSV}, to evaluate data owners' contributions in HFL. 
 
 Our primary technical contributions are as follows.
 
@@ -35,28 +26,28 @@ Our primary technical contributions are as follows.
     \item To tackle the practical scenarios where the size of the utility matrix is too large to complete directly, we adopt a Monte-Carlo sampling method to reduce both space and time complexity (\autoref{alg:main}).  
 \end{enumerate}
 
-The rest of the paper is organized as follows. \autoref{sec:7.2} reviews the literature on many data valuation techniques for machine learning and federated learning. We introduce the federated learning problem as well as the algorithm for solving it in \autoref{sec:7.3}. In \autoref{sec:fair}, we formalize the definition of fairness for data valuation under the setting of federated learning. \autoref{sec:7.4} introduces the FedSV proposed by Wang \textit{et al.}~\cite{wang2020principled} and shows that it may break the fairness requirement for data valuation. We propose the improved data valuation metric -- ComFedSV in \autoref{sec:7.5}. Specifically, \autoref{sec:7.5.1} introduces the utility matrix and theoretically shows its low-rank structure, \autoref{sec:7.5.2} illustrates the procedure for completing the utility matrix, \autoref{sec:7.5.3} formally defines the ComFedSV and \autoref{sec:7.5.4} provides an efficient algorithm for estimating the ComFedSV. \autoref{sec:7.6} includes some numerical experiments showing the fairness and effectiveness of the ComFedSV, and the appendix contains the proofs for all the theoretical results. 
+The rest of the chapter is organized as follows. \autoref{sec:7-2} reviews the literature on many data valuation techniques for machine learning and HFL. We introduce the HFL problem as well as the algorithm for solving it in \autoref{sec:7-3}. In \autoref{sec:7-4}, we formalize the definition of fairness for data valuation under the setting of HFL. \autoref{sec:7-5} introduces the FedSV proposed by Wang \textit{et al.}~\cite{wang2020principled} and shows that it may break the fairness requirement for data valuation. We propose the improved data valuation metric -- ComFedSV in \autoref{sec:7-6}. Specifically, \autoref{sec:7-6-1} introduces the utility matrix and theoretically shows its low-rank structure, \autoref{sec:7-6-3} illustrates the procedure for completing the utility matrix, \autoref{sec:7-6-4} formally defines the ComFedSV and \autoref{sec:7-6-5} provides an efficient algorithm for estimating the ComFedSV. \autoref{sec:7-7} includes some numerical experiments showing the fairness and effectiveness of the ComFedSV, and the appendix contains the proofs for all the theoretical results. 
 
-\section{Related Work} \label{sec:7.2}
-There are many data valuation strategies in literature, including query and view-based pricing~\cite{koutris2015query, koutris2012querymarket, koutris2013toward} and data quality-based pricing~\cite{heckman2015pricing, pipino2002data}. Limited by space, here we restrict our discussion to the related work on data valuation techniques for machine learning and federated learning, which can be broadly characterized into two categories: Shapley-value-based and non-Shapley-value-based. Please see~\cite{pei2020survey} and \cite{cong2021data} for more thorough surveys on data pricing. 
+\section{Related work} \label{sec:7-2}
+There are many data valuation strategies in literature, including query and view-based pricing~\cite{koutris2015query, koutris2012querymarket, koutris2013toward} and data quality-based pricing~\cite{heckman2015pricing, pipino2002data}. Limited by space, here we restrict our discussion to the related work on data valuation techniques for machine learning and HFL, which can be broadly characterized into two categories: Shapley-value-based and non-Shapley-value-based. Please see~\cite{pei2020survey} and \cite{cong2021data} for more thorough surveys on data pricing. 
 
-\subsection{Shapley-value-based Data Valuation}
+\subsection{Shapley-value-based data valuation}
 Shapley value~\cite{shapley201617} has had extensive influence in economics~\cite{gul1989bargaining}. Dubey~\cite{dubey1975uniqueness} showed that Shapley value is the unique measure that satisfies the four fundamental requirements of fairness proposed by Shapley~\cite{shapley201617}. 
 
 Shapley value was introduced into the field of machine learning for feature selection~\cite{cohen2005feature, lundberg2017unified,strumbelj2010efficient}, where Shapley value based measures were developed to evaluate the contribution of different features during the training process and then identify features that are the most influential for the model output. Ghorbani and Zou~\cite{ghorbani2019data} pioneered the use of a Shapely value based measure to quantify data contributions in the machine learning context. They proposed a measure called data Shapley value, which can be used to quantify the contribution of a single data point to a learning task. They pointed out that direct computation of data Shapley value needs exponential time complexity and proposed two heuristic approximation methods to improve efficiency. Jia \textit{et al.}~\cite{jia2019towards} provided several efficient algorithms for approximating the data Shapley value, including group-testing and compressed-sensing based approximation methods. They also investigated the computational complexity for the high probability guarantee on approximation error. Ghorbani \textit{et al.}~\cite{ghorbani2020distributional} extended the notion of data Shapley value from a fixed training data set to arbitrary data distribution, called distributional Shapley value. Theoretically, they proved that their proposed measure is stable in the sense that similar points receive similar values, and similar distributions yield similar value functions. They also provided an algorithm for approximating the distributional Shapley value with a theoretical guarantee on the approximation error. As a follow-up,  Kwon \textit{et al.}~\cite{kwon2021efficient} recently developed analytic expressions for distributional Shapley value for several machine learning tasks, including linear regression and binary classification. They also proposed efficient algorithms for computing the distributional Shapley value based on these analytic expressions. 
 
-Song \textit{et al.}~\cite{song2019profit} extended the notion of data Shapley value to federated learning, called contribution index. They pointed out that directly computing the contribution index needs retraining the model exponentially many times, which is unaffordable in federated learning. As a solution, they proposed two gradient-based heuristics for approximating the contribution index. The key idea is to approximate the local models by leveraging the gradients during the training process of the global model. However, there is no theoretical guarantee on fairness for their proposed methods. 
+Song \textit{et al.}~\cite{song2019profit} extended the notion of data Shapley value to HFL, called contribution index. They pointed out that directly computing the contribution index needs retraining the model exponentially many times, which is unaffordable in HFL. As a solution, they proposed two gradient-based heuristics for approximating the contribution index. The key idea is to approximate the local models by leveraging the gradients during the training process of the global model. However, there is no theoretical guarantee on fairness for their proposed methods. 
 
-The need of retraining the model for different subsets of participants is a bottleneck of Shapley value computation in federated learning. Wang \textit{et al.}~\cite{wang2020principled} alternatively solved this problem by proposing a new measure, called federated Shapley value, which can be determined from local model updates in each training iteration, and thus no retraining of the model is required. It also satisfies many desirable properties. However, as discussed in \autoref{sec:7.1}, federated Shapley value may introduce unfairness. We give a more detailed description of federated Shapley value in \autoref{sec:7.4}. 
+The need of retraining the model for different subsets of participants is a bottleneck of Shapley value computation in HFL. Wang \textit{et al.}~\cite{wang2020principled} alternatively solved this problem by proposing a new measure, called federated Shapley value, which can be determined from local model updates in each training iteration, and thus no retraining of the model is required. It also satisfies many desirable properties. However, as discussed in \autoref{sec:7-1}, federated Shapley value may introduce unfairness. We give a more detailed description of federated Shapley value in \autoref{sec:7-5}. 
 
 \subsection{Non-Shapley-value-based Data Valuation}
-There are also a few data valuation strategies for machine learning and federated learning that do not depend on Shapley value. Koh and Liang~\cite{koh2017understanding} developed a permutation-based data valuation method for identifying training points most responsible for a given prediction. Their method depends on computing influence functions, which is a classic technique from robust statistics \cite{hampel1974influence}. Wang \textit{et al.}~\cite{wang2019measure} brought the similar idea to horizontal federated learning with a different influence function, where the influence of a client is defined as the sum of the influence of the client's data points. Yoon \textit{et al.}~\cite{yoon2020data} proposed a reinforcement learning-based method to adaptively learn the contribution of each data point towards the learned predictor model. Zhao \textit{et al.}~\cite{zhao2021efficient} recently applied the same technique to federated learning. 
+There are also a few data valuation strategies for machine learning and HFL that do not depend on Shapley value. Koh and Liang~\cite{koh2017understanding} developed a permutation-based data valuation method for identifying training points most responsible for a given prediction. Their method depends on computing influence functions, which is a classic technique from robust statistics \cite{hampel1974influence}. Wang \textit{et al.}~\cite{wang2019measure} brought the similar idea to HFL with a different influence function, where the influence of a client is defined as the sum of the influence of the client's data points. Yoon \textit{et al.}~\cite{yoon2020data} proposed a reinforcement learning-based method to adaptively learn the contribution of each data point towards the learned predictor model. Zhao \textit{et al.}~\cite{zhao2021efficient} recently applied the same technique to HFL. 
 
-Compared with Shapley-value-based data valuation techniques, the above mentioned non-Shapley-value-based data valuation techniques are usually more computationally efficient as they require less or even no retraining of models. However, non-Shapley-value-based data valuation techniques usually cannot provide any theoretical guarantee on fairness, which is an important desiderata in data valuation~\cite{ghorbani2019data, pei2020survey}. This motivates us to develop efficient data valuation techniques for federated learning that retains fairness. 
+Compared with Shapley-value-based data valuation techniques, the above mentioned non-Shapley-value-based data valuation techniques are usually more computationally efficient as they require less or even no retraining of models. However, non-Shapley-value-based data valuation techniques usually cannot provide any theoretical guarantee on fairness, which is an important desiderata in data valuation~\cite{ghorbani2019data, pei2020survey}. This motivates us to develop efficient data valuation techniques for HFL that retains fairness. 
 
-\section{Federated Learning} \label{sec:7.3}
-In this section, we revisit the federated learning model as well as the algorithm used to optimize the model. Suppose the $i$-th data owner has training data set $D_i$. We consider the following distributed optimization problem.
-\begin{equation} \label{eq:main_problem}
+\section{Horizontal federated learning} \label{sec:7-3}
+In this section, we revisit the HFL model as well as the algorithm used to optimize the model. Suppose the $i$-th data owner has training data set $D_i$. We consider the following distributed optimization problem.
+\begin{equation} \label{eq:hfl_problem}
     \min_{w}\enspace F(w) := \frac{1}{N}\sum_{i = 1}^N F_i(w),
 \end{equation}
 where $w\in\mathbb{R}^n$ is the model parameter, $N$ is the number of data owners, and the local objective for client $i$ is
@@ -65,7 +56,7 @@ where $w\in\mathbb{R}^n$ is the model parameter, $N$ is the number of data owner
 \end{equation}
 where $\ell$ is a differentiable loss function. This setting guarantees that if two clients have the identical local data sets, then they have the same local models, i.e., $D_i=D_j$ implies $F_i=F_j$. 
 
-To optimize the distributed optimization problem in Equation~\eqref{eq:main_problem}, we use the federated averaging (\texttt{FedAvg}) method~\cite{mcmahan2017communication}, which is the first and perhaps the most widely used federated learning algorithm. In each round, \texttt{FedAvg} runs several steps of stochastic gradient descent in parallel on a randomly sampled subset of participants and then averages the resulting model updates via a central server. We describe one (say the $t$-th) round of the standard \texttt{FedAvg} algorithm. 
+To optimize the distributed optimization problem in \eqref{eq:hfl_problem}, we use the federated averaging (\texttt{FedAvg}) method~\cite{mcmahan2017communication}, which is the first and perhaps the most widely used HFL algorithm. In each round, \texttt{FedAvg} runs several steps of stochastic gradient descent in parallel on a randomly sampled subset of participants and then averages the resulting model updates via a central server. We describe one (say the $t$-th) round of the standard \texttt{FedAvg} algorithm. 
 
 Let $I = \{1, \dots, N\}$ denote the set of all participants. In round $t$, the \texttt{FedAvg} executes the following steps.
 \begin{enumerate}
@@ -85,27 +76,17 @@ Let $I = \{1, \dots, N\}$ denote the set of all participants. In round $t$, the 
 
 For simplicity, here we let each client do only one step of deterministic local update, that is, $w_k^{t+1} = w_k^t - \eta^t \nabla F_k(w_k^t)$. Our theoretical results can be generalized to an arbitrary number of stochastic local updates in each round. 
 
-\section{Relaxation of Fairness in Data Valuation in Federated Learning} \label{sec:fair}
+\section{Relaxation of fairness in data valuation in horizontal federated learning} \label{sec:7-4}
 
-Fairness is one of the most desirable properties for a data valuation metric \cite{ghorbani2019data,pei2020survey}. In the federated learning setting, a data valuation metric should be able to reflect how much each data owner contributes to the performance of the final model. Formally, we assume a black-box utility function $U:2^I \to \mathbb{R}$ such that for any subset of clients $S \subseteq I$, $U(S)$ returns a utility score of the model collaboratively trained by clients in $S$, such as the performance of the model. Let $v: I \to \mathbb{R}$ be the evaluation metric associated with the utility function $U$. Given the utility function $U$,  the Shapley fairness~\cite{shapley201617} has four fundamental requirements for a metric $v$.
-\begin{enumerate}
-    \item \textbf{Symmetry.} For any two clients $i, j \in I$, if for any subset of clients $S \subseteq I \setminus \{i,j\}$, $U(S \cup \{i\}) = U(S \cup \{j\})$, then $v(i) = v(j)$. 
-    \item \textbf{Zero element.} For any client $i \in I$, if for any subset of clients $S \subseteq I \setminus \{i\}$, $U(S \cup \{i\}) = U(S)$, then $v(i) = 0$.
-    \item \textbf{Additivity.} If the utility function $U$ can be expressed as the sum of separate utility functions, namely $U = U_1 + U_2$ for some $U_1, U_2 : 2^I \to \mathbb{R}$, then for any client $i \in I$, $v(i) = v_1(i) + v_2(i)$, where $v_i$ and $v_2$ are the evaluation metrics associated with the utility functions $U_1$ and $U_2$, respectively. 
-    \item \textbf{Balance.}  $v(S) = \sum_{i \in S} v(i)$.
-\end{enumerate}
+Fairness is one of the most desirable properties for a data valuation metric \cite{ghorbani2019data,pei2020survey}. In the HFL setting, a data valuation metric should be able to reflect how much each data owner contributes to the performance of the final model. As we show in \autoref{sec:1-4-2}, Shapley value satisfies four foundamental requirements for fairness (\autoref{def:shapley}). 
 
-Under the federated learning setting, a utility function is usually defined using the model performance on a test data set. The symmetry requires that the same contributions to the utility should receive the same evaluation, which implies that clients with same local data sets should receive same evaluation. The zero element requires that no contribution, no value is recognized. The additivity requires that if there are multiple tasks and thus multiple test data sets, then the contributions of any client with respect to the test data sets can be expressed as the sum of the contributions with respect to those different tasks and test data sets. It is worth noting that although balance is an important requirement in economics, which guarantees that the payment is fully distributed to all players, it is not relevant in the setting of this paper, since we only care about the relative contributions between clients. 
+It is worth noting that although balance is an important requirement in economics, which guarantees that the payment is fully distributed to all players, it is not relevant in the setting of this paper, since we only care about the relative contributions between clients. 
 
-It is shown~\cite{dubey1975uniqueness,ghorbani2019data} that if the data valuation metric $v$ satisfies symmetry, zero element, and additivity, then $v$ must have the form
-\begin{equation} \label{eq:shapley}
-    v(i) = c \sum\limits_{S \subseteq I \setminus\{i\}} \frac{1}{\binom{N-1}{|S|}} \left[U(S\cup\{i\}) - U(S)\right],
-\end{equation}
-for some positive constant $c$. However the data valuation metric in form~\eqref{eq:shapley} cannot be directly applied in federated learning, because evaluation of the utility function $U$ requires retraining models \cite{ghorbani2019data}, which is impractical in federated learning \cite{wang2020principled}. Therefore, we cannot expect any practical data valuation metric in federated learning exactly satisfies the above requirements for fairness. 
+However the data valuation metric in form~\eqref{eq:shapley} cannot be directly applied in federated learning, because evaluation of the utility function $U$ requires retraining models \cite{ghorbani2019data}, which is impractical in federated learning \cite{wang2020principled}. Therefore, we cannot expect any practical data valuation metric in federated learning exactly satisfies the above requirements for fairness.
 
 To tackle this challenge, we propose $\epsilon$-Shapley fairness, a relaxation of fairness for federated learning.
 
-\begin{definition}[$\epsilon$-Shapley fairness] \label{def:fairness}
+\begin{definition}[$\epsilon$-Shapley fairness] \label{def:hfl_fairness}
     Given a utility function $U:2^I \to \mathbb{R}$ and a data valuation metric $v: I \to \mathbb{R}$, $v$ is \emph{$\epsilon$-Shapley-fair} with respect to $U$ for $\epsilon > 0$ if the following two properties hold.
     \begin{enumerate}
     \item \textbf{$\epsilon$-Symmetry.} For any two clients $i, j \in I$, if for any subset of clients $S \subseteq I \setminus \{i,j\}$, $U(S \cup \{i\}) = U(S \cup \{j\})$, then $|v(i) - v(j)| \leq \epsilon$. 
@@ -117,11 +98,11 @@ To tackle this challenge, we propose $\epsilon$-Shapley fairness, a relaxation o
 \end{definition}
 In $\epsilon$-Shapley fairness, parameter $\epsilon$ is used to control the quantitative requirement on fairness. 
 
-\section{Federated Shapley Value} \label{sec:7.4}
+\section{Federated Shapley Value} \label{sec:7-5}
 
 In this section, we first review the roundly utility function and the FedSV proposed by Wang \textit{et al.}~\cite{wang2020principled}. Then we give a simple example showing that directly using FedSV for data valuation may cause some unfairness. 
 
-Data valuation in federated learning aims to find data sets that are important or influential to the learning task. In federated learning, the importance of a data set is reflected by how much it can improve the performance of the final model. This idea is well established under the general context of machine learning~\cite{ghorbani2019data}. With this insight, we evaluate the importance of the data sets using the test loss of the model. More specifically, consider a typical federated learning process of $T$ rounds as described in \autoref{sec:7.3}. For any $t$ $(1 \leq t \leq T)$, let $u_t: \mathbb{R}^n \to \mathbb{R}$ denote the per-round utility function defined as
+Data valuation in federated learning aims to find data sets that are important or influential to the learning task. In federated learning, the importance of a data set is reflected by how much it can improve the performance of the final model. This idea is well established under the general context of machine learning~\cite{ghorbani2019data}. With this insight, we evaluate the importance of the data sets using the test loss of the model. More specifically, consider a typical federated learning process of $T$ rounds as described in \autoref{sec:7-3}. For any $t$ $(1 \leq t \leq T)$, let $u_t: \mathbb{R}^n \to \mathbb{R}$ denote the per-round utility function defined as
 \begin{equation} \label{eq:utility}
     u_t(w) = \ell(w^t; D_c) - \ell(w; D_c),
 \end{equation}
@@ -144,7 +125,7 @@ The federated Shapley value~\cite{wang2020principled} measures the average margi
    $s_i = \sum_{t=1}^T s_{t, i}$.
 \end{definition}
 
-If we run only one round of training and select all clients for that round, then FedSV is equivalent to the classical Shapley value.  As mentioned in \autoref{sec:7.1}, more often than not, the central server only selects a subset of clients in each round to reduce communication costs. We argue that simply setting the contribution of an unselected client to zero in a round causes unfairness. One quick example to demonstrate the unfairness is that two clients with the same data may receive quite different evaluations if one of them is unfortunately not selected. We formalize this circumstance in the following observation. 
+If we run only one round of training and select all clients for that round, then FedSV is equivalent to the classical Shapley value.  As mentioned in \autoref{sec:7-1}, more often than not, the central server only selects a subset of clients in each round to reduce communication costs. We argue that simply setting the contribution of an unselected client to zero in a round causes unfairness. One quick example to demonstrate the unfairness is that two clients with the same data may receive quite different evaluations if one of them is unfortunately not selected. We formalize this circumstance in the following observation. 
 
 \begin{observation}[Unfairness of FedSV] \label{obs:unfairness_fedsv}
     Suppose clients $i, j \in I$ have identical local data, that is, $D_i = D_j$, $T$ rounds of the \texttt{FedAvg} algorithm is executed, and the random subsets $I_t \subset I$ of clients satisfying $|I_t| = m < N$. We also assume that the data for clients $i$ and $j$ is useful in the sense that for some $\delta > 0$, for any $t \in \{1, \dots, T\}$, and for any $k \in \{i,j\}$,
@@ -156,7 +137,7 @@ If we run only one round of training and select all clients for that round, then
    where $\delta_t \sim \mathcal{N}(\delta, \sigma_t^2)$ with some $\sigma_t > 0$. It can be easily shown that $\mathbb{E}[s_i] = \mathbb{E}[s_j]$, where $s_i$ and $s_j$, respectively, are the FedSVs for clients $i$ and $j$ as per \autoref{def:federated_sv}. However, the equality in expectation does not guarantee fairness at all, since we only train the model once.
 Indeed, $s_i$ and $s_j$ differ from each other with high probability. Specifically, for any $s \in \{0, \dots, T\}$, we have $|s_i - s_j| \geq s\delta$ with probability at least
     \[\mathbb{P}_s := \sum_{a = s}^T \sum_{b=0}^{\floor{\frac{n-a}{2}}} \binom{T}{b,, T - a - 2b, b+a} p^{2b + a} (1-p)^{T - 2b - a}\]
-    where $p := \frac{m(N-m)}{N(N-1)}$. This implies that with probability $\mathbb{P}_s$, FedSV is not $s\delta$-Shapley-fair according to \autoref{def:fairness}. The derivation of this probabilistic bound can be found in the appendix. We show a plot of the probability $\mathbb{P}_s$ with different $p$ in \autoref{fig:ps}.
+    where $p := \frac{m(N-m)}{N(N-1)}$. This implies that with probability $\mathbb{P}_s$, FedSV is not $s\delta$-Shapley-fair according to \autoref{def:hfl_fairness}. The derivation of this probabilistic bound can be found in the appendix. We show a plot of the probability $\mathbb{P}_s$ with different $p$ in \autoref{fig:ps}.
     \begin{figure}[t]
         \centering
         \includegraphics[width=.7\textwidth]{./figures/ps.png}
@@ -167,8 +148,8 @@ Indeed, $s_i$ and $s_j$ differ from each other with high probability. Specifical
 
 The following numerical example corroborates this observation.
 
-\begin{example}[Unfairness of FedSV] \label{ex:1}
-    Consider the MNIST data set~\cite{lecun-mnisthandwrittendigit-2010}. Set the number of clients to be 10 with indices $I = \{0, \dots, 9\}$. Distribute the data for clients $0, \dots, 8$ in a non-IID fashion as described in \autoref{sec:7.6.1} and set client $9$'s data set to be the same as client $0$'s. We train a simple fully connected neural network model using \texttt{FedAvg} for 10 rounds and randomly select 3 clients in each round. We repeat this experiment 50 times. The empirical results show that the relative difference 
+\begin{example}[Unfairness of FedSV] \label{ex:unfair}
+    Consider the MNIST data set~\cite{lecun-mnisthandwrittendigit-2010}. Set the number of clients to be 10 with indices $I = \{0, \dots, 9\}$. Distribute the data for clients $0, \dots, 8$ in a non-IID fashion as described in \autoref{sec:7-7-1} and set client $9$'s data set to be the same as client $0$'s. We train a simple fully connected neural network model using \texttt{FedAvg} for 10 rounds and randomly select 3 clients in each round. We repeat this experiment 50 times. The empirical results show that the relative difference 
     \begin{equation} \label{eq:relative_difference}
             d_{0,9} = \frac{|s_0 - s_9|}{\max\{s_0, s_9\}}
     \end{equation}
@@ -176,11 +157,11 @@ The following numerical example corroborates this observation.
 \end{example}
 
 
-\section{Completed Federated Shapley Value} \label{sec:7.5}
+\section{Completed Federated Shapley Value} \label{sec:7-6}
 
 In this section, we first design a utility matrix consisting of contributions of all subsets of clients over all rounds of training, and present the main theoretical result that the utility matrix is approximately low-rank when the local objectives are Lipschitz continuous and smooth. Then, based on a low-rank matrix completion formulation, we propose a new data evaluation method ComFedSV for federated learning. We also show that when the utility matrix can be well recovered, ComFedSV satisfies certain desirable fairness properties. Last, when the size of the utility matrix is too large, we develop a Monte-Carlo type sampling method to reduce the size of the corresponding matrix completion problem.
 
-\subsection{Utility Matrix} \label{sec:7.5.1}
+\subsection{Utility Matrix} \label{sec:7-6-1}
 We design a matrix $\mathcal{U} \in \mathbb{R}^{T \times 2^N}$ that consists of all the possible utilities from any subsets of the clients over all the rounds. Each entry $(t, S)$ is defined as 
 $\mathcal{U}_{t, S} = U_t(S)$. If we can compute matrix $\mathcal{U}$, we can obtain the fair Shapley value for every subset of clients in every round.
 
@@ -193,7 +174,7 @@ In order to complete a matrix with many missing entries, we have to explore the 
 Before we provide a concrete mathematical justification, let us employ some empirical examples to verify our insight. In the following example, we show that the utility matrix $\mathcal{U}$ is nearly low-rank in many circumstances, in the sense that only a few of its singular values are dominant and all the others are relatively negligible. 
 
 \begin{example}[Low-rankness of Utility Matrix] \label{ex:2}
-    We use three simple examples to show empirically that the utility matrix is approximately low-rank.  We train a logistic regression model, a fully connected neural network model, and a convolutional neural network model respectively for synthetic data, MNIST~\cite{lecun-mnisthandwrittendigit-2010}, and CIFAR10~\cite{Krizhevsky09learningmultiple} (see \autoref{sec:7.6} for a detailed description). On each data set, we have 10 clients, train the model for 100 rounds and randomly select 3 clients in each round. Thus, the utility matrix $\mathcal{U}$ has size $100\times 2^{10}$. Although we update the global model with the randomly selected clients in each round, in order to obtain the whole utility matrix, we do compute the updates of all clients in each round.
+    We use three simple examples to show empirically that the utility matrix is approximately low-rank.  We train a logistic regression model, a fully connected neural network model, and a convolutional neural network model respectively for synthetic data, MNIST~\cite{lecun-mnisthandwrittendigit-2010}, and CIFAR10~\cite{Krizhevsky09learningmultiple} (see \autoref{sec:7-7} for a detailed description). On each data set, we have 10 clients, train the model for 100 rounds and randomly select 3 clients in each round. Thus, the utility matrix $\mathcal{U}$ has size $100\times 2^{10}$. Although we update the global model with the randomly selected clients in each round, in order to obtain the whole utility matrix, we do compute the updates of all clients in each round.
     
     The distribution of singular values is plotted in \autoref{fig:svds}. Clearly, the three different utility matrices are all nearly low-rank.
 
@@ -207,7 +188,7 @@ Before we provide a concrete mathematical justification, let us employ some empi
 \end{example}
 
 Next, we investigate theoretical guarantees to support our intuition. Before stating the result, we first revisit a formal definition of approximately low-rank~\cite{udell2019big}. 
-\begin{definition}[$\epsilon$-rank]
+\begin{definition}[$\epsilon$-rank] \label{def:epsilon-rank}
     Let $X\in\mathbb{R}^{m\times n}$ be a matrix and $\epsilon>0$ a tolerance. The $\epsilon$-rank of $X$ is given by 
     \[\rank_{\epsilon}(X) = \min\{\rank(Z): Z\in\mathbb{R}^{m\times n}, \|Z - X\|_{\max} \leq \epsilon\},\]
     where $\|\cdot\|_{\max}$ is the absolute maximum matrix entry. Thus, $k = \rank_{\epsilon} (X)$ is the smallest integer for which $X$ can be approximated by a rank $k$ matrix, up to an accuracy of $\epsilon$.
@@ -218,12 +199,12 @@ The following proposition formally characterizes the low-rankness of the utility
 \begin{proposition}[Lipschitz continuous and smooth objective] \label{prop:lipschitz}
     Assume that the user specified loss function $\ell(w; D)$ is convex, $L_1$-Lipschitz continuous and $L_2$-smooth in $w$ for all $D \in \{D_c, D_1, D_2, \dots, D_N\}$, and the learning rates $\eta^t$ are non-increasing. 
     Then for any $\epsilon>0$, 
-    \begin{equation} \label{eq:epsilon_rank_u}
+    \begin{equation} \label{eq:epsilon_rank_u_hfl}
         \rank_{\epsilon}(\mathcal{U}) \leq \left\lceil \frac{(2+\eta^1L_2) L_1 \sum_{t=1}^{T-1} \|w^{t} - w^{t+1}\| + (\eta^1 - \eta^T) L_1^2}{\epsilon} \right\rceil.
     \end{equation} 
 \end{proposition}
 
-\autoref{prop:lipschitz} suggests the question: Is there an upper bound on the right-hand side of~\eqref{eq:epsilon_rank_u}? The answer is affirmative, provided an additional assumption on the strong convexity of the loss functions. Li~\textit{et al.}~\cite{li2019convergence} proved that \texttt{FedAvg} converges with rate $\mathcal{O}(1 / T)$ when the local models are all smooth and strongly convex. Thus, we can bound the diameter of the set of global parameters $\{w^1, \dots, w^T\}$. The following result formalizes this observation. 
+\autoref{prop:lipschitz} suggests the question: Is there an upper bound on the right-hand side of~\eqref{eq:epsilon_rank_u_hfl}? The answer is affirmative, provided an additional assumption on the strong convexity of the loss functions. Li~\textit{et al.}~\cite{li2019convergence} proved that \texttt{FedAvg} converges with rate $\mathcal{O}(1 / T)$ when the local models are all smooth and strongly convex. Thus, we can bound the diameter of the set of global parameters $\{w^1, \dots, w^T\}$. The following result formalizes this observation. 
 
 \begin{proposition}[Lipschitz, smooth and strongly convex objective] \label{prop:strongly_cvx}
     In addition to the setting in \autoref{prop:lipschitz}, we assume that the user specified loss function $\ell(w; D)$ is $\mu$-strongly convex w.r.t.\ $w$ for all $D \in \{D_c, D_1, D_2, \dots, D_N\}$, and the learning rates are defined by 
@@ -249,20 +230,20 @@ the central server does not get a chance to observe the possible contribution by
 The central server selects all clients for update in at least one round, that is, there exists $k>0$, $I_k = I$.  Without loss of generality, in the rest of the paper, we assume $I_1=I$. Our discussion can be easily generalized to any $I_k=I$.
 \end{assumption}
 
-Note that \autoref{ass:main} does not come with high costs. As explained in \autoref{sec:7.1}, the central server selects a subset of clients in each round only to reduce communication cost, and the communication cost for doing one round of all clients is equivalent to doing $\left \lceil{N / m}\right \rceil $ rounds of additional training, where $m = |I_t|$ for all $t$. 
+Note that \autoref{ass:main} does not come with high costs. As explained in \autoref{sec:7-1}, the central server selects a subset of clients in each round only to reduce communication cost, and the communication cost for doing one round of all clients is equivalent to doing $\left \lceil{N / m}\right \rceil $ rounds of additional training, where $m = |I_t|$ for all $t$. 
 
-\subsection{Approximately Low-Rank Matrix Completion} \label{sec:7.5.2}
+\subsection{Approximately Low-Rank Matrix Completion} \label{sec:7-6-3}
 
 We propose the following factorization-based low-rank matrix completion problem to complete the utility matrix $\mathcal{U}$: 
 \begin{equation}
-\label{prob:matrix_completion}
+\label{prob:matrix_completion_hfl}
 \minimize{\substack{W \in \mathbb{R}^{T \times r}\\ H \in \mathbb{R}^{2^N \times r}}} \enspace \sum_{t=1}^T\sum_{S\subseteq I_t} (\mathcal{U}_{t,S} - w_t^Th_{S})^2 + 
 \lambda(\|W\|_F^2 + \|H\|_F^2),
 \end{equation}
-where $r$ is a user specified rank parameter, $\lambda$ is a positive regularization parameter, $\|\cdot\|_F$ is the Frobenious norm, and $w_t$ and $h_S$, respectively, are the $t$-th and the $S$-th row vectors of the matrices $W$ and $H$. Because the matrix completion problem~\eqref{prob:matrix_completion} is solved after the whole training process, we can determine the rank parameter $r$ via \autoref{prop:lipschitz} and~\autoref{prop:strongly_cvx}. We show the impact of rank parameter $r$ on the performance of the low-rank matrix completion problem~\eqref{prob:matrix_completion} via a numerical example.
+where $r$ is a user specified rank parameter, $\lambda$ is a positive regularization parameter, $\|\cdot\|_F$ is the Frobenious norm, and $w_t$ and $h_S$, respectively, are the $t$-th and the $S$-th row vectors of the matrices $W$ and $H$. Because the matrix completion problem~\eqref{prob:matrix_completion_hfl} is solved after the whole training process, we can determine the rank parameter $r$ via \autoref{prop:lipschitz} and~\autoref{prop:strongly_cvx}. We show the impact of rank parameter $r$ on the performance of the low-rank matrix completion problem~\eqref{prob:matrix_completion_hfl} via a numerical example.
 
 \begin{example}[Impact of Rank Parameter] \label{ex:3}
-    We conduct a numerical experiment to show the impact of the rank parameter $r$ on the matrix completion problem~\eqref{prob:matrix_completion}. We train a simple multilayer perceptron neural network for the MNIST data set. We have 10 clients, train the model for 100 rounds and randomly select 3 clients in each round. Note that although we update the global model with the selected clients, in order to get the whole utility matrix, we compute the updates of all clients in each round. We define the relative difference between $\mathcal{U}$ and $WH^T$ as 
+    We conduct a numerical experiment to show the impact of the rank parameter $r$ on the matrix completion problem~\eqref{prob:matrix_completion_hfl}. We train a simple multilayer perceptron neural network for the MNIST data set. We have 10 clients, train the model for 100 rounds and randomly select 3 clients in each round. Note that although we update the global model with the selected clients, in order to get the whole utility matrix, we compute the updates of all clients in each round. We define the relative difference between $\mathcal{U}$ and $WH^T$ as 
     $\frac{\|\mathcal{U} - WH^T\|_{Fro}}{\|\mathcal{U}\|_{Fro}}$.
     We try different rank parameters $r \in \{1, \dots, 10\}$ and report the relative difference in \autoref{fig:rank}. The curve shows that a small rank parameter may not be enough for recovering the information in the utility matrix $\mathcal{U}$ and a large rank parameter may bring some overfitting problem.  
     
@@ -275,9 +256,9 @@ where $r$ is a user specified rank parameter, $\lambda$ is a positive regulariza
     
 \end{example}
 
-Interestingly, the low-rank matrix completion model~\eqref{prob:matrix_completion} was first used in completing the information for recommender systems~\cite{koren2009matrix}. Its effectiveness has been extensively studied both theoretically and empirically~\cite{keshavan2012efficient, sun2016guaranteed}.  Therefore, we can simply adopt the well established matrix completion methods~\cite{yu2014parallel, chin2016libmf} and focus on how to derive fair contribution evaluation metric based on a completed utility matrix.
+Interestingly, the low-rank matrix completion model~\eqref{prob:matrix_completion_hfl} was first used in completing the information for recommender systems~\cite{koren2009matrix}. Its effectiveness has been extensively studied both theoretically and empirically~\cite{keshavan2012efficient, sun2016guaranteed}.  Therefore, we can simply adopt the well established matrix completion methods~\cite{yu2014parallel, chin2016libmf} and focus on how to derive fair contribution evaluation metric based on a completed utility matrix.
     
-\subsection{Completed Federated Shapley Value} \label{sec:5.3}
+\subsection{Completed Federated Shapley Value} \label{sec:7-6-4}
 
 \begin{figure}[t]
     \centering
@@ -288,16 +269,16 @@ Interestingly, the low-rank matrix completion model~\eqref{prob:matrix_completio
 
 Now, we are ready to give the formal definition of ComFedSV. 
 \begin{definition}[Completed Federated Shapley Value (ComFedSV)] \label{def:complete_sv}
-    Let $W$ and  $H$ be the optimal solutions to the approximately low-rank matrix completion problem~\eqref{prob:matrix_completion}. Then, the ComFedSV for each client $i \in I$ is defined as 
+    Let $W$ and  $H$ be the optimal solutions to the approximately low-rank matrix completion problem~\eqref{prob:matrix_completion_hfl}. Then, the ComFedSV for each client $i \in I$ is defined as 
     \begin{equation} \label{eq:complete_sv}
         s_i = \frac{1}{N} \sum_{t=1}^T\sum\limits_{S \subseteq I \setminus\{i\}} \frac{1}{\binom{N-1}{|S|}} w_t^T(h_{S\cup\{i\}} - h_S),
     \end{equation}
     where $w_t$ and $h_S$, respectively, are the $t$-th and the $S$-th row vectors of the matrices $W$ and $H$.
 \end{definition}
-The whole pipeline is shown in \autoref{fig:pipeline}. The next result shows that if we can approximately recover the utility matrix, then ComFedSV is guaranteed to be approximate Shapley-fair according to \autoref{def:fairness}. We first give a formal definition of the approximate recovery of the utility matrix. 
+The whole pipeline is shown in \autoref{fig:pipeline}. The next result shows that if we can approximately recover the utility matrix, then ComFedSV is guaranteed to be approximate Shapley-fair according to \autoref{def:hfl_fairness}. We first give a formal definition of the approximate recovery of the utility matrix. 
 
 \begin{definition} \label{def:completeness}
-    Let $W$ and  $H$ be the optimal solutions to the approximately low-rank matrix completion problem~\eqref{prob:matrix_completion}, and $s$ be the ComFedSV (\autoref{def:complete_sv}). We say that $s$ is \textbf{$\delta$-completed} for some $\delta>0$, if we can complete the utility matrix with tolerance $\delta$, that is,
+    Let $W$ and  $H$ be the optimal solutions to the approximately low-rank matrix completion problem~\eqref{prob:matrix_completion_hfl}, and $s$ be the ComFedSV (\autoref{def:complete_sv}). We say that $s$ is \textbf{$\delta$-completed} for some $\delta>0$, if we can complete the utility matrix with tolerance $\delta$, that is,
     $\|\mathcal{U} - W H^T\|_1 \leq \delta$, where
     $\|\cdot\|_1$ is the maximum absolute column sum, i.e., $\|X\|_1 = \max_j \sum_i |X_{i,j}|$. 
 \end{definition}
@@ -318,7 +299,7 @@ In particular, as long as the utility matrix is perfectly recovered, i.e., $\mat
 
 There are different kinds of fairness in machine learning and federated learning~\cite{zemel2013learning,donini2018empirical,li2019fair,lyu2020collaborative,chu2021fedfair}. In this work, we focus on the fairness in data valuation (\autoref{prop:fair}). Moreover, our proposed metric is adaptable to different training algorithms for federated learning. When there are training algorithms that can achieve some other requirements on fairness besides the ones described in the paper, it is possible to combine those training algorithms with our valuation metric. For example, Chu et al.~\cite{chu2021fedfair} proposed an algorithm that can guarantee the fairness for protected groups. Our valuation metric ComFedSV can be easily adapted to their algorithm since we still have access to the uploaded local models in each iteration.
 
-\subsection{Estimating ComFedSV} \label{sec:7.5.4}
+\subsection{Estimating ComFedSV} \label{sec:7-6-5}
 
 \begin{algorithm}[t]
     \DontPrintSemicolon
@@ -356,25 +337,25 @@ There are different kinds of fairness in machine learning and federated learning
      }
      Solve problem~\eqref{prob:matrix_completion_reduced} to get $W$ and $H$\;
      \For{$i$ in $I$}{
-        Compute the completed Shapley value $s_i$ as in~\eqref{eq:complete_ev_approx}\;
+        Compute the completed Shapley value $s_i$ as in~\eqref{eq:comfedsv_approx}\;
      }
      \Return{ $\{s_i: i \in I\}$ }
 \end{algorithm}
 
-The utility matrix $\mathcal{U}$ has size $T \times 2^N$, which is exponential in the number of clients. As the number of clients increases, solving the matrix completion problem~\eqref{prob:matrix_completion} cannot scale up. The similar situation appears in the computation of the Shapley value, where the computational complexity is also exponential in the number of clients. Can we estimate the Shapley values in our model?
+The utility matrix $\mathcal{U}$ has size $T \times 2^N$, which is exponential in the number of clients. As the number of clients increases, solving the matrix completion problem~\eqref{prob:matrix_completion_hfl} cannot scale up. The similar situation appears in the computation of the Shapley value, where the computational complexity is also exponential in the number of clients. Can we estimate the Shapley values in our model?
 
 How to efficiently estimatie the Shapley value has been studied extensively~\cite{ghorbani2019data,jia2019towards}. Here we describe the well known Monte-Carlo sampling method~\cite{metropolis1949monte, ghorbani2019data}. We can rewrite the definition of ComFedSV~\eqref{eq:complete_sv} into an equivalent formulation using expectation:
-\begin{equation} \label{eq:complete_ev_expectation}
+\begin{equation} 
     s_i = \mathop{\mathbb{E}}_{\pi \sim \Pi(I)} \sum_{t=1}^T w_t^T\left(h_{ \pi(i) \cup \{i\}}  - h_{ \pi(i) }\right),
 \end{equation}
 where $\Pi(I)$ is the uniform distribution over all $N!$ permutations of the set of clients $I$ and $\pi(i)$ is the set of clients preceding client $i$ in permutation $\pi$. With this formulation, we can use the Monte-Carlo method to get an approximation of ComFedSV. More precisely, we can randomly sample $M$ permutations $\pi_1, \dots, \pi_M$ and get an approximation to ComFedSV $s_i$ by 
-\begin{equation} \label{eq:complete_ev_approx}
+\begin{equation} \label{eq:comfedsv_approx}
     \hat s_i = \frac{1}{M}\sum_{m=1}^M \sum_{t=1}^T w_t^T\left(h_{ \pi_m(i) \cup \{i\}}  - h_{ \pi_m(i) }\right).
 \end{equation}
 
-From~\eqref{eq:complete_ev_approx}, we notice that we only need access to part of the utility matrix $\mathcal{U}$, namely 
+From~\eqref{eq:comfedsv_approx}, we notice that we only need access to part of the utility matrix $\mathcal{U}$, namely 
 \[ \{\mathcal{U}_{t, S}: t \in [1, \dots, T], S = \pi_m(i), m \in [1,\dots,M], i \in I\}, \]
-which suggests that we can reduce the size of the matrix completion problem~\eqref{prob:matrix_completion}. Formally, we can solve the following reduced matrix completion problem:
+which suggests that we can reduce the size of the matrix completion problem~\eqref{prob:matrix_completion_hfl}. Formally, we can solve the following reduced matrix completion problem:
 \begin{equation}
 \label{prob:matrix_completion_reduced}
 \minimize{\substack{W \in \mathbb{R}^{T \times r}\\ H \in \mathbb{R}^{MN \times r}}}\enspace \sum_{t=1}^T\sum_{ \substack{m \in [1,\dots, M] \\ i \in I \\ \pi_m(i) \subseteq I_t  } } (\mathcal{U}_{t,\pi_m(i)} - w_t^Th_{\pi_m(i)})^2 + \lambda(\|W\|_F^2 + \|H\|_F^2).
@@ -382,10 +363,10 @@ which suggests that we can reduce the size of the matrix completion problem~\eqr
 
 We summarize the whole process in \autoref{alg:main}. It was shown by \cite{maleki2013bounding} that, for bounded utility functions, the Monte-Carlo method requires $M = \mathcal{O}(N\log N)$ samples to achieve a good approximation.  The estimation is unbiased. As a consequence, both the space and time complexities for \autoref{alg:main} are $\mathcal{O}(TN^2\log(N))$. 
 
-\section{Experiments} \label{sec:7.6}
+\section{Experiments} \label{sec:7-7}
 This section reports a series of experiments that examine how well ComFedSV can capture contributions from clients/data owners in federated learning. Our code is publicly available at the \emph{Huawei AI Gallery}\footnote{\url{https://developer.huaweicloud.com/develop/aigallery/notebook/detail?id=08da32bb-9b85-4ddb-ae6c-94a3f5102133}}.
 
-\subsection{Experiment Setting} \label{sec:7.6.1}
+\subsection{Experiment Setting} \label{sec:7-7-1}
 
 \subsubsection{Data Sets} 
 We perform experiments on both real and synthetic data. For synthetic data, we follow the setup as in~\cite{li2018federated}. For real data, we choose the widely used benchmark data sets MNIST~\cite{lecun-mnisthandwrittendigit-2010}, Fashion MNIST~\cite{xiao2017fashion}, and CIFAR10~\cite{krizhevsky2009learning}.  
@@ -402,7 +383,7 @@ We use the open source package \texttt{LIBPMF}\footnote{\url{https://github.com/
 \subsubsection{Compared metrics} 
 We compare the performance of ComFedSV with FedSV and the ground-truth, where the ground-truth is ComFedSV computed from the full utility matrix. Note that for the ground-truth, although we compute the updates of all clients in each round to obtain the whole utility matrix, we only update the global model with the updates by the randomly selected clients in each round, so that the global models will be the same for all three metrics.
 
-\subsection{Fairness} \label{sec:7.6.2}
+\subsection{Fairness} \label{sec:7-7-2}
 
 \begin{figure}[t]
     \centering
@@ -411,11 +392,11 @@ We compare the performance of ComFedSV with FedSV and the ground-truth, where th
     \label{fig:fairness}
 \end{figure}
 
-In this experiment, we extend the results shown in \autoref{ex:1} and investigate whether ComFedSV improves fairness by checking if clients with similar data sets receive similar ComFedSVs. Limited by space, we only discuss the non-IID setting here.
+In this experiment, we extend the results shown in \autoref{ex:unfair} and investigate whether ComFedSV improves fairness by checking if clients with similar data sets receive similar ComFedSVs. Limited by space, we only discuss the non-IID setting here.
 
 \autoref{fig:fairness} shows the empirical cumulative distribution of the relative difference $d_{0,9}$ between clients 0 and 9, where we use two metrics: FedSV and ComFedSV. The relative difference is defined by \eqref{eq:relative_difference}, and takes values between $0$ and $1$. The vertical axis represents the probability $\mathbb{P}(d_{0,9} \leq t)$. Clearly, ComFedSV outperforms FedSV in fairness. On all data sets, Synthetic, MNIST, FMNIST, and CIFAR10, the probability $\mathbb{P}(d_{0,9}^{ComFedSV} < t)$ is always greater than or equal to $\mathbb{P}(d_{0,9}^{FedSV} < t)$ for all possible value of $t$. In other words, in most trials, clients with same local data receive more similar evaluations in ComFedSV, but receive quite different evaluations in FedSV.
 
-\subsection{Data Quality Detection} \label{sec:7.6.3}
+\subsection{Data Quality Detection} \label{sec:7-7-3}
 
 Wang~\textit{et al.}~\cite{wang2020principled} showed that FedSV can be used to detect data quality.  To make a fair comparison, we conduct a similar experiment to compare the data quality detection capability of ComFedSV and FedSV.
 
@@ -444,7 +425,7 @@ We set 10 clients: $I = \{0, 1, \dots, 9\}$, run federated learning for 10 round
 
 We set 100 clients such that 10 of them each has 30\% noisy labels, where noise is introduced by random flipping. For each data set, we conduct federated learning for 100 rounds and randomly select $m\%$ clients to report in each round with $m \in \{10, 20 , \dots, 50\}$. We compare FedSV and ComFedSV by the Jaccard coefficient~\cite{jaccard1912distribution} between the set of  clients with the noisy labels and the set of 10 clients with the lowest evaluations. The result is shown in \autoref{fig:noisy_label_detection}. ComFedSV outperforms FedSV in most cases. Both methods perform better as more clients are selected to report in each round.
 
-\subsection{Time Complexity} \label{sec:time}
+\subsection{Time Complexity} \label{sec:7-7-4}
 
 \begin{figure}[t]
     \centering
@@ -457,7 +438,7 @@ In this experiment, we compare the time required for computing ComFedSV and FedS
 
 We set the number of clients to $10, 20, \dots, 100$ and randomly select $30\%$ of clients to report in each round. The results are shown in \autoref{fig:time_performance}, where we plot the computing time for FedSV and ComFedSV (left y-axis), as well as their ratio (right y-axis). As we can see from the plots, the ratio between the computing time for FedSV and ComFedSV is approaching a stable constant close to the participation rate as the number clients increases, which agrees with our complexity analysis.
 
-\section{Future Directions}
+\section{Discussion}
 In this paper, we tackle the challenging problem of data valuation in horizontal federated learning. We point out the possible unfairness in the existing data valuation method. Then, we propose a new measure ComFedSV, which is not only fair with theoretical guarantee, and also can be evaluated efficiently. We verify the fairness of our measure both theoretically and experimentally. 
 
 Our study advances the frontier in this emerging important direction. There are also many interesting future directions.  For example, it is interesting to extend our methodology to vertical federated learning. As another example, under the framework of federated learning, there may exist some other properties needed for fairness in federated learning in addition to those in the Shapley fairness.
