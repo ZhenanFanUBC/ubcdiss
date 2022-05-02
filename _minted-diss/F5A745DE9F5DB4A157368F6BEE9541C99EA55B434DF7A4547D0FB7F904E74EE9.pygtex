@@ -1,0 +1,15 @@
+\begin{Verbatim}[commandchars=\\\{\}]
+\PYG{+w}{  }\PYG{k}{using}\PYG{+w}{ }\PYG{n}{AtomicOpt}
+\PYG{+w}{  }\PYG{k}{using}\PYG{+w}{ }\PYG{n}{LinearAlgebra}
+\PYG{+w}{  }\PYG{k}{using}\PYG{+w}{ }\PYG{n}{Test}
+\PYG{+w}{  }\PYG{c}{\PYGZsh{} set dimension}
+\PYG{+w}{  }\PYG{n}{n}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{l+m+mi}{10}
+\PYG{+w}{  }\PYG{c}{\PYGZsh{} construct atomic set}
+\PYG{+w}{  }\PYG{n}{A}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{OneBall}\PYG{p}{(}\PYG{n}{n}\PYG{p}{)}
+\PYG{+w}{  }\PYG{c}{\PYGZsh{} generate random vector}
+\PYG{+w}{  }\PYG{n}{z}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{randn}\PYG{p}{(}\PYG{n}{n}\PYG{p}{)}
+\PYG{+w}{  }\PYG{c}{\PYGZsh{} expose atom}
+\PYG{+w}{  }\PYG{n}{a}\PYG{+w}{ }\PYG{o}{=}\PYG{+w}{ }\PYG{n}{expose}\PYG{p}{(}\PYG{n}{A}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{z}\PYG{p}{)}
+\PYG{+w}{  }\PYG{c}{\PYGZsh{} test}
+\PYG{+w}{  }\PYG{n+nd}{@test}\PYG{+w}{ }\PYG{n}{dot}\PYG{p}{(}\PYG{n}{a}\PYG{p}{,}\PYG{n}{z}\PYG{p}{)}\PYG{+w}{ }\PYG{o}{≈}\PYG{+w}{ }\PYG{n}{support}\PYG{p}{(}\PYG{n}{A}\PYG{p}{,}\PYG{+w}{ }\PYG{n}{z}\PYG{p}{)}
+\end{Verbatim}

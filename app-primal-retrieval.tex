@@ -8,7 +8,7 @@
 Consider the problem of fitting a model to data by selecting model parameters as the superposition of a limited set atomic elements taken from a given dictionary. Versions of this cardinality-constrained problem appear in a number of statistical-learning applications in machine learning \cite{tibshirani1996regression,yul06,Meinshausen06,aep08}, data mining, and signal processing~\cite{candes:2013}. In these applications, common atomic dictionaries include the set of one-hot vectors or matrices, rank-1 unit matrices, usually chosen as a mechanism to encode a notion of parsimony in the definition of the model parameters.
 
 The formulation we consider takes the form
-\begin{equation} \label{eq:main_prob} \tag{P}
+\begin{equation} \label{eq:main_prob} 
     \find x\in\Re^n \sut f(b - Mx) \leq \alpha \tand \card_\Ascr(x) \leq k,
 \end{equation}
 where $f:\Re^n\to\Re$ is an $L$-smooth and convex function, $M: \Re^n \to \Re^m$ is a linear operator with $m < n$, $b \in \Re^m$ is the observation vector, and $\Ascr \subseteq \Re^n$ is the atomic dictionary. The cardinality function 

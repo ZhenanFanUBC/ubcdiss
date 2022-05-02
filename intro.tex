@@ -14,7 +14,7 @@
 
 \section{Basic definitions and notations} \label{sec:1-1}
 
-In this section, we introduce some basic notations and definitions that will be used in this thesis. We use capital letters $A, B, \dots$ to denote matrices or linear operators, lowercase letters $a, b, \dots$ to denote vectors, calligraphic letters $\Ascr, \Bscr, \dots$ to denote sets, and Greek letters $\alpha, \beta, \dots$ to denote scalars.
+In this section, we introduce some basic notations and definitions that will be used in this thesis.  Unless otherwise specified, we use capital letters $A, B, \dots$ to denote matrices or linear operators, lowercase letters $a, b, \dots$ to denote vectors, calligraphic letters $\Ascr, \Bscr, \dots$ to denote sets, and Greek letters $\alpha, \beta, \dots$ to denote scalars.
 
 We work with $n$-vectors in $\Real^n$ and $p$-by-$n$ matrices in $\Real^{p\times
 n}$. The restriction to real-valued vectors and matrices considerably simplifies
@@ -322,7 +322,7 @@ the vector $x=(x_1,\ldots,x_n)$ with the largest magnitude.
 
 This generic model for atomic decompositions was promoted by~\citet{cds98} in the context of sparse signal decomposition, and more recently, by~\citet{chandrasekaran2012convex}, who were concerned with obtaining sparse solutions to linear inverse problems. 
 
-In this thesis, we want to answer the question of determining which of the atoms in the atomic set $\Ascr$ are essential to the atomic decomposition of $x$, and conversely, which atoms can be safely ignored. In \autoref{ch:Dual-Struc-Opt}, we study the atomic decomposition framework from a geometric perspective. Polarity, which extends the familiar notion of orthogonality from linear sets to general convex sets, plays a special role in a simple and geometric form of convex duality. This duality correspondence yields a general notion of alignment that leads to an intuitive and complete description of how atoms participate in the final decomposition of the solution. The resulting geometric perspective leads to variations of existing algorithms effective for large-scale problems. We illustrate these ideas with many examples, including applications in matrix completion and morphological component analysis. We further show that this dual alignment property allows us to design new structured optimization model for real world applications, and develop efficient and scalable algorithms for the structured optimization problems. We briefly show the roadmap bellow. 
+In this thesis, we want to answer the question of determining which of the atoms in the atomic set $\Ascr$ are essential to the atomic decomposition of $x$, and conversely, which atoms can be safely ignored. In \autoref{ch:Dual-Struc-Opt}, we study the atomic decomposition framework from a geometric perspective. Polarity, which extends the familiar notion of orthogonality from linear sets to general convex sets, plays a special role in a simple and geometric form of convex duality. This duality correspondence yields a general notion of alignment that leads to an intuitive and complete description of how atoms participate in the final decomposition of the solution. The resulting geometric perspective leads to variations of existing algorithms effective for large-scale problems. We illustrate these ideas with many examples, including applications in matrix completion and morphological component analysis. We further show that this dual alignment property allows us to design new structured optimization model for real world applications, and develop efficient and scalable algorithms for the structured optimization problems. We briefly introduce the roadmap bellow. 
 
 In \autoref{ch:App-Sig-Demix}, we study the signal demixing problem which seeks to separate a superposition of multiple signals into its constituent components. We propose a two-stage approach that first decompresses and subsequently deconvolves the noisy and undersampled observations of the superposition. Probabilistic error bounds are given on the accuracy with which this process approximates the individual signals. The theory of polar convolution of convex sets, which is developed by \citet{friedlander2019polarconvolution}, and the dual alignment property play a central role in the analysis and solution process. If the measurements are random and the noise is bounded, this approach stably recovers low-complexity and mutually incoherent signals, with high probability and with optimal sample complexity. Numerical experiments on both real and synthetic data confirm the theory and the efficiency of the approach.
 
@@ -360,9 +360,12 @@ Federated learning can be further be classified into two main categories: horizo
     \label{fig:hfl_and_vfl}
 \end{figure}
 
+In this thesis, we show that duality can be utilized to develop efficient and scalable algorithms for the optimization problem arising from federated learning. Besides, we show that the structured optimization techniques can play an important rule in designing fair contribution valuation rule in federated learning. We briefly introduce the roadmap bellow. 
+
 \subsection{Federated optimization} \label{sec:1-4-1}
 
 At the physical level, a federated learning system is often comosed of two components: clients and a central server. The learning process in federated learning can be formulated as a distributed optimization problem, which is also known as federated optimization. As characterized and formalized by~\citet{wang2021field},~\citet{li2020federated} and~\citet{li2019convergence}, there are several important characteristics that distinguish FO from standard machine learning and distributed optimization. 
+
 \begin{assumption}[Governing assumptions for federated optimization] \label{assum:govern}
 The following assumptions hold for federated optimization. 
   \begin{itemize}
@@ -373,7 +376,11 @@ The following assumptions hold for federated optimization.
 \end{itemize}
 \end{assumption}
 
-In this thesis, we want to develop an efficient and scalable algorithm for the federated optimization problem, which satisfies these governing assumptions (\autoref{assum:govern}). We study the federated optimization problem from a dual perspective and propose a new algorithm termed federated dual coordinate descent (FedDCD), which is based on a type of coordinate descent method developed by \citet{necoara2017random}. 
+In \autoref{ch:Dual-Fed-Opt}, we study the federated optimization problem from a dual perspective. We propose a new algorithm termed federated dual coordinate descent (FedDCD), which is based on a type of coordinate descent method developed by \citet{necoara2017random}.  Additionally, we
+enhance the FedDCD method with inexact gradient oracles and Nesterov's acceleration. We demonstrate
+theoretically that our proposed approach achieves better convergence rates than the state-of-the-art
+primal federated optimization algorithms under certain situations. Numerical experiments on real-world
+datasets support our analysis.
 
 \subsection{Contribution valuation in federated learning} \label{sec:1-4-2}
 
@@ -398,7 +405,11 @@ Under the federated learning setting, a utility function is usually defined usin
 \end{equation}
 for some positive constant $c$.  
 
-Although Shapley value has many desirable properties, evaluating Shapley value in federated learning requires exhaustive retraining and evaluating the model on every subset of clients. The costs of communication and time may be prohibitive in practice~\cite{song2019profit}. In this thesis, we want to design fair and efficient contribution valuation techniques for both horizontal and vertical federated learning. Our approach relies on the concepts and tools from structured optimization. 
+Although Shapley value has many desirable properties, evaluating Shapley value in federated learning requires exhaustive retraining and evaluating the model on every subset of clients. The costs of communication and time may be prohibitive in practice~\cite{song2019profit}. To tackle this challenge, some variations inspired by Shapley value were developed. Federated Shapley value (FedSV), recently proposed by \citet{wang2020principled}, is a measure for valuating contribution under the framework of horizontal federated learning. The key idea is to compute the Shapley values for clients in each round of training and then report the summation over all the rounds as the final results. This design cleverly avoids model retraining. However, there are still factors of potential unfairness in the design of FedSV because two data owners with the same local data may not receive the same evaluation. 
+
+In \autoref{ch:Val-HFL}, we propose a new measure called completed federated Shapley value (ComFedSV) for contribution valuation in horizontal federated learning, which improves the fairness of FedSV. The design depends on completing a matrix consisting of all the possible contributions by different subsets of the data owners. It is shown under mild conditions that this matrix is approximately low-rank by leveraging concepts and tools from structured optimization. Both theoretical analysis and empirical evaluation verify that the proposed measure does improve fairness in many circumstances.
+
+In \autoref{ch:Val-VFL}, we extend the idea of FedSV to vertical federated learning. We propose a contribution valuation metric called vertical federated Shapley value (VerFedSV), which utilizes tools from structured optimization. We show that VerFedSV not only satisfies many desirable properties for fairness but is also efficient to compute, and can be adapted to both synchronous and asynchronous vertical federated learning algorithms. Both theoretical analysis and extensive experimental results verify the fairness, efficiency, and adaptability of VerFedSV.
 
 
 

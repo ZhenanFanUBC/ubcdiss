@@ -8,7 +8,7 @@ learning}
 As we introduced in \autoref{ch:Val-HFL}, the effectiveness of federated
 learning (FL) depends on the active participation of motivated clients. Because fair cooperation and reward can motivate clients' participation, it is vital to understand how to fairly and effectively evaluate clients' contributions. In this chapter, we concentrate on developing efficient and equitable methods for evaluating clients' contributions in vertical federated learning (VFL) systems.
 
-Recall that the Shapley value is the only metric that satisfies all four requirements of Shapley's fairness criteria: \emph{balance}, \emph{symmetry}, \emph{zero element}, and \emph{additivity}~\cite{dubey1975uniqueness} (see \autoref{sec:8.4} for a quick review).  Although the Shapley value has many desirable characteristics, its evaluation in the FL context requires repeatedly training and evaluating a machine learning model on all possible subsets of clients. The corresponding communication and computational costs are exponential, and thus are often prohibitive in practice~\cite{song2019profit,wang2019measure,fan2021improving}. 
+Recall that the Shapley value is the only metric that satisfies all four requirements of Shapley's fairness criteria: \emph{balance}, \emph{symmetry}, \emph{zero element}, and \emph{additivity}~\cite{dubey1975uniqueness} (see \autoref{sec:1-4-2} for a quick review).  Although the Shapley value has many desirable characteristics, its evaluation in the FL context requires repeatedly training and evaluating a machine learning model on all possible subsets of clients. The corresponding communication and computational costs are exponential, and thus are often prohibitive in practice~\cite{song2019profit,wang2019measure,fan2021improving}. 
 
 Variants of the Shapley value make equitable data owner contribution assessment feasible in FL. For HFL, Wang \textit{et al.}~\cite{wang2020principled} proposed a contribution valuation metric called federated Shapley value (FedSV). The key idea is to calculate Shapley values for clients in each round of training and then to report the sum of the Shapley values for all clients as the final results. Computation of the FedSV does not need model retraining and retains some, but not all, of Shapley's fairness criteria. Fan \textit{et al.}~\cite{fan2021improving} further improved the fairness of this approach by leveraging low-rank matrix factorization techniques. 
 
@@ -21,17 +21,17 @@ We demonstrate that our design retains many desirable fairness properties and ca
 
 VFL algorithms can be divided into two categories: synchronous methods~\cite{Gong2016PrivateDA,Zhang2018FeatureDistributedSF,liu2019communication}, where periodic synchronizations
  among clients are required, and asynchronous ones
- ~\cite{Hu2019FDMLAC,Gu2020PrivacyPreservingAF,chen2020vafl}, where clients are allowed to conduct local computation asynchronously. We show that VerFedSV is applicable to both synchronous and asynchronous VFL settings. Under the synchronous setting, we show that FedSV can be computed by leveraging some matrix-completion techniques. Although there are many similarities between synchronous and asynchronous VFL settings, contribution valuation in an asynchronous VFL setting is more complicated because the contribution of a client not only depends on the relevance of the client's data to the training task, but also depends on the client's local computational resource. We demonstrate that our design can reflect the strength of clients' local computational resources under the asynchronous setting. To the best of our knowledge, we are the first to consider the contributions in local computational resources.
+ ~\cite{Hu2019FDMLAC,Gu2020PrivacyPreservingAF,chen2020vafl}, where clients are allowed to conduct local computation asynchronously. We show that VerFedSV is applicable to both synchronous and asynchronous VFL settings. Under the synchronous setting, we show that FedSV can be computed by leveraging some matrix-completion techniques. Although there are many similarities between synchronous and asynchronous VFL settings, contribution valuation in an asynchronous VFL setting is more complicated because the contribution of a client not only depends on the relevance of the client's data to the training task, but also depends on the client's local computational resource. We demonstrate that our design can reflect the strength of clients' local computational resources under the asynchronous setting. To the best of our knowledge, we are the first to consider the contributions in local computational resources. The proofs to all the mathematical statements in this chapter is contained in \autoref{sec:8-10}.
 
 Our contributions can be summarized as follows.
 \begin{enumerate}
     \item We propose vertical federated Shapley value (VerFedSV) for vertical federated learning (\autoref{def:vertical_fedsv}), which satisfies the desirable properties for fairness (\autoref{prop:fair}). 
     \item Under the synchronous vertical federated learning setting, we show that VerFedSV can be computed by solving low-rank matrix completion problems for embedding matrices, which are proven to be approximately low rank (\autoref{prop:low-rank}). We also give an approximation guarantee on VerFedSV given the tolerance for matrix completion (\autoref{prop:syn_verfedsv}).
     \item Under the asynchronous vertical federated learning setting, we show that VerFedSV can be directly computed and can indeed reflect the strength of clients' local computational resources (\autoref{prop:asyn_diff_fre}).
-    \item We show that the computational complexity of VerFedSV can be further reduced by applying Monte-Carlo sampling methods (\autoref{sec:8.7}). 
+    \item We show that the computational complexity of VerFedSV can be further reduced by applying Monte-Carlo sampling methods (\autoref{sec:8-7}). 
 \end{enumerate}
 
-\section{Related work} \label{sec:8.2}
+\section{Related work} \label{sec:8-2}
 
 Shapley value~\cite{shapley201617} has had extensive applications in economics~\cite{gul1989bargaining}. Dubey~\cite{dubey1975uniqueness} showed that Shapley value is the unique measure that satisfies the four fundamental requirements of fairness proposed by Shapley~\cite{shapley201617}. Limited by space, here we restrict our discussion to Shapley-value-based valuation strategies related to machine learning. 
 
@@ -39,9 +39,9 @@ Ghorbani and Zou~\cite{ghorbani2019data} proposed the Shapely value-based metric
 
 Song \textit{et al.}~\cite{song2019profit} introduced the concept of data Shapley value to HFL and proposed contribution index (CI). They pointed out that directly calculating CI requires retraining the model exponentially, which is costly in federated learning. They offered two gradient-based techniques to approximate the contribution index. Wang \textit{et al.}~\cite{wang2020principled} alternatively solved this problem by proposing a new measure for HFL, called federated Shapley value, which can be determined from local model updates in each training iteration. Federated Shapley value does not need model retraining and preserves some but not all of the favorable qualities of the traditional Shapley value. Fan \textit{et al.}~\cite{fan2021improving} further improved the fairness of this approach. 
 
-Wang \textit{et al.}~\cite{wang2019measure} and more recently Han \textit{et al.}~\cite{han2021data} extended the notion of data Shapley value to VFL. As discussed before, the need of retraining the model for different subsets of clients is a bottleneck of Shapley value computation in federated learning. Both of these two works~\cite{wang2019measure,han2021data} solved this problem by introducing model-independent utility functions, where model-independency means that the contribution of a client does not depend on the performance of the final model, and thus does not require retraining of the model. In particular, Wang \textit{et al.}~\cite{wang2019measure} suggested using the situational importance (SI)~\cite{achen1982interpreting}, which computes the difference between the embeddings with true features and expected features. However, computing SI requires knowing the expectation of each feature and can be impractical under VFL. Han \textit{et al.}~\cite{han2021data} suggested to use the conditional mutual information (CMI)~\cite{brown2012conditional}, which computes the tightness between the label and features. However, computing CMI requires every client to access the labels, which may also be impractical under VFL and leak privacy. Besides the above shortcomings, the model-independent utility function itself may cause some fairness issues when the VFL is conducted asynchronously. As we discussed in \autoref{sec:8.1}, under the asynchronous setting, the contribution of a client not only is related to the quality of the local dataset but also depends on the power of local computational resources. Model-independent utility functions cannot fully reflect a client's contribution in this case. In this work, we instead use model-dependent utility function and resolve the requirement on retraining the model by periodically evaluating the Shapley during the training process.
+Wang \textit{et al.}~\cite{wang2019measure} and more recently Han \textit{et al.}~\cite{han2021data} extended the notion of data Shapley value to VFL. As discussed before, the need of retraining the model for different subsets of clients is a bottleneck of Shapley value computation in federated learning. Both of these two works~\cite{wang2019measure,han2021data} solved this problem by introducing model-independent utility functions, where model-independency means that the contribution of a client does not depend on the performance of the final model, and thus does not require retraining of the model. In particular, Wang \textit{et al.}~\cite{wang2019measure} suggested using the situational importance (SI)~\cite{achen1982interpreting}, which computes the difference between the embeddings with true features and expected features. However, computing SI requires knowing the expectation of each feature and can be impractical under VFL. Han \textit{et al.}~\cite{han2021data} suggested to use the conditional mutual information (CMI)~\cite{brown2012conditional}, which computes the tightness between the label and features. However, computing CMI requires every client to access the labels, which may also be impractical under VFL and leak privacy. Besides the above shortcomings, the model-independent utility function itself may cause some fairness issues when the VFL is conducted asynchronously. As we discussed in \autoref{sec:8-1}, under the asynchronous setting, the contribution of a client not only is related to the quality of the local dataset but also depends on the power of local computational resources. Model-independent utility functions cannot fully reflect a client's contribution in this case. In this work, we instead use model-dependent utility function and resolve the requirement on retraining the model by periodically evaluating the Shapley during the training process.
 
-\section{Vertical federated learning} \label{sec:8.3}
+\section{Vertical federated learning} \label{sec:8-3}
 In this section, we revisit the VFL model. Consider the following standard VFL scenario: $M$ clients and a single server collaborate to train a machine learning model on $N$ data samples $\{(x_i \in \mathbb{R}^d, y_i \in \{\pm 1\})\}_{i=1}^N$, where $x_i$ is the feature vector and $y_i$ is the label. Let $[N] = \{1, \dots, N\}$ denote the set of all sample indices. 
 Every feature vector $x_i$ is distributed across $M$ clients $\{x^m_i\in\mathbb{R}^{d^m}: m \in [M]\}$, where $d^m$ is the feature dimension for client $m$ such that $\sum_{m=1}^M d^m = d$ and $[M] = \{1,\dots, M\}$ denotes the set of all clients. The local data set for any client $m$ is
 \[\mathcal{D}^m = \{x_i^m : i \in [N]\}.\]
@@ -70,19 +70,8 @@ The communication between the server and the clients is widely recognised as the
 
 In this chapter, we use the notions of several special classes of functions, i.e., strongly convex and Lipschitz and smooth, and notions of $\epsilon$-net and covering number, which are tools widely used in high-dimensional probability~\cite{vershynin2018high}. Due to the page limit, we include the formal definitions of these notions in the supplementary material.
 
-\section{Vertical federated Shapley value} \label{sec:8.4}
-Fairness is one of the most desirable properties for a contribution valuation metric \cite{ghorbani2019data,pei2020survey}. Under the FL setting, a contribution valuation metric should reflect how much each client contributes to the performance of the final model. Formally, we assume a black-box utility function $U:2^{[M]} \to \mathbb{R}$ such that for any subset of clients $S \subseteq [M]$, the function $U(S)$ returns a utility score of the model collaboratively trained by the clients in $S$, such as the performance of the model. Let $v: [M] \to \mathbb{R}$ be the evaluation metric associated with the utility function $U$. Given the utility function $U$, the Shapley fairness criteria~\cite{shapley201617} has four fundamental requirements for any metric $v$.
-\begin{enumerate}
-    \item \textbf{Symmetry.} For any two clients $i, j \in [M]$, if for any subset of clients $S \subseteq [M] \setminus \{i,j\}$, $U(S \cup \{i\}) = U(S \cup \{j\})$, then $v(i) = v(j)$. 
-    \item \textbf{Zero element.} For any client $i \in [N]$, if for any subset of clients $S \subseteq [M] \setminus \{i\}$, $U(S \cup \{i\}) = U(S)$, then $v(i) = 0$.
-    \item \textbf{Additivity.} If the utility function $U$ can be expressed as the sum of separate utility functions, namely $U = U_1 + U_2$ for some $U_1, U_2 : 2^I \to \mathbb{R}$, then for any client $i \in [M]$, $v(i) = v_1(i) + v_2(i)$, where $v_i$ and $v_2$ are the evaluation metrics associated with the utility functions $U_1$ and $U_2$, respectively. 
-    \item \textbf{Balance.}  $U([M]) = \sum_{i \in [M]} v(i)$.
-\end{enumerate}
-Note that, although balance is a necessary condition in many economic contests because it ensures payment is fully distributed to all clients, it is irrelevant in the context of our paper because we are only concerned about the relative contributions of clients. It has been shown that if the contribution valuation metric $v$ satisfies symmetry, zero element, and additivity, then $v$ must have the form
-\begin{equation} \label{eq:shapley2}
-    v(i) = c \sum\limits_{S \subseteq I \setminus\{i\}} \frac{1}{\binom{N-1}{|S|}} \left[U(S\cup\{i\}) - U(S)\right]
-\end{equation}
-for some positive constant $c$~\cite{dubey1975uniqueness,ghorbani2019data}. However, the contribution valuation metric in~\eqref{eq:shapley} is impractical in the federated learning context because the evaluation of the utility function $U$ requires retraining models~\cite{ghorbani2019data,wang2020principled}. To make a fair evaluation of data owners computationally practical in federated learning, as discussed before, Wang \textit{et al.}~\cite{wang2020principled} recently proposed the federated Shapley value (FedSV) for HFL, which computes the Shapley values for clients periodically during the training and then reports the summation over all the periods as the final results. We extend this idea to the VFL context. 
+\section{Vertical federated Shapley value} \label{sec:8-4}
+Fairness is one of the most desirable properties for a contribution valuation metric \cite{ghorbani2019data,pei2020survey}. Under the FL setting, a contribution valuation metric should reflect how much each client contributes to the performance of the final model. As we introduced in \autoref{sec:1-4-2}, Shapley value is the unique metric that satisfies the Shapley fairness criteria~\cite{shapley201617} (\autoref{def:shapley}). However, the contribution valuation metric in~\eqref{eq:shapley} is impractical in the federated learning context because the evaluation of the utility function $U$ requires retraining models~\cite{ghorbani2019data,wang2020principled}. To make a fair evaluation of data owners computationally practical in federated learning, as discussed before, Wang \textit{et al.}~\cite{wang2020principled} recently proposed the federated Shapley value (FedSV) for HFL, which computes the Shapley values for clients periodically during the training and then reports the summation over all the periods as the final results. We extend this idea to the VFL context. 
 
 Suppose we pre-determine $T$ time-stamps for contribution valuation and use $[T] = \{1,\dots, T\}$ to denote the set of all time-stamps. At each time $t \in [T]$, we define the utility function $U_t:2^{[M]}\to\mathbb{R}$ such that for any subset of clients $S \subseteq [M]$, the utility $U_t(S)$ denotes the decrease in loss made by the clients in $S$ during the time period $[t-1, t]$, i.e., 
 \begin{align} \label{eq:utility2}
@@ -111,7 +100,7 @@ Now, let us justify the fairness of VerFedSV. Since Shapley value is the unique 
     \end{itemize}
 \end{theorem}
 
-\section{Computation of VerFedSV under synchronous setting} \label{sec:8.5}
+\section{Computation of VerFedSV under synchronous setting} \label{sec:8-5}
 This section shows how to equip VerFedSV with synchronous VFL algorithms. Almost all the synchronous VFL algorithms \cite{Gong2016PrivateDA,Zhang2018FeatureDistributedSF,liu2019communication} share the same framework that in each round, every client uploads local embeddings for the same batch of data points to the server, downloads gradient information from the server, and then conducts local updates. The main difference among these algorithms is the scheme of local updates. Since the VerFedSV is computed by the server and is independent of the clients' local updates, for clarity, we consider the vanilla stochastic gradient descent algorithm for VFL (a.k.a. FedSGD \cite{liu2019communication}). All the results can be easily generalized to more complicated synchronous algorithms.
 
 \subsection{One Training Round in FedSGD}
@@ -205,7 +194,7 @@ via solving~\eqref{prob:matrix_completion}, then we can also guarantee a good ap
     for all client $m \in [M]$.
 \end{proposition}
 
-\section{Computation of VerFedSV under asynchronous setting} \label{sec:8.6}
+\section{Computation of VerFedSV under asynchronous setting} \label{sec:8-6}
 Algorithms using synchronous computation are inefficient when applied to real-world VFL tasks, particularly, when clients' computational resources are unbalanced. In this section, we show how to equip VerFedSV with asynchronous VFL algorithms.
 
 \subsection{Training Process in Vertical Asynchronous Federated Learning}
@@ -270,7 +259,7 @@ The above discussion also suggests that VerFedSV can motivate clients to communi
     where $s_1$, $s_2$ are the VerFedSV for clients 1 and 2 respectively. 
 \end{proposition}
 
-\section{Estimating the VerFedSV} \label{sec:8.7}
+\section{Estimating the VerFedSV} \label{sec:8-7}
 From \autoref{def:vertical_fedsv}, we can see that the computational complexity for VerFedSV is exponential in the number of clients $M$. The same situation appears in the computation of the classical Shapley value. How to efficiently estimate the Shapley value has been studied extensively~\cite{ghorbani2019data,jia2019towards}. Many existing methods can be adopted for the computation of VerFedSV. Here we describe the well known Monte-Carlo sampling method~\cite{metropolis1949monte, ghorbani2019data}. We can rewrite the definition of VerFedSV into an equivalent formulation using expectation,
 \begin{equation} \label{eq:complete_ev_expectation}
     s_m = \mathop{\mathbb{E}}_{\pi \sim \Pi([M])} \frac{1}{T}\sum_{t=1}^T [U_t(\pi(m)\cup\{m\}) - U_t(\pi(m))],
@@ -286,10 +275,10 @@ for some $\epsilon > 0$ and $\delta \in (0, 1)$, where
 then we have 
 \[\mathbb{P}(|\hat s_m - s_m| \leq \epsilon) \geq 1 - \delta.\]
 
-\section{Experiments} \label{sec:8}
-We conduct extensive experiments on real-world datasets to validate the fairness, efficiency, adaptability and effectiveness of VerFedSV. \autoref{sec:8.8.1} introduces the datasets and some general settings for our experiments. \autoref{sec:8.8.2} and~\autoref{sec:8.8.3}, respectively, report the fairness performance of VerFedSV in synchronous and asynchronous VFL settings. Finally, in Section 8.4, we compare the results given by VerFedSV with those by SHAP~\cite{lundberg2017unified}, a widely used metric for measuring feature importance in machine learning, to verify the effectiveness of VerFedSV. 
+\section{Experiments} \label{sec:8-8}
+We conduct extensive experiments on real-world datasets to validate the fairness, efficiency, adaptability and effectiveness of VerFedSV. \autoref{sec:8-8-1} introduces the datasets and some general settings for our experiments. \autoref{sec:8-8-2} and \autoref{sec:8-8-3}, respectively, report the fairness performance of VerFedSV in synchronous and asynchronous VFL settings. Finally, in Section 8.4, we compare the results given by VerFedSV with those by SHAP \cite{lundberg2017unified}, a widely used metric for measuring feature importance in machine learning, to verify the effectiveness of VerFedSV. 
 
-\subsection{Data Sets and Settings} \label{sec:8.8.1}
+\subsection{Data Sets and Settings} \label{sec:8-8-1}
 
 \paragraph{Data sets} We use four real-world data sets, \emph{Adult}~\cite{zeng2008fast}, \emph{Web}~\cite{platt1998fast}, \emph{Covtype}~\cite{blackard1999comparative}, and \emph{RCV1}~\cite{lewis2004rcv1}. All datasets are downloaded from the website of LIBSVM\footnote{\url{https://www.csie.ntu.edu.tw/~cjlin/libsvmtools/datasets/}}~\cite{libsvm}. These data sets cover both binary and multiclass classification problems. On each data set, we separate the features across the largest number of clients reported in literature. That is, we compare with the baselines under the most challenging settings. We summarize the metadata as well as the number of clients for all the datasets in Table~\ref{tab:metadata}.
 
@@ -310,12 +299,13 @@ We conduct extensive experiments on real-world datasets to validate the fairness
 
 \paragraph{Models} For the \emph{Adult}, \emph{Web} and \emph{Covtype} data sets, we train multinomial logistic regression models. For the \emph{RCV1} data set, we still use the negative log-likelihood loss, but every client locally has a 2-layer  perceptron model for embedding. Under both the synchronous and asynchronous settings, we can achieve the test accuracy of $85\%$ on the \emph{Adult} dataset, $94\%$ on the \emph{Web} dataset, $72\%$ on the \emph{Covtype} dataset, and $83\%$ on the \emph{RCV1} dataset. 
 
-\paragraph{Implementation} We implement the VFL algorithms and the corresponding VerFedSV computation schemes described in Sections~\ref{sec:5} and~\ref{sec:6} in the Julia language~\cite{bezanson2017julia}. The implementations of both synchronous and asynchronous VFL algorithms are publicly available at
+\paragraph{Implementation} We implement the VFL algorithms and the corresponding VerFedSV computation schemes described in \autoref{sec:8-5} and \autoref{sec:8-6} in the Julia language \cite{bezanson2017julia}. The implementations of both synchronous and asynchronous VFL algorithms are publicly available at
 \url{https://github.com/ZhenanFanUBC/VerFedLogistic.jl}. 
-The matrix completion problem~\eqref{prob:matrix_completion} is solved by the Julia package \texttt{LowRankModels.jl}~\cite{glrm}.
+The matrix completion problem \eqref{prob:matrix_completion} is solved by the Julia package 
+\texttt{LowRankModels.jl} \cite{glrm}.
 The VerFedSV is computed exactly when the number of clients $M \leq 10$, and approximately using Monte Carlo when the number of clients $M > 10$. All the experiments are conducted on a Linux server with 32 CPUs and 64 GB memory. We provide more detailed settings of our experiments in the supplementary material for reproducibility.
 
-\subsection{Synchronous Vertical Federated Learning} \label{sec:8.8.2}
+\subsection{Synchronous Vertical Federated Learning} \label{sec:8-8-2}
 
 We adapt VerFedSV with synchronous VFL algorithms. First, we empirically verify that the embedding matrices are indeed approximately low-rank (\autoref{prop:low-rank}). Next, we demonstrate that VerFedSV satisfies the fairness property under synchronous setting (\autoref{thm:fair}). More precisely, we verify that clients with similar features should get similar valuations and clients with randomly generated features should get low valuations. We train the model for $T = 500$ rounds for all the datasets, which is also the number of contribution valuation time points (\autoref{def:vertical_fedsv}).
 
@@ -408,7 +398,7 @@ In this experiment, we show that clients with randomly generated features receiv
     \label{tab:syn_random_feature}
 \end{table}
 
-\subsection{Asynchronous Vertical Federated Learning} \label{sec:8.8.3}
+\subsection{Asynchronous Vertical Federated Learning} \label{sec:8-8-3}
 In this set of experiments, we adapt VerFedSV with asynchronous VFL algorithms. We show that VerFedSV not only satisfies the fairness property under asynchronous setting (\autoref{thm:fair}), but can also reflect how frequently clients report (\autoref{prop:asyn_diff_fre}). More specifically, during the training, we let clients to communicate with server at different frequencies. For all the datasets, we asynchronously train the model for $20$ seconds and do the valuation every $0.04$ seconds, i.e., there are $T = 500$ contribution valuation time points (\autoref{def:vertical_fedsv}). 
 
 \paragraph{Impact of communication frequency}
@@ -463,7 +453,7 @@ In this experiment, we show that clients with randomly generated features receiv
     \label{tab:asyn_random_feature}
 \end{table}
 
-\subsection{Effectiveness of VerFedSV} \label{sec:8.8.4}
+\subsection{Effectiveness of VerFedSV} \label{sec:8-8-4}
 We evaluate the effectiveness of VerFedSV in both the synchronous and asynchronous VFL settings. In other words, we test whether VerFedSV can reflect the importance of clients' local features. We set all clients to have the same communication frequency to eliminate the impact of unbalanced local computational resources. We choose SHAP~\cite{lundberg2017unified} as the baseline, which is a widely-used metric for measuring feature importance in machine learning. More specifically, we first use SHAP to compute the importance scores of all the features, and then for each client, we ensemble the scores for all the local features. Note that SHAP cannot be directly used in the VFL task, as it requires access to all the local datasets and models and violates the VFL settings. So here we just use it as a reference. We use the Kendall's rank correlation (KRC)~\cite{kendall1938new} to measure the similarity between the orderings of the scores of SHAP and VerFedSV. As a by-product, we also show the similarity between the scores of VerFedSV in the synchronous and asynchronous settings. We show in \autoref{tab:comparasion_shap} the KRCs between the results of SHAP and VerFedSV, where $\corr$ denotes the KRC, $\svshap$ denotes the results from SHAP, $\svsyn$ and $\svasyn$, respectively, denote the results from VerFedSV in the synchronous and asynchronous settings, and the numbers of clients for the \emph{Adult}, \emph{Web}, \emph{Covtype} and \emph{RCV1} datasets are, respectively, set to $M = 3, 15, 9, 14$. Note that KRC returns a value in $[-1, 1]$, where ``$1$'' means two input score lists have the identical ranking and ``$-1$'' means the rankings are exactly reverted. The KRC between SHAP and VerFedSV are all greater than $0.6$. The results indicate that VerFedSV can indeed capture the feature importance well. Moreover, the KRC between $\svsyn$ and $\svasyn$ are all greater than 0.8. The results indicate that VerFedSV is consistent under both synchronous and asynchronous settings.
 
 \begin{table}[t]
@@ -480,12 +470,12 @@ We evaluate the effectiveness of VerFedSV in both the synchronous and asynchrono
     \label{tab:comparasion_shap}
 \end{table}
 
-\section{Insights} \label{sec:8.9}
+\section{Discussion} \label{sec:8-9}
 In this paper, we propose a contribution valuation metric called vertical federated Shapley value (VerFedSV) for vertical federated learning (VFL). We demonstrate both theoretically and empirically that VerFedSV satisfies many desirable properties for fairness and is quite adaptable such that it can be applied under both synchronous and asynchronous VFL settings. 
 
 There are a few interesting directions for future work.  For example, there is an interesting insight from the experiments that deserves future research.  We notice that when we keep adding clients with identical features, the total of the VerFedSV increases. This may suggest that some clients may ``cheat'' by constructing new clients with identical features so that they can receive unjustifiable rewards in the end. The issue can be resolved under the synchronous setting, for example, by checking the similarity between uploaded embeddings from clients. However, it seems there is no simple solution to resolve this issue under the asynchronous setting. 
 
-\section{Proofs}
+\section{Proofs} \label{sec:8-10}
 
 \subsection{Proof for Theorem 1}
 \begin{proof}

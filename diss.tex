@@ -328,13 +328,14 @@
 \usepackage{minted}
 \usepackage{fancyvrb}
 \usepackage{listings}
+\usepackage[utf8x]{inputenc}
+\usepackage{textgreek}
+\newcounter{code}[example]
 
 \newenvironment{code}
-{%
-  \VerbatimEnvironment
+{ \VerbatimEnvironment
   \begin{listing}[H]
-  \begin{minted}[%
-      label = code example,%  Might want to change or remove this label
+  \begin{minted}[
       linenos,%
       breaklines,%
       style = default,%
@@ -342,7 +343,7 @@
       frame = single%
       ]{julia}%
 }
-{%
+{
   \end{minted}%
   \end{listing}%
 }
