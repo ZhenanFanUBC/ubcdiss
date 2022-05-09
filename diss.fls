@@ -1468,8 +1468,6 @@ INPUT /Users/zhenanfan/Documents/GitHub/ubcdiss/intro.tex
 INPUT /Users/zhenanfan/Documents/GitHub/ubcdiss/intro.tex
 INPUT /Users/zhenanfan/Documents/GitHub/ubcdiss/intro.tex
 INPUT /Users/zhenanfan/Documents/GitHub/ubcdiss/intro.tex
-INPUT /usr/local/texlive/2021/texmf-dist/fonts/tfm/adobe/times/ptmr8c.tfm
-INPUT /usr/local/texlive/2021/texmf-dist/fonts/vf/adobe/times/ptmr8c.vf
 INPUT /usr/local/texlive/2021/texmf-dist/fonts/tfm/adobe/times/ptmr7t.tfm
 INPUT /usr/local/texlive/2021/texmf-dist/fonts/tfm/adobe/times/ptmr7t.tfm
 INPUT /usr/local/texlive/2021/texmf-dist/tex/latex/psnfss/ot1pcr.fd
@@ -1493,13 +1491,15 @@ INPUT /Users/zhenanfan/Documents/GitHub/ubcdiss/./figures/strong_dual.pdf
 INPUT /Users/zhenanfan/Documents/GitHub/ubcdiss/./figures/strong_dual.pdf
 INPUT /Users/zhenanfan/Documents/GitHub/ubcdiss/./figures/strong_dual.pdf
 INPUT /Users/zhenanfan/Documents/GitHub/ubcdiss/./figures/strong_dual.pdf
+INPUT /usr/local/texlive/2021/texmf-dist/fonts/tfm/adobe/times/ptmr8c.tfm
 INPUT /usr/local/texlive/2021/texmf-dist/fonts/tfm/adobe/times/ptmbi7t.tfm
-INPUT /usr/local/texlive/2021/texmf-dist/fonts/vf/adobe/times/ptmbi7t.vf
-INPUT /usr/local/texlive/2021/texmf-dist/fonts/tfm/adobe/times/ptmbi8r.tfm
 INPUT /usr/local/texlive/2021/texmf-dist/fonts/vf/adobe/times/ptmb7t.vf
 INPUT /usr/local/texlive/2021/texmf-dist/fonts/tfm/adobe/times/ptmb8r.tfm
 INPUT /usr/local/texlive/2021/texmf-dist/fonts/vf/adobe/times/ptmr7t.vf
 INPUT /usr/local/texlive/2021/texmf-dist/fonts/tfm/adobe/times/ptmr8r.tfm
+INPUT /usr/local/texlive/2021/texmf-dist/fonts/vf/adobe/times/ptmr8c.vf
+INPUT /usr/local/texlive/2021/texmf-dist/fonts/vf/adobe/times/ptmbi7t.vf
+INPUT /usr/local/texlive/2021/texmf-dist/fonts/tfm/adobe/times/ptmbi8r.tfm
 INPUT /usr/local/texlive/2021/texmf-dist/tex/latex/ucs/data/uni-32.def
 INPUT /usr/local/texlive/2021/texmf-dist/tex/latex/ucs/data/uni-32.def
 INPUT /usr/local/texlive/2021/texmf-dist/tex/latex/ucs/data/uni-32.def
@@ -2089,6 +2089,8 @@ INPUT /Users/zhenanfan/Documents/GitHub/ubcdiss/diss.brf
 INPUT /Users/zhenanfan/Documents/GitHub/ubcdiss/diss.brf
 INPUT /Users/zhenanfan/Documents/GitHub/ubcdiss/diss.brf
 OUTPUT /Users/zhenanfan/Documents/GitHub/ubcdiss/diss.brf
+INPUT /usr/local/texlive/2021/texmf-dist/fonts/tfm/adobe/times/ptmri8c.tfm
+INPUT /usr/local/texlive/2021/texmf-dist/fonts/vf/adobe/times/ptmri8c.vf
 INPUT /usr/local/texlive/2021/texmf-dist/fonts/tfm/adobe/helvetic/phvr7t.tfm
 INPUT /usr/local/texlive/2021/texmf-dist/fonts/tfm/adobe/helvetic/phvr7t.tfm
 INPUT /Users/zhenanfan/Documents/GitHub/ubcdiss/diss.aux
