@@ -62,19 +62,19 @@ The detailed algorithm is shown in \autoref{alg:primal_recover}. Note that our p
 
 \subsection{Related work}
 
-Indeed, many recently proposed algorithms for atomic-sparse optimization problems are dual-based algorithm~\cite{fan2019bundle,DingYCTU21}.  However, we need to retrieve the primal variable $x$ at some point when solving the dual problem, and this can again explode the memory. A widely used heuristic applies truncated SVD \cite[Algorithm~6.4]{fan2019alignment} to obtain a atomic-sparse representation of the solution, but this heuristic lacks reliability since its recovery error bound is not well studied. How to efficiently and reliably retrieve a atomic-sparse primal variable is crucial for memory-efficient atomic-sparse optimization.
+Indeed, many recently proposed algorithms for structured optimization problems are dual-based algorithm~\cite{fan2019bundle,DingYCTU21}.  However, we need to retrieve the primal variable $x$ at some point when solving the dual problem, and this can again explode the memory. A widely used heuristic applies truncated SVD \cite[Algorithm~6.4]{fan2019alignment} to obtain a atomic-sparse representation of the solution, but this heuristic lacks reliability since its recovery error bound is not well studied. How to efficiently and reliably retrieve a atomic-sparse primal variable is crucial for memory-efficient structured optimization.
 
 Solving dual formulations of nuclear-norm or trace-norm regularized problems has received substantial interest in recent years since the dual-based approaches are shown to enjoy ``optimal storage'', i.e., have space complexity $\BigOh(m)$ instead of $\BigOh( n^2 )$ \cite{DingYCTU21}. For example, the bundle method for solving the Lagrangian dual formulation of semi-definite programming \cite{helmberg2000spectral} and the gauge dual formulation of general atomic sparse optimization problem \cite{fan2019bundle} are shown to achieve promising empirical result.
 
 Another related work line is directly developing a memory-efficient primal-based algorithm based on hard-thresholding. For example, the gradient hard thresholding algorithm \cite{YuanLZ17}, the periodical hard-thresholding \cite{Allen-ZhuHHL17} and many proximal-gradient or ADMM-based algorithms that use hard-thresholding as an implementation heuristic \cite{mazumder2010spectral,Lin11,hsieh2014nuclear}. This line of works are primal-based algorithms and are tangential to this paper. We do not include them in our discussion. 
 
-The theoretical analysis of our primal-retrieval is related to atom-identification \cite{BurM88,hare2004identifying,hare2011identifying}, and especially some recently developed safe-screening rules \cite{Ghaoui12,wang2013lasso,liu2014safe,WangZLWY14,Raj2015ScreeningRF,BonnefoyERG15,XiangWR17,NdiayeFGS17,ZhangHLYCHW17,kuang2017screening,Atamtrk2020SafeSR,Bao20} for various kind of sparse optimization problems. Our \autoref{thm:p0} can be viewed as a generalization of the gap-safe screening rules to general atomic-sparse problems as well as more problem formulations. Some of the techniques used in our analysis are related to the facial reduction strategy from Krislock and Wolcowicz~\cite{krislock2010explicit}. 
+The theoretical analysis of our primal-retrieval is related to atom-identification \cite{BurM88,hare2004identifying,hare2011identifying}, and especially some recently developed safe-screening rules \cite{Ghaoui12,wang2013lasso,liu2014safe,WangZLWY14,Raj2015ScreeningRF,BonnefoyERG15,XiangWR17,NdiayeFGS17,ZhangHLYCHW17,kuang2017screening,Atamtrk2020SafeSR,Bao20} for various kind of sparse optimization problems. Our \autoref{thm:p0} can be viewed as a generalization of the gap-safe screening rules to general structured optimization problems as well as more problem formulations. Some of the techniques used in our analysis are related to the facial reduction strategy from Krislock and Wolcowicz~\cite{krislock2010explicit}. 
 
 
-\section{Gauge-regularized optimization}
+\section{Convex relaxations}
 \label{sec:4-2}
 
-In this section, we introduce various types of atomic-sparse optimization problems, which are known as the convex relaxations to the structured data-fitting problem~\eqref{eq:main_prob}. More specifically, 
+In this section, we introduce various types of structured optimization problems, which are known as the convex relaxations to the structured data-fitting problem~\eqref{eq:main_prob}. More specifically, 
 we consider the following three related gauge-regularized optimization
 problems:
 \begin{align} 
@@ -84,7 +84,7 @@ problems:
 \end{align}
 It's well known that under mild conditions, these three formulations are equivalent to each other for appropriate choice of the positive parameters $\lambda, \tau$, and $\alpha$~\cite{FrieTsen:2006}. Practitioners often prefer one of these formulations depending on their application. For example, tasks related to machine learning, including feature selection and recommender system, typically feature one of the first two formulations~\cite{tibshirani1996regression,yul06,Meinshausen06}.  On the other hand, applications in signal processing and related fields, such as as compressed sensing and phase retrieval, usually use the third formulation~\cite{berg2008probing,candes:2013}. 
 
-Our primal-retrieval strategy relies on the hypothesis that the atomic-sparse optimization problems \eqref{prob:primal1}, \eqref{prob:primal2} and \eqref{prob:primal3} are reasonable convex relaxations to the structured data-fitting problem~\eqref{eq:main_prob}, in the sense that the corresponding optimal solutions are feasible to \eqref{eq:main_prob}. We formalize this in the following assumption.
+Our primal-retrieval strategy relies on the hypothesis that the structured optimization problems \eqref{prob:primal1}, \eqref{prob:primal2} and \eqref{prob:primal3} are reasonable convex relaxations to the structured data-fitting problem~\eqref{eq:main_prob}, in the sense that the corresponding optimal solutions are feasible to \eqref{eq:main_prob}. We formalize this in the following assumption.
 
 \begin{assumption} \label{ass:blanket}
     Let $x^*$ denote the optimal solution to any of \eqref{prob:primal1}, \eqref{prob:primal2} or \eqref{prob:primal3}. Then $x^*$ is feasible for \eqref{eq:main_prob}, i.e., 
@@ -505,10 +505,10 @@ By \cite[Proposition~7.3]{fan2019alignment}, we know that \eqref{eq:rpca} is equ
 \end{equation}
 where $\Ascr = \lambda \Ascr_1 + \Ascr_2$, $\Ascr_1 = \{uv^T \mid u \in \mR^m,\ v \in \mR^n,\ \|u\|_2=\|v\|_2 = 1\}$ and $\Ascr_2 = \{\pm e_ie_j^T \mid i \in [m], j \in [n]\}$. The recovered low-rank component is shown in \autoref{fig:face_shadow}. As we can see from the figure, most of the shadow are successfully removed. This experiment suggests that our primal-retrieval technique can potentially be used for more complex atomic set and allow the underlying the dual-algorithm to produce satisfactory result within a reasonable number of iterations. 
 
-\section{Discussion}
-In this work, we proposed a simple primal-retrieval strategy for atomic-sparse optimization. We demonstrate both theoretically and empirically that our proposed strategy can obtain desirable primal variable given a dual-based algorithm converging to the optimum dual solution. 
+\section{Summary of contributions}
 
-Further research opportunities remain, particularly for designing meaningful primal-retrieval strategy for non-polyhedral and non-spectral atomic sets. The primal-retrieval technique developed in this work is algorithm-agnostic, it is possible to develop more efficient primal-retrieval rule that associated with specific optimization algorithms such as the conditional-gradient method.
+In this chapter, we proposed a simple primal-retrieval strategy for a class of structured data-fitting problems using the polar alignment property developed in \autoref{ch:Dual-Struc-Opt}. Given a dual-based algorithm converging to the optimum dual solution, we demonstrate theoretically that for polyhedral atomic sets, our proposed strategy can obtain a feasible primal variable, and for spectral atomic sets, our proposed strategy can obtain a near-feasible primal variable. Extensive numerical experiments are conducted to support our analysis. 
+
 
 
 \section{Proofs}
@@ -560,7 +560,7 @@ Finally, by~\autoref{thm-fenchel}, we can get the dual problem for~\eqref{prob:p
 \[\minimize{y\in\Re^m,\ \beta > 0} \beta \left( f^*\left( \frac{y}{\beta} \right) + \alpha \right) - \ip{b}{y} \enspace \text{subject to}\enspace \sigma\As(M^* y) \leq 1.\]
 
 
-\subsection{Proof of Theorem~\ref{thm:p0}} \label{app:main_proof}
+\subsection{Proof of \autoref{thm:p0}} \label{app:main_proof}
 
 The proof of this Theorem relies on the duality between smoothness and strong convexity.
 \begin{lemma}[\protect{\cite[Theorem~6]{kakade2009duality}}] \label{lemma:conjugate}

@@ -10,9 +10,9 @@ measurements $b\in\Re^m$, with $m\le n$, of the form
 \begin{equation}\label{eq:demixing-problem}
   b = M\xagg + \eta \text{with} \xagg\coloneqq \sum\limits_{i = 1}^k x\nai.
 \end{equation}
-The known linear operator $M:\Re^n \rightarrow \Re^m$ models the acquisition process of the superposition vector $\xagg$. The vector $\eta\in \Re^m$ represents noise uncorrelated with the data. This measurement model and its variations are useful for a range of data-science applications, including mixture models~\cite{araki2009blind,quiros2012dependent}, blind deconvolution~\cite{ahmed2013blind}, blind source separation~\cite{chan2008convex}, and morphological component analysis~\cite{bobin2007morphological}.
+The known linear operator $M:\Re^n \rightarrow \Re^m$ models the acquisition process of the superposition vector $\xagg$. The vector $\eta\in \Re^m$ represents noise uncorrelated with the data. This measurement model and its variations are useful for a range of data-science applications, including mixture models~\citep{araki2009blind,quiros2012dependent}, blind deconvolution~\citep{ahmed2013blind}, blind source separation~\citep{chan2008convex}, and morphological component analysis~\citep{bobin2007morphological}.
 
-A central concern of the demixing problem \eqref{eq:demixing-problem} is to delineate efficient procedures and accompanying conditions that make it possible to recover the constituent signals to within a prescribed accuracy---using the fewest number of measurements $m$. The recovery of these constituent signals cannot be accomplished without additional information, such as the latent structure in each signal $x\nai$. We build on the general atomic-sparsity framework introduced in \autoref{ch:Dual-Struc-Opt}, namely each signal $x\nai$ is itself well represented as a superposition of a few atomic signals from a collection  $\Ascr_i\subset\Re^n$. In other words, the vectors $\{x\nai\}_{i=1}^k$ are paired with atomic sets $\{\Ascr_i\}_{i=1}^k$ that allow the decompositions
+A central concern of the demixing problem \eqref{eq:demixing-problem} is to delineate efficient procedures and accompanying conditions that make it possible to recover the constituent signals to within a prescribed accuracy---using the fewest number of measurements $m$. The recovery of these constituent signals cannot be accomplished without additional information, such as the latent structure in each signal $x\nai$. We build on the general atomic-sparsity framework introduced in \autoref{sec:1-3}, namely each signal $x\nai$ is itself well represented as a superposition of a few atomic signals from a collection  $\Ascr_i\subset\Re^n$. In other words, the vectors $\{x\nai\}_{i=1}^k$ are paired with atomic sets $\{\Ascr_i\}_{i=1}^k$ that allow the decompositions
 \begin{equation} \label{eq:decomposition}
   x\nai = \sum_{a\in \Ascr_i}c_a a, \quad c_a\geq 0\quad \forall a \in \Ascr_i,
 \end{equation}
@@ -22,7 +22,7 @@ As we introduced in \autoref{ch:Dual-Struc-Opt}, a common approach to recover an
 
 \subsection{Polar convolution} \label{sec:3-1-1}
 
-For any two atomic sets $\Ascr_1$ and $\Ascr_2$, the polar convolution of the corresponding gauge functions is given by \eqref{eq:max-conv}.
+Recall that for any two atomic sets $\Ascr_1$ and $\Ascr_2$, the polar convolution of the corresponding gauge functions is given by \eqref{eq:max-conv}.
 The resulting function is the gauge to the vector sum $\Ascr_1+\Ascr_2$, i.e.,
 \begin{equation}\label{eq-polar-convolution-sum}
   \gauge\Aso\maxconv\gauge\Ast = \gauge_{\scriptscriptstyle\Ascr_1+\Ascr_2};
@@ -45,7 +45,7 @@ $\partial \gauge_{\scriptscriptstyle(\Ascr_1+\Ascr_2)\polar} = \partial\gauge_{\
 
 \subsection{Decompression and deconvolution} \label{sec:3-1-2}
 
-The principle innovation of our approach to the demixing problem \eqref{eq:demixing-problem} is to decouple the recovery procedure into two stages: an initial \emph{decompression} stage meant to recover the superposition $\xagg$ from the vector of observations $b$, followed by a \emph{deconvolution} stage that separates the recovered superposition $\xagg$ into its constituent components $\{x\nai\}_{i=1}^k$. We couple the convex theory of polar convolution~\cite{friedlander2019polarconvolution} to the theory of statistical dimension and signal incoherence to derive a recovery procedure and analysis for demixing a compressively sampled mixture to within a prescribed accuracy.
+The principle innovation of our approach to the demixing problem \eqref{eq:demixing-problem} is to decouple the recovery procedure into two stages: an initial \emph{decompression} stage meant to recover the superposition $\xagg$ from the vector of observations $b$, followed by a \emph{deconvolution} stage that separates the recovered superposition $\xagg$ into its constituent components $\{x\nai\}_{i=1}^k$. We couple the convex theory of polar convolution~\citep{friedlander2019polarconvolution} to the theory of statistical dimension and signal incoherence to derive a recovery procedure and analysis for demixing a compressively sampled mixture to within a prescribed accuracy.
 
 \paragraph{Stage 1: Decompression} The initial decompression stage is based on the observation
 that because each signal $x\nai$ is $\Ascr_i$ sparse, the superposition $\xagg$
@@ -80,7 +80,7 @@ to obtain approximations $x_i^*$ to each constituent signal $x\nai$.
 
 In both stages, a variant of the conditional-gradient method provides a
 computationally and memory efficient algorithm that can be implemented with
-storage proportional to the number of measurements $m$~\cite{fan2019alignment}. We
+storage proportional to the number of measurements $m$~\citep{fan2019alignment}. We
 describe in \autoref{ch:App-AtomicOpt} the details of the method.
 
 \subsection{Related work}
@@ -91,39 +91,31 @@ describe in \autoref{ch:App-AtomicOpt} the details of the method.
   \toprule
             & Compressed   & Noisy        & Number& Recovery  & Explicit \\
   Reference & measurements & observations & of signals  & algorithm & error bound\\\midrule
-  \cite{mccoy2014convexity} & \xmark & \xmark & $2$  &\cmark  &\xmark\\
-  \cite{mccoy2014sharp} & \xmark & \xmark & $2$ & \xmark & \cmark \\
-  \cite{oymak2017universality} & \cmark & \xmark & $2$ &\xmark & \cmark \\
-  \cite{mccoy2013achievable} & \cmark & \cmark & $\geq 2$ &\xmark & \xmark \\
+  \citep{mccoy2014convexity} & \xmark & \xmark & $2$  &\cmark  &\xmark\\
+  \citep{mccoy2014sharp} & \xmark & \xmark & $2$ & \xmark & \cmark \\
+  \citep{oymak2017universality} & \cmark & \xmark & $2$ &\xmark & \cmark \\
+  \citep{mccoy2013achievable} & \cmark & \cmark & $\geq 2$ &\xmark & \xmark \\
   This paper & \cmark & \cmark & $\geq 2$ & \cmark & \cmark \\\bottomrule 
   \end{tabular}
   \end{center}
-  \caption{Comparison of the main mathematical results obtained by this paper and related references. Only this paper and McCoy and Tropp~\cite{mccoy2013achievable} consider the case of two or more signals.} \label{tab:comparasion}
+  \caption{Comparison of the main mathematical results obtained by this paper and related references. Only this paper and~\citet{mccoy2013achievable} consider the case of two or more signals.} \label{tab:comparasion}
 \end{table}
 
-The history of signal demixing can be traced to early work in seismic imaging~\cite{claerbout1973robust} and morphological component analysis~\cite{starck2005morphological,bobin2007morphological}, which used 1-norm regularization to separate incoherent signals. More recently, McCoy and Tropp~\cite{mccoy2014sharp,mccoy2013achievable} and Oymak and Tropp~\cite{oymak2017universality} proposed a unified theoretical framework for signal demixing using modern tools from high-dimensional geometry.
+The history of signal demixing can be traced to early work in seismic imaging~\citep{claerbout1973robust} and morphological component analysis~\citep{starck2005morphological,bobin2007morphological}, which used 1-norm regularization to separate incoherent signals. More recently,~\citet{mccoy2014sharp,mccoy2013achievable} and \citet{oymak2017universality} proposed a unified theoretical framework for signal demixing using modern tools from high-dimensional geometry.
 
-McCoy et al.~\cite{mccoy2014convexity} analyzed the recovery guarantees of a convex program that can reconstruct $k = 2$ randomly-rotated signals from a full set of noiseless observations, i.e., $M$ is the identity matrix and $\norm{\eta}=0$. They also provided an ADMM-type algorithm for solving their proposed model. McCoy and Tropp~\cite{mccoy2014sharp} enhanced the error bound analysis under the same problem setting. McCoy and Tropp~\cite{mccoy2013achievable} subsequently extended this framework to demixing $k \geq 2$ randomly-rotated signals from noisy measurements, as modeled by~\eqref{eq:demixing-problem}. However, the constants in the recovery error bound are not made explicit. We postpone to \autoref{sec:comparasion} a detailed comparison between our theoretical results and theirs. Oymak and Tropp~\cite{oymak2017universality} considered a demixing problem similar to~\eqref{eq:deconvolution} that also incorporates the measurement operator $M$, and provided guarantees for demixing two unknown vectors from random and noiseless measurements. We build on this line of work by providing explicit recovery error bounds in terms of the complexity of the signal sets and the number of measurements. Our analysis allows for any number of individual signals $k\ge2$. Moreover, we provide a memory-efficient algorithm for solving our proposed model. \autoref{tab:comparasion} compares main mathematical results obtained by this paper and the above references.
+\citet{mccoy2014convexity} analyzed the recovery guarantees of a convex program that can reconstruct $k = 2$ randomly-rotated signals from a full set of noiseless observations, i.e., $M$ is the identity matrix and $\norm{\eta}=0$. They also provided an ADMM-type algorithm for solving their proposed model. \citet{mccoy2014sharp} enhanced the error bound analysis under the same problem setting. \citet{mccoy2013achievable} subsequently extended this framework to demixing $k \geq 2$ randomly-rotated signals from noisy measurements, as modeled by~\eqref{eq:demixing-problem}. However, the constants in the recovery error bound are not made explicit. We postpone to \autoref{sec:comparasion} a detailed comparison between our theoretical results and theirs. \citet{oymak2017universality} considered a demixing problem similar to~\eqref{eq:deconvolution} that also incorporates the measurement operator $M$, and provided guarantees for demixing two unknown vectors from random and noiseless measurements. We build on this line of work by providing explicit recovery error bounds in terms of the complexity of the signal sets and the number of measurements. Our analysis allows for any number of individual signals $k\ge2$. Moreover, we provide a memory-efficient algorithm for solving our proposed model. \autoref{tab:comparasion} compares main mathematical results obtained by this paper and the above references.
 
-Early work on demixing sparse signals implicitly assumed some notion of incoherence between representations of the signals. This concept was made concrete by Donoho and Huo~\cite{doh01}, and subsequently Donoho and Elad~\cite{doe03}, who measured the mutual incoherence of finite bases via the maximal inner-products between elements of the sets. Related incoherence definitions appear in compressed sensing~\cite{tro04, maleki2009coherence} and robust PCA~\cite{candes2011robust, wright2013compressive}. In this paper we adopt McCoy and Tropp's~\cite{mccoy2013achievable} notion of incoherence as the minimal angle between conic representation of the individual signals.
+Early work on demixing sparse signals implicitly assumed some notion of incoherence between representations of the signals. This concept was made concrete by \citet{doh01}, and subsequently \citet{doe03}, who measured the mutual incoherence of finite bases via the maximal inner-products between elements of the sets. Related incoherence definitions appear in compressed sensing~\citep{tro04, maleki2009coherence} and robust PCA~\citep{candes2011robust, wright2013compressive}. In this paper we adopt \citet{mccoy2013achievable}'s notion of incoherence as the minimal angle between conic representation of the individual signals.
 
-\subsection{Roadmap and contributions}
+\subsection{Roadmap}
 
-\autoref{sec:3-2} shows that the decompression problem \eqref{eq:decompression} can stably recover $x\nag$. \autoref{thm:tropp} characterizes the recovery error in terms of the overall complexity of the signal, provided the measurements are random. This result follows directly from Tropp~\cite{tropp2015convex} and a conic decomposition property particular to polar convolution. \autoref{sec:3-3} shows that the deconvolution problem~\eqref{eq:deconvolution} can stably approximate each $x\nai$. The bound in the recovery error is given in terms of the error in the initial decompression process and the incoherence between signals as measured by the minimum angle between conic representations of each signal; see \autoref{thm-stability}. This result requires a general notion of incoherence based on the angle between descent cones, first analyzed by McCoy and Tropp~\cite{mccoy2013achievable}.  \autoref{sec-incoherence} shows how a random-rotation model yields a particular level of incoherence with high probability; see \autoref{thm:Incoherence}. We develop the recovery guarantee under the random-rotation model; see \autoref{corollary-stability}. \autoref{sec:3-5} describes experiments on real and synthetic structured signals. Proofs of all theoretical results are given in \autoref{sec:3-7}.
+\autoref{sec:3-2} shows that the decompression problem \eqref{eq:decompression} can stably recover $x\nag$. \autoref{thm:tropp} characterizes the recovery error in terms of the overall complexity of the signal, provided the measurements are random. This result follows directly from \citet{tropp2015convex} and a conic decomposition property particular to polar convolution. \autoref{sec:3-3} shows that the deconvolution problem~\eqref{eq:deconvolution} can stably approximate each $x\nai$. The bound in the recovery error is given in terms of the error in the initial decompression process and the incoherence between signals as measured by the minimum angle between conic representations of each signal; see \autoref{thm-stability}. This result requires a general notion of incoherence based on the angle between descent cones, first analyzed by \citet{mccoy2013achievable}.  \autoref{sec-incoherence} shows how a random-rotation model yields a particular level of incoherence with high probability; see \autoref{thm:Incoherence}. We develop the recovery guarantee under the random-rotation model; see \autoref{corollary-stability}. \autoref{sec:3-5} describes experiments on real and synthetic structured signals. Proofs of all theoretical results are given in \autoref{sec:3-7}.
 
 The following blanket assumption holds throughout this chapter.
 \begin{assumption}[Measurement model]\label{assume-blanket}
   The linear model~\eqref{eq:demixing-problem} satisfies the following conditions: the linear map
   $M:\Re^n\to\Re^m$ has i.i.d.\@ standard Gaussian entries; the noise vector $\eta$ satisfies $\|\eta\|_2\leq \alpha$ for some scalar $\alpha$; and the relative signal powers $\{\lambda_i\}_{i=1}^k$ satisfy~\eqref{eq-lambda-def}.
 \end{assumption} 
-
-% Our main contributions can be summarized as follows.
-% \begin{itemize}
-%   \item We propose a two-stage approach, motivated by the polar convolution of gauge functions, for tackling the compressed signal demixing problem; see \autoref{sec:3-1-2}.
-%   \item Under the assumption of Gaussian measurement and randomly rotated signals, we develop explicit recovery error bound and sample complexity bound for our proposed model; see~\autoref{corollary-stability}. To the best of our knowledge, we are the first to provide explicit error bound for the compressed signal demixing problem with arbitrary number of signals. 
-%   \item We propose an algorithm based on conditional-gradient and level-set method to solve our proposed model; see \autoref{ch:App-AtomicOpt}. Our implementation is publicly available at \url{https://github.com/MPF-Optimization-Laboratory/AtomicOpt.jl}. 
-%   \item Extensive numerical experiments on synthetic and real data verify the correctness of our theoretical results and the effectiveness of our approach; see~\autoref{sec:3-5}.  
-% \end{itemize}
 
 
 \section{Decompressing the superposition}\label{sec:3-2} 
@@ -143,10 +135,10 @@ In other words, $\xagg$ is the unique solution of \eqref{eq:decompression} if an
 \end{equation}
 \autoref{fig:descent-cone} illustrates the geometry of this optimality condition, and depicts a case in which it doesn't hold.
 
-If the linear operator $M$ is derived from Gaussian measurements, Gordon~\cite{gordon1988milman} characterized the probability of the event~\eqref{eq-unique-optimality} as a function of the Gaussian width of the descent cone $\Dscr\subs$ and the number of measurements $m$. This result is the basis for recovery guarantees developed by Chandrasekaran et al.~\cite{chandrasekaran2012convex} and Tropp~\cite{tropp2015convex} for a convex formulation similar to \eqref{eq:decompression}.
+If the linear operator $M$ is derived from Gaussian measurements, \citet{gordon1988milman} characterized the probability of the event~\eqref{eq-unique-optimality} as a function of the Gaussian width of the descent cone $\Dscr\subs$ and the number of measurements $m$. This result is the basis for recovery guarantees developed by \citet{chandrasekaran2012convex} and \citet{tropp2015convex} for a convex formulation similar to \eqref{eq:decompression}.
 
 Intuitively, the number of measurements required for stable recovery of the aggregate $\xagg$ depends on the total complexity of the $k$ constituent $\Ascr_i$-sparse vectors $x\nai$. The complexity is measured in terms of the statistical dimension of each of the descent cones $\Dscr_i$.
-Tropp~\cite[Corollary~3.5]{tropp2015convex} established a bound on the recovery error between the solutions of the decompression problem~\eqref{eq:decompression} and the superposition $x\nag$ that depends on the statistical dimension $\delta(\Dscr\subs)$ of its descent cone. The following proposition is a restatement of Tropp~\cite[Corollary~3.5]{tropp2015convex} applied to the decompression problem \eqref{eq:decompression}.
+\citet{tropp2015convex} established a bound on the recovery error between the solutions of the decompression problem~\eqref{eq:decompression} and the superposition $x\nag$ that depends on the statistical dimension $\delta(\Dscr\subs)$ of its descent cone. The following proposition is a restatement of \citep[Corollary~3.5]{tropp2015convex} applied to the decompression problem \eqref{eq:decompression}.
 
 \begin{proposition}[Stable decompression of the aggregate]%
     \label{thm:tropp}
@@ -163,7 +155,7 @@ As we can see from~\autoref{thm:tropp}, the recovery error bound has a linear de
 
 \section{Deconvolving the components}\label{sec:3-3}
 
-The second stage of our approach is the deconvolution stage which separates the recovered aggregate signal into its constituent components. In order to successfully separate the aggregate $x\nag$ into its components $\{x\nai\}_{i=1}^k$ using the deconvolution problem \eqref{eq:deconvolution}, additional assumption on dissimilarity between the atomic representations of the individual signals is generally required. For example, it can be challenging to separate the superposition of two sparse signals or two low-rank signals without additional assumptions. We follow McCoy and Tropp~\cite{mccoy2013achievable}, and measure the dissimilarity between signal structures---and thus their incoherence---using the angles between corresponding descent cones.
+The second stage of our approach is the deconvolution stage which separates the recovered aggregate signal into its constituent components. In order to successfully separate the aggregate $x\nag$ into its components $\{x\nai\}_{i=1}^k$ using the deconvolution problem \eqref{eq:deconvolution}, additional assumption on dissimilarity between the atomic representations of the individual signals is generally required. For example, it can be challenging to separate the superposition of two sparse signals or two low-rank signals without additional assumptions. We follow \citet{mccoy2013achievable}, and measure the dissimilarity between signal structures---and thus their incoherence---using the angles between corresponding descent cones.
 
 \begin{figure}[t]
     \centering
@@ -180,7 +172,7 @@ The second stage of our approach is the deconvolution stage which separates the 
 
 To motivate the incoherence definition, consider the case where there are only $k=2$ signals $x\nao$ and $x\nat$. If the descent cones $-\Dscr_1$ and $\Dscr_2$ have a nontrivial intersection, then there exists a nonzero direction $d \in -\Dscr_1 \cap \Dscr_2$ such that $\gauge\Aso(x\nao - d)<\gauge\Aso(x\nao)$ and $\gauge\Ast(x\nat + d)<\gauge\Ast(x\nat)$, which contradicts the optimality condition required for $x\nao$ and $x\nat$ to be unique minimizers of \eqref{eq:deconvolution}.  Thus, deconvolution only succeeds if the descent cones have a trivial intersection, which can be characterized using angle between the descent cones. \autoref{fig:angle_cone} illustrates this geometry. 
 
-Obert~\cite{obert1991angle} defined the angle between two cones $\Kscr_1$ and $\Kscr_2$ in $\Re^n$ as the minimal angle between vectors in these two cones. It follows that the cosine of the angle between two cones can be expressed as 
+\citet{obert1991angle} defined the angle between two cones $\Kscr_1$ and $\Kscr_2$ in $\Re^n$ as the minimal angle between vectors in these two cones. It follows that the cosine of the angle between two cones can be expressed as 
 \begin{equation*}
 \cos\angle(\Kscr_1, \Kscr_2) 
 = \sup\left\{\ip{x}{y} \mid x \in \Kscr_1\cap\mS^{n - 1},\, y \in \Kscr_2\cap\mS^{n - 1}\right\}.
@@ -226,7 +218,7 @@ This result generalizes to an arbitrary number of cones.
 
 \section{Inducing incoherence through random rotation}\label{sec-incoherence}
 
-\autoref{thm-stability} establishes the stability of the deconvolution problem in the case that the unknown signals are $\beta$-incoherent, as formalized in \autoref{def:incoherence}. However, except in very special cases like randomly rotated signals, it is not feasible to determine the incoherence constant $\beta$. We build on McCoy and Tropp's random rotation model~\cite{mccoy2013achievable} to quantify, with high probability, the $\beta$-incoherence of $k$ randomly-rotated atomic sparse signals, and present a recovery result for a randomly rotated case.
+\autoref{thm-stability} establishes the stability of the deconvolution problem in the case that the unknown signals are $\beta$-incoherent, as formalized in \autoref{def:incoherence}. However, except in very special cases like randomly rotated signals, it is not feasible to determine the incoherence constant $\beta$. We build on McCoy and Tropp's random rotation model~\citep{mccoy2013achievable} to quantify, with high probability, the $\beta$-incoherence of $k$ randomly-rotated atomic sparse signals, and present a recovery result for a randomly rotated case.
 
 We first consider a simpler case of two general cones, one of which is randomly rotated. Let $\SO(n)$ denote the special orthogonal group, which consists of all $n$-by-$n$ orthogonal matrices with unit determinant. The following proposition provides a probabilistic bound on the angle between the two cones in terms of their statistical dimension. This geometric result maybe of intrinsic interest in other contexts.
 
@@ -266,7 +258,7 @@ The proof follows directly from \autoref{thm:tropp}, \autoref{thm-stability}, \a
 
 \subsection{Comparison of error bound} \label{sec:comparasion}
 
-Here we compare our results to the one provided in \cite{mccoy2013achievable}, which also developed a novel procedure to solve the demixing problem \eqref{eq:demixing-problem}. In \cite{mccoy2013achievable}, the authors introduced the constrained optimization problem
+Here we compare our results to the one provided in \citep{mccoy2013achievable}, which also developed a novel procedure to solve the demixing problem \eqref{eq:demixing-problem}. In \citep{mccoy2013achievable}, the authors introduced the constrained optimization problem
 \begin{equation}
     \label{eq:achievable-model}
     \begin{array}{ll}
@@ -288,7 +280,7 @@ for all $i\in\irange1k$~\cite[Theorem~A]{mccoy2013achievable}. To our knowledge,
 
 In~\autoref{sec:3-5-1} we empirically verify \autoref{corollary-stability} through a set of synthetic experiments on recovering multiple randomly-rotated sparse signals from noiseless and noisy measurements. Note that the random rotation guarantees incoherence among the unknown signals $\{x\nai\}_{i=1}^k$. We also empirically show that random rotation is not required for successful recovery of a class of unknown signals with different underlying structures. In~\autoref{sec:3-5-2} we separate a sparse signal and sparse-in-frequency signal. In~\autoref{sec:3-5-3} we separate the superposition of three signals: a sparse signal, a low-rank matrix, and noise. In~\autoref{sec:3-5-4} we separate a multiscale low-rank synthetic image.
 
-We implement the algorithm described in \autoref{ch:App-AtomicOpt} in the Julia language \cite{BEKS14}. All the experiments are conducted on a Linux server with 8 CPUs and 64Gb memory.
+The optimization problems are solved using the Julia package \texttt{AtomicOpt.jl} that will be introduced in \autoref{ch:App-AtomicOpt}. All the experiments are conducted on a Linux server with 8 CPUs and 64Gb memory.
 
 \subsection{Stability of Demixing} \label{sec:3-5-1}
 
@@ -296,7 +288,7 @@ We provide three experiments that numerically verify the bounds established by \
 \[
   \Ascr_i = Q_i \{\pm e_1, \dots, \pm e_n\}\text{where} Q_i\sim\uniform(\SO(n)).
 \]
-Amelunxen et al.~\cite[Proposition~4.5]{amelunxen2014living} give an upper bound on the statistical dimension of the descent cone for $(x\nai,\Ascr_i)$, and thus for the descent cone at $(x_i^\circ,\Ascr_i^\circ)$, for  $s$-sparse vectors. We use this bound to approximate the statistical dimension $\delta(\Dscr_i)$ of the descent cone $\Dscr_i$ corresponding to the pair $(x\nai,\Ascr_i)$.  We define the maximum absolute error
+\citet[Proposition~4.5]{amelunxen2014living} give an upper bound on the statistical dimension of the descent cone for $(x\nai,\Ascr_i)$, and thus for the descent cone at $(x_i^\circ,\Ascr_i^\circ)$, for  $s$-sparse vectors. We use this bound to approximate the statistical dimension $\delta(\Dscr_i)$ of the descent cone $\Dscr_i$ corresponding to the pair $(x\nai,\Ascr_i)$.  We define the maximum absolute error
 \begin{equation} \label{eq:rela_diff}
   \mathop{\tt maxerr}\coloneqq \max_{i\in\irange1k}\ \twonorm{x_i^*-x\nai}.
 \end{equation}
@@ -304,7 +296,7 @@ Amelunxen et al.~\cite[Proposition~4.5]{amelunxen2014living} give an upper bound
 \subsubsection{Relation between $m$ and $n$} \label{sec:phase_transition1}
 We first show a phase portrait for the noiseless case that verifies the relationship between number of measurement $m$ and signal dimension $n$, as stated in \autoref{corollary-stability}. The number of signals is fixed at $k=3$ and the sparsity level is fixed at $s=5$. The phase plot is shown in \autoref{fig:phase_transition1}, where the horizontal axis represents the signal dimension $n\in\{50, 65, \dots, 500\}$ and the vertical axis represents the number of measurements $m\in\{50, 65, \dots, 500\}$. The colormap indicates the empirical probability of successful demixing over 50 trials, where we say the demixing is successful if $\mathop{\tt maxerr} < 10^{-2}$. The red solid curve and the blue dashed line, respectively, approximate the graphs of the functions
 \[\sqrt{m} = \sum_{i=1}^k \sqrt{\delta(\Dscr_i)}\text{and}\sqrt{n} = \sum_{i=1}^k \sqrt{\delta(\Dscr_i)}.\]
-The statistical dimensions of $\Dscr_i$ are approximated using ~\cite[Proposition~4.5]{amelunxen2014living}, as stated above. The area above the red curve and to the right of the dashed line corresponds to problem parameters with successful recovery and corroborates the bounds stated in \autoref{corollary-stability}.
+The statistical dimensions of $\Dscr_i$ are approximated using ~\citep[Proposition~4.5]{amelunxen2014living}, as stated above. The area above the red curve and to the right of the dashed line corresponds to problem parameters with successful recovery and corroborates the bounds stated in \autoref{corollary-stability}.
 
 \begin{figure}[t]
     \centering
@@ -343,7 +335,7 @@ Lastly, we show a plot for the noisy case that verifies the relationship between
     \label{fig:star_galaxy}
 \end{figure}
 
-We reproduce the experiments done by McCoy et al.~\cite{mccoy2014convexity} on separating an astronomical image into a sparse and a sparse-in-frequency signals. An $n$-vector $x$ is sparse-in-frequency if its discrete cosine transform (DCT) $Dx$ is sparse, where the orthogonal linear map $D:\Re^n\to\Re^n$ encodes the DCT. Define the observations and corresponding atomic sets
+We reproduce the experiments done by \citet{mccoy2014convexity} on separating an astronomical image into a sparse and a sparse-in-frequency signals. An $n$-vector $x$ is sparse-in-frequency if its discrete cosine transform (DCT) $Dx$ is sparse, where the orthogonal linear map $D:\Re^n\to\Re^n$ encodes the DCT. Define the observations and corresponding atomic sets
 \[
   b = x\na_s + x\na_d,
   \quad
@@ -353,7 +345,7 @@ The star-galaxy image shown in \autoref{fig:star_galaxy} exemplifies this superp
 
 \subsection{Sparse and low rank matrix decomposition with structured noise}\label{sec:3-5-3}
 
-In this next example we decompose an image that contains a sparse foreground, a low-rank background, and structured noise. This is an example of sparse principle component analysis~\cite{fazel1998approximations,fhb01,pati1994phase,valiant1977graph}. Typically, the entry-wise 1-norm and the nuclear norm are used to extract from the matrix each of these qualitatively different structures. Here, we treat the noise as its own signal that also needs to be separated. We consider the observations
+In this next example we decompose an image that contains a sparse foreground, a low-rank background, and structured noise. This is an example of sparse principle component analysis~\citep{fazel1998approximations,fhb01,pati1994phase,valiant1977graph}. Typically, the entry-wise 1-norm and the nuclear norm are used to extract from the matrix each of these qualitatively different structures. Here, we treat the noise as its own signal that also needs to be separated. We consider the observations
 \[B = X\na_s + X\na_l + X\na_n,\]
 where $X\na_s\in\Re^{m\times n}$ is sparse, $X\na_l\in\Re^{m\times n}$ is low-rank matrix, and $X\na_n\in\Re^{m\times n}$ represents structured noise so that $PX\na_nQ$ is sparse, where $P$ and $Q$ are random orthogonal $m$-by-$m$ matrices. Based on the atomic framework, we choose the atomic sets for $X\na_s$, $X\na_l$, and $X\na_n$, respective, as
 \begin{align*}
@@ -403,11 +395,11 @@ At the lowest scale $i=1$, a block-wise low-rank matrix is a scalar, and so 1-sp
     \label{fig:multiscale}
 \end{figure}
 
-\section{Discussion}\label{sec:3-6}
+\section{Summary of contributions}\label{sec:3-6}
 
-The random rotation model is a useful mechanism for introducing incoherence among the individual signals. However, even in contexts where it's possible to rotate the signals, it may prove too costly to do so in practice because the rotations need to be applied at each iteration of the algorithm in \autoref{ch:App-AtomicOpt}. We might then consider other mechanisms for introducing incoherence that are computationally cheaper, and rely instead, for example, on some fast random transform. The literature on demixing abounds with various incoherence notions. We wish to explore what is the relationship between these and definition of $\beta$-incoherence that we adopt. Alternative incoherence definitions may prove useful in deriving other mechanisms for inducing incoherence in the signals. 
+In this chapter, we study the structural signal demixing problem. We develop a two-stage, decompression-deconvolution approach for compressed signal demixing motivated by the polar convolution of gauge functions and the polar alignment property developed in \autoref{ch:Dual-Struc-Opt}. Under the assumption of Gaussian measurements and randomly rotated signals, we develop explicit signal-recovery error and sample complexity bounds for the two-stage approach. These are the first known explicit error bounds for recovering an arbitrary number of mixed and compressed signals. Extensive numerical experiments on synthetic and real data verify the correctness of our theoretical results and the effectiveness of our approach.
 
-A significant assumption of our analysis is that the parameters $\lambda_i$ exactly equilibrate the gauge values for each signal; cf.~\eqref{eq-lambda-def}. In practice, there are many cases where the parameters $\lambda_i$ are known. For example, in some secure communication problems~\cite[Section~1.3.1]{mccoy2014sharp}, the sender can normalize the signals before mixing them. On the other hand, when the parameters $\lambda_i$ are not known, we can apply a grid search to obtain reasonable approximations. It may be possible to analyze how the stability in the recovery of the signals depends on errors that might exist in the ideal parameter choices.
+
 
 
 \section{Proofs} \label{sec:3-7}
@@ -432,7 +424,7 @@ This section contains proofs for the mathematical statements in this chapter. We
 \begin{proof}
     \leavevmode
       \begin{itemize}
-        \item[(a)] See \cite[Proposition 2.5]{mccoy2014sharp};
+        \item[(a)] See \citep[Proposition 2.5]{mccoy2014sharp};
         \item[(b)] It follows from the fact that a gauge function is positive homogenous.  
         % \[\Dscr(\tau\Ascr, x) = \cone\set{d \mid \gauge_{\tau\Ascr}(x + d) \leq \gauge_{\tau\Ascr}(x)} = \cone\set{d \mid \gauge_{\Ascr}(x + d) \leq \gauge_{\Ascr}(x)}.\]
         \item[(c)] Because $\gauge_{Q\Ascr}=\gauge_\Ascr(Q^*\cdot)$,
@@ -465,7 +457,7 @@ The following lemma summarizes the main properties that we use regarding the rel
 \end{lemma}
 
 \begin{proof} 
-    See \cite[Proposition~3.1(6) and Proposition~3.1(5)]{amelunxen2014living}, respectively, for (a) and (b). 
+    See \citep[Proposition~3.1(6) and Proposition~3.1(5)]{amelunxen2014living}, respectively, for (a) and (b). 
     \begin{itemize}
       \item[(c)] Indeed, we know that,
       \begin{align*}
@@ -572,7 +564,7 @@ For any $W_1, W_2 \in \Re^{n\times n}$ and any $t \in [0,1]$,
   \\&\leq tf(W_1) + (1-t)f(W_2).
 \end{align*}
 So $f$ is convex. The same reason holds for $\hat f$, and thus $\hat f$ is also convex. 
-Next, by \cite[Lemma~2.6]{shalev2011online}, in order to show that both $f$ and $\hat f$ are $1$-Lipschitz, we only need to show that the norm of any subgradient of $f$ or $\hat f$ is bounded by $1$. By \cite[Theorem~D.4.4.2]{hiriart-urruty01}, we know that for any $W \in \Re^{n\times n}$, 
+Next, by \citep[Lemma~2.6]{shalev2011online}, in order to show that both $f$ and $\hat f$ are $1$-Lipschitz, we only need to show that the norm of any subgradient of $f$ or $\hat f$ is bounded by $1$. By \citep[Theorem~D.4.4.2]{hiriart-urruty01}, we know that for any $W \in \Re^{n\times n}$, 
 \begin{align*}
   \partial f(W) &= \conv\{xy^T \mid x \in \overline\Kscr_1, y \in\overline\Kscr_2, \ip{x}{Wy} = f(W)\},
   \\ \partial \hat f(W) &= \conv\{xy^T \mid x \in \widehat\Kscr_1, y \in\widehat\Kscr_2, \ip{x}{Wy} = f(W)\}.
@@ -585,7 +577,7 @@ where $\|\cdot\|_F$ is the Frobenius norm. Therefore, we can conclude that both 
 \paragraph{Second step: bound $\mE_{Q \sim \uniform(\Sscr\Oscr_{n, +})}\left[f(Q)\right]$.} 
 First, we give the bound on 
 \[\mE_{Q \sim \uniform(\Oscr_n)}\left[\hat f(Q)\right].\] 
-From the first step, we know that $\hat f$ is convex. Then by the comparison principle developed by Tropp; see \cite[Theorem~5 and Lemma~8]{tropp2012comparison}, we can conclude that 
+From the first step, we know that $\hat f$ is convex. Then by the comparison principle developed by Tropp; see \citep[Theorem~5 and Lemma~8]{tropp2012comparison}, we can conclude that 
 \begin{equation} \label{eq:help1}
   \mE_{Q \sim \uniform(\Oscr_n)}\left[\hat f(Q)\right] \leq \tfrac{1.5}{\sqrt{n}}\mE_{G\sim\Nscr(0, I_n)}\left[\hat f(G)\right],
 \end{equation}
@@ -599,7 +591,7 @@ where the inequality follows from the fact that $\hat f$ is non-negative. Combin
 \begin{equation} \label{eq:help2}
   \mE_{Q \sim \uniform(\Sscr\Oscr_{n, +})}\left[\hat f(Q)\right] \leq \tfrac{3}{\sqrt{n}}\mE_{G\sim\Nscr(0, I_n)}\left[\hat f(G)\right].
 \end{equation}
-Then, by the Gaussian Chevet’s inequality; see\cite[Exercise~8.7.4]{vershynin2018high}, we know that 
+Then, by the Gaussian Chevet’s inequality; see\citep[Exercise~8.7.4]{vershynin2018high}, we know that 
 \begin{equation} \label{eq:help3}
   \mE_{G\sim\Nscr(0, I_n)}\left[\hat f(G)\right] \leq \omega(\widehat\Kscr_1) + \omega(\widehat\Kscr_2) \leq \sqrt{\delta(\Kscr_1)} + \sqrt{\delta(\Kscr_2)},
 \end{equation}
@@ -613,9 +605,9 @@ Finally, by the fact that $f \leq \hat f$ and \eqref{eq:help4}, we can conclude 
 \end{equation}
 
 \paragraph{Third step: concentration bound for $f(Q)$.}
-From step 1, we know that $f$ is $1$-Lipschitz. For clearness, we denote $\mP_{Q \sim \uniform(\Sscr\Oscr_{n, +})}$ and $\mE_{Q \sim \uniform(\Sscr\Oscr_{n, +})}$ as $\mP_Q$ and $\mE_Q$. By the concentration bounds of Lipschitz functions over the special orthogonal group develop by Meckes; see \cite[Theorem~5.5 and Theorem~5.16]{meckes2019random}, we can get that for every $t\geq0$,
+From step 1, we know that $f$ is $1$-Lipschitz. For clearness, we denote $\mP_{Q \sim \uniform(\Sscr\Oscr_{n, +})}$ and $\mE_{Q \sim \uniform(\Sscr\Oscr_{n, +})}$ as $\mP_Q$ and $\mE_Q$. By the concentration bounds of Lipschitz functions over the special orthogonal group develop by Meckes; see \citep[Theorem~5.5 and Theorem~5.16]{meckes2019random}, we can get that for every $t\geq0$,
 \[\mP_Q\left[f(Q) \geq \mE_Q[f(Q)] + t\right] \leq \exp(-\tfrac{n-2}{8}t^2).\]
-Note that a similar result can be obtained from \cite[Theorem~5.2.7]{vershynin2018high}.
+Note that a similar result can be obtained from \citep[Theorem~5.2.7]{vershynin2018high}.
 Combining with \eqref{eq:help5}, we can conclude that for every $t\geq0$,
 \[\mP_Q\left[f(Q) \geq  \tfrac{3}{\sqrt{n}}\left( \sqrt{\delta(\Kscr_1)} + \sqrt{\delta(\Kscr_2)} \right) + t\right] \leq \exp(-\tfrac{n-2}{8}t^2).\]
 

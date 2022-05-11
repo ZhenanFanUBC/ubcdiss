@@ -5,7 +5,7 @@
 
 \section{Introduction} \label{sec:6-1}
 
-As we briefly introduced in \autoref{sec:1-4}, building large and powerful machine learning models often needs large amounts of training data. In many industrial scenarios, training data are maintained by different organizations, and transporting or sharing the data across these organizations is not feasible because of regulatory and privacy considerations~\citep{li2020review}. Therefore there is increasing interest in training machine learning models that operate without gathering all data in a single place. Federated learning (FL), initially proposed by~\citet{mcmahan2017communication} to train models on decentralized data from mobile devices, and later extended by~\citet{yang2019federated} and \citet{kairouz2019advances}, is a training framework that allows multiple clients to collaboratively train a model without sharing data. 
+As we introduced in \autoref{sec:1-4}, there is increasing interest in training machine learning models that operate without gathering all data in a single place. Federated learning (FL), initially proposed by~\citet{mcmahan2017communication} to train models on decentralized data from mobile devices, and later extended by~\citet{yang2019federated} and \citet{kairouz2019advances}, is a training framework that allows multiple clients to collaboratively train a model without sharing data. 
 
 The learning process in FL can be formulated as a distributed optimization problem, which is also known as federated optimization (FO). Assume there are $N$ clients and each client $i$ maintains a local dataset $\Dscr_i$. FO aims to solve the  empirical-risk minimization problem
 \begin{equation} \label{eq:primal}
@@ -25,14 +25,6 @@ Most of the previous work in FO focus on directly solving the primal empirical-r
 Dual approaches for empirical-risk minimization problem \eqref{eq:primal} are well developed under the framework of distributed optimization, and can be traced to dual-decomposition~\citep{zeng2008fast,joachims1999making}, augmented Lagrangian~ \citep{jakovetic2014linear} and alternating direction method of multipliers (ADMM) \citep{boyd2011distributed,wei2012distributed}. More recent approaches include ingel-step and multi-step dual accelerated (SSDA and MSDA) methods \citep{Scaman2017OptimalAF}. These methods, however, can not be directly applied under the FO setting, because they violate some of \autoref{assum:govern}. For example, the MSDA algorithm~\citep{Scaman2017OptimalAF} enjoy optimal convergence rates, but requires full clients participation in every round, which is unrealistic under \autoref{assum:govern}. 
 
 Our approach, in contrast, is based on the dual problem, which is a separable optimization problem with a structured linear constraint~\eqref{eq:dual}. We show that the random block coordinate descent method for problems with linear constraint proposed by \citet{necoara2017random}, is especially suitable for the FL setting. Because it is important to control the amount of local computation carried out by each client, we show how to modify this method to accommodate inexact gradient oracles. We also show how Nesterov's acceleration can be used to decrease overall complexity. As a result, we obtain convergence rates that are better than other state-of-the-art FO algorithms in certain scenarios. 
-
-
-Our contributions for the work described in this chapter can be summarized as follows. 
-\begin{enumerate}
-    \item We tackle the FO problem from a dual perspective and develop a federated dual coordinate descent (FedDCD) algorithm for FO based on the random block coordinate descent (RBCD) method proposed by \citet{necoara2017random}. We show that FedDCD fits very well to the settings of FL. 
-    \item We extend the FedDCD with inexact gradient oracles and Nesterov's acceleration. The resulting convergence rates are better than the current state-of-the-art FO algorithms in certain situations.
-    \item We develop a complexity lower bound for FO, the lower bound suggests that there is still a gap of $\sqrt{N}$ between the rate of accelerated FedDCD and the lower bound.
-\end{enumerate}
 
 \section{Related work}
 \label{sec:relatedWork}
@@ -130,7 +122,7 @@ where $\eta^{(t)}$ is the learning rate. \autoref{alg:rbcd} summarizes all of th
     \smallskip
     \KwIn{number of participating clients in each round $1<\tau\leq n$; diagonal scaling matrix $\Lambda\in\Real^{Nd \times Nd}$}
     $y_i^{(0)} \gets 0$ for all $i \in [N]$\tcp*{\tiny initialize feasible local dual variables}
-    \For{\nllabel{alg-level-set-loop}$t\gets0,1,2,\ldots,T$}{
+    \For{$t\gets0,1,2,\ldots,T$}{
       $I_t \leftarrow \mbox{ set of } \tau \mbox{ random participating clients }$\tcp*{\tiny random participating clients}
       \For{each client $i\in I_t$ \textbf{in parallel}}{
            Compute local gradient $w_i^{(t)}$ as in \eqref{eq:exact_gradient}\tcp*{\tiny local computation}
@@ -263,41 +255,41 @@ In this section, we apply Nesterov's acceleration to \autoref{alg:rbcd} and obta
     \smallskip
     \KwIn{number of selected clients in each round $1<\tau\leq n$; diagonal scaling matrix $\Lambda\in\Real^{Nd \times Nd}$}
     $y_i^{(0)}, z_i^{(0)}, v_i^{(0)} \gets 0$ for all $i \in [N]$, let $r =\frac{\tau-1}{N-1}$, $a = \frac{\sqrt{\alpha/\beta}}{\frac{1}{r} + \sqrt{\alpha/\beta}}, b = \frac{\alpha a r^2}{\beta}$
-    \For{\nllabel{alg-level-set-loop}$t\gets0,1,2,\ldots$}{
+    \For{$t\gets0,1,2,\ldots$}{
        \For{each client $i \in [N]$ \textbf{in parallel}}{
-      $v_i^{(t)} = (1-a) y_i^{(t)} + a z_i^{(t)}$  \tcp*{\tiny update}
+      $v_i^{(t)} = (1-a) y_i^{(t)} + a z_i^{(t)}$\;
       }
-      $I_t^1 \leftarrow \mbox{ set of } \tau \mbox{ random participating clients }$\tcp*{\tiny random clients}
+      $I_t^1 \leftarrow \mbox{ set of } \tau \mbox{ random participating clients }$\;
       \For{each client $i\in I_t^1$ \textbf{in parallel}}{
-           Compute local gradient $w_i^{(t)}$ as in \eqref{eq:exact_gradient} with $y_i^{(t)}$ replaced by $v_i^{(t)}$\tcp*{\tiny local computation}
-           Upload local gradient $w_i^{(t)}$ to the central server\tcp*{\tiny upload step} 
+           Compute local gradient $w_i^{(t)}$ as in \eqref{eq:exact_gradient} with $y_i^{(t)}$ replaced by $v_i^{(t)}$\;
+           Upload local gradient $w_i^{(t)}$ to the central server\;
       }
-      Compute updates $\hat w_i^{(t)}$ for all $i\in I_t^1$ as in \eqref{eq:direction_adjust2}\tcp*{\tiny adjust directions}
-      Send the updated directions to the participating clients $I_t^1$\tcp*{\tiny download step} 
+      Compute updates $\hat w_i^{(t)}$ for all $i\in I_t^1$ as in \eqref{eq:direction_adjust2}\;
+      Send the updated directions to the participating clients $I_t^1$\;
       \For{each client $i\in [N]$ \textbf{in parallel}}{
-           $u_i^{(t)} = \frac{a^2}{a^2 + b} z_i^{(t)} + \frac{b}{a^2 + b} v_i^{(t)} $  \tcp*{\tiny update}
+           $u_i^{(t)} = \frac{a^2}{a^2 + b} z_i^{(t)} + \frac{b}{a^2 + b} v_i^{(t)} $\;
            \uIf{$i \in I_t^1$}{
-               $y_i^{(t+1)} \leftarrow v_i^{(t)} - \hat w_i^{(t)}$\tcp*{\tiny update} 
+               $y_i^{(t+1)} \leftarrow v_i^{(t)} - \hat w_i^{(t)}$\;
            }\Else{
-               $y_i^{(t+1)} \leftarrow v_i^{(t)}$\tcp*{\tiny standby}
+               $y_i^{(t+1)} \leftarrow v_i^{(t)}$\;
            } 
       }
-      $I_t^2 \leftarrow \mbox{ set of } \tau \mbox{ random participating clients }$\tcp*{\tiny random clients}
+      $I_t^2 \leftarrow \mbox{ set of } \tau \mbox{ random participating clients }$\;
       \For{each client $i\in I_t^2$ \textbf{in parallel}}{
-           Compute local gradient $w_i^{(t)}$ as in \eqref{eq:exact_gradient}  with $y_i^{(t)}$ replaced by $v_i^{(t)}$\tcp*{\tiny local computation}
-           Upload local gradient $w_i^{(t)}$ to the central server\tcp*{\tiny upload step} 
+           Compute local gradient $w_i^{(t)}$ as in \eqref{eq:exact_gradient}  with $y_i^{(t)}$ replaced by $v_i^{(t)}$\;
+           Upload local gradient $w_i^{(t)}$ to the central server\;
       }
-      Compute updates $\hat w_i^{(t)}$ for all $i\in I_t^2$ as in \eqref{eq:direction_adjust2}\tcp*{\tiny adjust directions}
-      Send the updated directions to the participating clients $I_t^2$\tcp*{\tiny download step} 
+      Compute updates $\hat w_i^{(t)}$ for all $i\in I_t^2$ as in \eqref{eq:direction_adjust2}\;
+      Send the updated directions to the participating clients $I_t^2$\;
       \For{each client $i\in [N]$ \textbf{in parallel}}{
            \uIf{$i \in I_t^2$}{
-               $z_i^{(t+1)} \leftarrow u_i^{(t)} - \frac{ar}{a^2 + b} \hat w_i^{(t)}$\tcp*{\tiny update} 
+               $z_i^{(t+1)} \leftarrow u_i^{(t)} - \frac{ar}{a^2 + b} \hat w_i^{(t)}$
            }\Else{
-               $z_i^{(t+1)} \leftarrow u_i^{(t)}$\tcp*{\tiny standby}
+               $z_i^{(t+1)} \leftarrow u_i^{(t)}$
            } 
       }
     }
-    \Return{$w^{(T)} = w_i^{(T)}$}, where $i$ uniform randomly sampled from $[N]$.\tcp*{\tiny primal global model} 
+    \Return{$w^{(T)} = w_i^{(T)}$}, where $i$ uniform randomly sampled from $[N]$.
 \end{algorithm}
 
 
@@ -506,11 +498,10 @@ As we can see from the plots, for the MLR model, AccFedDCD out performs all the 
     \label{tab:exp3}
 \end{table}
 
-\section{Discussion}
+\section{Summary of contributions}
 
-In this paper, by tackling the dual problem of federated optimization, we propose the federated dual coordinate descent (FedDCD) algorithm and its variants based on the random block coordinate descent algorithm~\citep{necoara2017random}. Both FedDCD and its variants satisfy the desired properties for federated learning and have better communication complexities than other SGD-based federated learning algorithms under certain scenarios. 
+In this chapter, by tackling the federated optimization problem from a dual perspective, we develop a federated dual coordinate descent (FedDCD) algorithm, which is based on the random block coordinate descent (RBCD) method proposed by \citet{necoara2017random}. We show that FedDCD fits very well to the settings of federated optimization. Moreover, we extend the FedDCD with inexact gradient oracles and Nesterov's acceleration. The resulting convergence rates are better than the current state-of-the-art federated optimization algorithms in certain situations. We also develop a complexity lower bound for federated optimization, the lower bound suggests that there is still a gap of $\sqrt{N}$ between the rate of accelerated FedDCD and the lower bound.
 
-More importantly, FedDCD provides a general framework for federated optimization and suggests many interesting future research directions. First, it is possible to develop an asynchronous version of FedDCD by leveraging well-studied analysis of asynchronous parallel coordinate descent methods~\citep{LiuW15,0002WRBS15}. Next, one might consider client sampling strategies other than the standard uniform sampling. For example, there are some recent studies of the coordinate descent with the greedy selection rule~\citep{NutiniSLFK15,BCD_julie,fang2020greed}, which can be adopted with FedDCD. Finally, the lower bound of complexity of first-order methods with random participation for federated optimization is still an open problem. As we have shown in \autoref{sec:lowerBound}, our lower bound analysis has a $\BigOh(\sqrt{N})$ gap to the upper bound of accelerated FedDCD. We hope to explore whether the lower bound can be further tightened or an algorithm with a faster convergence rate can be developed. 
 
 
 \section{Proofs}
@@ -784,10 +775,10 @@ Our next lemma gives explicit expressions for the expectations of $P_I$ and $G_I
     \smallskip
     \KwIn{number of participating coordinates in each round $1<\tau\leq n$, $\delta \in (0,1)$}
     $x_i^{(0)} \gets 0$ for all $i \in [n]$, let $r =\frac{\tau-1}{n-1}$. \tcp*{\tiny initialization}
-    \For{\nllabel{alg-level-set-loop}$t\gets0,1,\ldots,T$}{
+    \For{$t\gets0,1,\ldots,T$}{
        $I \leftarrow \mbox{ random set of } \tau \mbox{ coordinates }$\tcp*{\tiny randomly select a subset of coordinates}
        $\wt{\nabla} h(x^{(t)}) \gets 0$ \tcp*{\tiny }
-       \For{\nllabel{alg-level-set-loop}$i\in I$}{
+       \For{$i\in I$}{
            $\wt{\nabla}_i h(x^{(t)}) \gets \texttt{oracle}(\wt{\nabla} h_i(x^{(t-1)}), \delta/2 )$ 
        }
        $x^{(t+1)} \coloneqq x^{(t)} - \eta_t G_{I_t} \wt{\nabla} h(x^{(t)})$ \tcp*{\tiny update iterate}
@@ -957,7 +948,7 @@ Next, we show the proof for \autoref{thm:inexact_rbcd}.
     \smallskip
     \KwIn{number of selected coordinates in each round $1<\tau\leq n$, strong convexity parameter $\mu > 0$.}
     $x_i^{(0)} \gets 0, z_i^{(0)} \gets 0$ for all $i \in [n]$, let $r =\frac{\tau-1}{n-1}$, $a = \frac{\sqrt{\mu/L_{\max}}}{\frac{1}{r} + \sqrt{\mu/L_{\max}}}, b = \frac{\mu a r^2}{L_{\max}}$. \tcp*{\tiny initialization}
-    \For{\nllabel{alg-level-set-loop}$t\gets0,1,2,\ldots$}{
+    \For{$t\gets0,1,2,\ldots$}{
        $y^{(t)} \coloneqq (1 - a) x^{(t)} + a z^{(t)}$ \tcp*{\tiny standby}
       $I_t^1 \leftarrow \mbox{ random set of } \tau \mbox{ clients }$\tcp*{\tiny randomly select a subset of clients}
       $x^{(t+1)} = y^{(t)} -  G_{I_1}\nabla h( y^{(t)} )$ \tcp*{\tiny standby}
@@ -1046,8 +1037,6 @@ Then by applying \autoref{lemma:threePoints} to term 1, we obtain
     &- \frac{a^2+b}{2r} \| x^* - v^{(t+1)} \|_{\bL}^2 + \frac{a^2b}{2r(a^2+b)} \| y^{(t)} - z^{(t)} \|_{\bL}^2 \quad \text{(By \eqref{eq:GIpExp})} \\
     {=}~& a \langle \nabla h( y^{(t)} ), x^* - z^{(t)} \rangle + \frac{a^2+b}{2r^2} \mE \left[ \| x^* - u^{(t)} \|_{\bL}^2 - \| x^* - z^{(t+1)} \|_{\bL}^2 \right] \\
     &+ \frac{a^2b}{2r(a^2+b)} \| y^{(t)} - z^{(t)} \|_{\bL}^2 \text{(By \autoref{lemma:Lu18A2})} \\
-    \leq~& a \langle \nabla h( y^{(t)} ), x^* - z^{(t)} \rangle + \frac{a^2+b}{2r^2} \mE \left[ \| x^* - u^{(t)} \|_{\bL}^2 - \| x^* - z^{(t+1)} \|_{\bL}^2 \right] \\
-    &+ \frac{a^2b}{2r^2(a^2+b)} \| y^{(t)} - z^{(t)} \|_{\bL}^2 \\
     =~& a \langle \nabla h( y^{(t)} ), x^* - z^{(t)} \rangle + \frac{1}{2r^2} \left( (a^2 +b ) \| x^* - u^{(t)} \|_{\bL}^2 + \frac{a^2b}{a^2+b}  \| y^{(t)} - z^{(t)} \|_{\bL}^2 \right) \\
     &- \frac{a^2 + b}{2r^2} \mE \left[  \| x^* - z^{(t+1)} \|_{\bL}^2 \right] \\
     =~& a \langle \nabla h( y^{(t)} ), x^* - z^{(t)} \rangle + \frac{1}{2r^2} \left( a^2 \| x^* - z^{(t)} \|_{\bL}^2 + b \| x^* - y^{(t)} \|_{\bL}^2 \right) \\

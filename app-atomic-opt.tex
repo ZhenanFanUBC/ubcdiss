@@ -317,8 +317,9 @@ In this section, we show how to use \texttt{AtomicOpt.jl} to solve some structur
 \end{code}
 
 
-\section{Discussion} \label{sec:5-5} 
-\texttt{AtomicOpt.jl} provides not only a solver but also a framework for structured optimization. You can easily add new basic atomic sets to it, as long as you know how to implement the expose operation. 
+\section{Summary of contributions} \label{sec:5-5} 
+In this chapter, we introduce our Julia package \texttt{AtomicOpt.jl} for solving structured optimization problems. The key design of this package depends on the level-set method, dual conditional gradient method and the primal-retrieval strategy developed in \autoref{ch:App-Primal-Retrieval}. All the numerical experiments conducted in \autoref{ch:Dual-Struc-Opt}, \autoref{ch:App-Sig-Demix} and \autoref{ch:App-Primal-Retrieval} are reproducible using \texttt{AtomicOpt.jl}. Note that \texttt{AtomicOpt.jl} provides not only a solver but also a framework for structured optimization. Users can easily add new basic atomic sets to it, as long as the implementation of the expose operation is known. 
+
 
 
 

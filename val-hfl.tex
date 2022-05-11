@@ -5,7 +5,7 @@
 
 \section{Introduction} \label{sec:7-1}
 
-As we briefly introduced in \autoref{sec:1-4-2}, the success of federated learning (FL) relies on active participation by motivated data owners. The motivation of data owners partially depends on whether the collaboration and rewarding in FL are fair.  Thus, it is essential to understand how to fairly and efficiently evaluate the contributions of data owners in FL~\cite{zhang2020hierarchically,song2019profit,wei2020efficient,wang2020principled}. In this chapter, we focus on the fairness in data valuation in horizontal FL (HFL). 
+As we introduced in \autoref{sec:1-4-2}, it is essential to understand how to fairly and efficiently evaluate the contributions of data owners in FL~\cite{zhang2020hierarchically,song2019profit,wei2020efficient,wang2020principled}. In this chapter, we focus on the fairness in data valuation in horizontal FL (HFL). 
 
 Recall that Shapley value is the unique measure that satisfies the four fundamental requirements of fairness proposed by Shapley~\cite{shapley201617}: balance, symmetry, zero element and additivity (\autoref{def:shapley}). Although Shapley value has many desirable properties, evaluating Shapley value in HFL requires exhaustive retraining and evaluating the model on every subset of clients. The costs of communication and time may be prohibitive in practice~\cite{song2019profit}.
 
@@ -16,15 +16,6 @@ However, FedSV faces a challenge in large scale HFL in practice -- it may create
 The fundamental challenge of fair evaluation of data owners' contributions in HFL is that we have to retain fairness in pursuing efficiency. In this chapter, we develop a principled approach. The general idea is intuitive and effective.  We propose a novel notion of \emph{utility matrix} consisting of contributions of all possible subsets of the clients over all training rounds. Obviously, with the utility matrix, even FedSV can make a fair evaluation on all clients.  However, the utility matrix can only be partially observed because only a subset of clients is selected in each round. The weakness of FedSV is that it computes the Shapley values using only those observed entries in the utility matrix directly. Our idea is try to complete the missing entries of the utility matrix so that the unfairness can thus be eliminated. 
 
 Completing the unobserved entries is far from trivial. We rigorously show that the utility matrix is approximately low-rank based on a careful theoretical analysis of the similarity between contributions from different clients in successive training rounds. This theoretical insight enables us to estimate the missing entries in the utility matrix using techniques from low-rank matrix completion.  With the above insights, we propose a new measure, called \emph{completed FedSV}, to evaluate data owners' contributions in HFL. 
-
-Our primary technical contributions are as follows.
-
-\begin{enumerate}
-    \item We propose the notion of utility matrix and prove that the matrix is approximately low-rank when the local models are Lipschitz continuous and smooth (\autoref{prop:lipschitz} and~\autoref{prop:strongly_cvx}). 
-    \item We develop a new measure for fair contribution valuation in federated learning, called completed federated Shapley value (ComFedSV), based on solving a low-rank matrix completion problem for the utility matrix. 
-    \item We show that if the utility matrix is well completed, then ComFedSV satisfies two desirable properties for fairness, i.e., symmetry and zero element (\autoref{prop:fair}).
-    \item To tackle the practical scenarios where the size of the utility matrix is too large to complete directly, we adopt a Monte-Carlo sampling method to reduce both space and time complexity (\autoref{alg:main}).  
-\end{enumerate}
 
 The rest of the chapter is organized as follows. \autoref{sec:7-2} reviews the literature on many data valuation techniques for machine learning and HFL. We introduce the HFL problem as well as the algorithm for solving it in \autoref{sec:7-3}. In \autoref{sec:7-4}, we formalize the definition of fairness for data valuation under the setting of HFL. \autoref{sec:7-5} introduces the FedSV proposed by Wang \textit{et al.}~\cite{wang2020principled} and shows that it may break the fairness requirement for data valuation. We propose the improved data valuation metric -- ComFedSV in \autoref{sec:7-6}. Specifically, \autoref{sec:7-6-1} introduces the utility matrix and theoretically shows its low-rank structure, \autoref{sec:7-6-3} illustrates the procedure for completing the utility matrix, \autoref{sec:7-6-4} formally defines the ComFedSV and \autoref{sec:7-6-5} provides an efficient algorithm for estimating the ComFedSV. \autoref{sec:7-7} includes some numerical experiments showing the fairness and effectiveness of the ComFedSV, and the appendix contains the proofs for all the theoretical results. 
 
@@ -438,10 +429,10 @@ In this experiment, we compare the time required for computing ComFedSV and FedS
 
 We set the number of clients to $10, 20, \dots, 100$ and randomly select $30\%$ of clients to report in each round. The results are shown in \autoref{fig:time_performance}, where we plot the computing time for FedSV and ComFedSV (left y-axis), as well as their ratio (right y-axis). As we can see from the plots, the ratio between the computing time for FedSV and ComFedSV is approaching a stable constant close to the participation rate as the number clients increases, which agrees with our complexity analysis.
 
-\section{Discussion}
-In this paper, we tackle the challenging problem of data valuation in horizontal federated learning. We point out the possible unfairness in the existing data valuation method. Then, we propose a new measure ComFedSV, which is not only fair with theoretical guarantee, and also can be evaluated efficiently. We verify the fairness of our measure both theoretically and experimentally. 
+\section{Summary of contributions}
 
-Our study advances the frontier in this emerging important direction. There are also many interesting future directions.  For example, it is interesting to extend our methodology to vertical federated learning. As another example, under the framework of federated learning, there may exist some other properties needed for fairness in federated learning in addition to those in the Shapley fairness.
+This chapter tackles the challenging problem of data valuation in horizontal federated learning. We point out the possible unfairness in the existing data valuation method. To resolve this issue, we propose the notion of utility matrix and prove that the matrix is approximately low-rank when the local models are Lipschitz continuous and smooth. Then we develop a new measure for fair contribution valuation in federated learning, called completed federated Shapley value (ComFedSV), based on solving a low-rank matrix completion problem for the utility matrix. We demonstrate that if the utility matrix is well completed, then ComFedSV satisfies two desirable properties for fairness, i.e., symmetry and zero element. Finally, to tackle the practical scenarios where the size of the utility matrix is too large to complete directly, we adopt a Monte-Carlo sampling method to reduce both space and time complexity.
+
 
 \section{Proofs}
 

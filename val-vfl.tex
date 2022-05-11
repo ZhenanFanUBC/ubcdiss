@@ -5,8 +5,7 @@ learning}
 \label{ch:Val-VFL}
 
 \section{Introduction} \label{sec:8-1}
-As we introduced in \autoref{ch:Val-HFL}, the effectiveness of federated
-learning (FL) depends on the active participation of motivated clients. Because fair cooperation and reward can motivate clients' participation, it is vital to understand how to fairly and effectively evaluate clients' contributions. In this chapter, we concentrate on developing efficient and equitable methods for evaluating clients' contributions in vertical federated learning (VFL) systems.
+As we introduced in \autoref{sec:1-4-2}, it is vital to understand how to fairly and effectively evaluate clients' contributions. In this chapter, we concentrate on developing efficient and equitable methods for evaluating clients' contributions in vertical federated learning (VFL) systems.
 
 Recall that the Shapley value is the only metric that satisfies all four requirements of Shapley's fairness criteria: \emph{balance}, \emph{symmetry}, \emph{zero element}, and \emph{additivity}~\cite{dubey1975uniqueness} (see \autoref{sec:1-4-2} for a quick review).  Although the Shapley value has many desirable characteristics, its evaluation in the FL context requires repeatedly training and evaluating a machine learning model on all possible subsets of clients. The corresponding communication and computational costs are exponential, and thus are often prohibitive in practice~\cite{song2019profit,wang2019measure,fan2021improving}. 
 
@@ -14,7 +13,7 @@ Variants of the Shapley value make equitable data owner contribution assessment 
 
 Relative to HFL, adapting the Shapley value to VFL faces another challenge because of the stronger model dependence in the vertical context. More precisely, the Shapley value computation requires us to form the model produced by all different subsets of clients. This requirement is easy to satisfy under HFL because the global model is defined as the additive aggregation of the local models and thus we only need to aggregate local models from different subsets of clients~\cite{wang2020principled}. In the vertical context, however, the global model is the concatenation of local models that are not shared with the server. Thus, simply concatenating local models from different subsets of clients does not work. 
 
- We propose a contribution valuation metric called the vertical federated Shapley value (VerFedSV)
+We propose a contribution valuation metric called the vertical federated Shapley value (VerFedSV)
 where the clients' contributions are computed at multiple time points during the training process. We resolve the model concatenation problem by carefully utilizing clients' embeddings at different time-stamps. 
 %See Section~\ref{sec:4} for a detailed discussion. 
 We demonstrate that our design retains many desirable fairness properties and can be efficiently implemented without retraining. 
@@ -22,14 +21,6 @@ We demonstrate that our design retains many desirable fairness properties and ca
 VFL algorithms can be divided into two categories: synchronous methods~\cite{Gong2016PrivateDA,Zhang2018FeatureDistributedSF,liu2019communication}, where periodic synchronizations
  among clients are required, and asynchronous ones
  ~\cite{Hu2019FDMLAC,Gu2020PrivacyPreservingAF,chen2020vafl}, where clients are allowed to conduct local computation asynchronously. We show that VerFedSV is applicable to both synchronous and asynchronous VFL settings. Under the synchronous setting, we show that FedSV can be computed by leveraging some matrix-completion techniques. Although there are many similarities between synchronous and asynchronous VFL settings, contribution valuation in an asynchronous VFL setting is more complicated because the contribution of a client not only depends on the relevance of the client's data to the training task, but also depends on the client's local computational resource. We demonstrate that our design can reflect the strength of clients' local computational resources under the asynchronous setting. To the best of our knowledge, we are the first to consider the contributions in local computational resources. The proofs to all the mathematical statements in this chapter is contained in \autoref{sec:8-10}.
-
-Our contributions can be summarized as follows.
-\begin{enumerate}
-    \item We propose vertical federated Shapley value (VerFedSV) for vertical federated learning (\autoref{def:vertical_fedsv}), which satisfies the desirable properties for fairness (\autoref{prop:fair}). 
-    \item Under the synchronous vertical federated learning setting, we show that VerFedSV can be computed by solving low-rank matrix completion problems for embedding matrices, which are proven to be approximately low rank (\autoref{prop:low-rank}). We also give an approximation guarantee on VerFedSV given the tolerance for matrix completion (\autoref{prop:syn_verfedsv}).
-    \item Under the asynchronous vertical federated learning setting, we show that VerFedSV can be directly computed and can indeed reflect the strength of clients' local computational resources (\autoref{prop:asyn_diff_fre}).
-    \item We show that the computational complexity of VerFedSV can be further reduced by applying Monte-Carlo sampling methods (\autoref{sec:8-7}). 
-\end{enumerate}
 
 \section{Related work} \label{sec:8-2}
 
@@ -470,14 +461,13 @@ We evaluate the effectiveness of VerFedSV in both the synchronous and asynchrono
     \label{tab:comparasion_shap}
 \end{table}
 
-\section{Discussion} \label{sec:8-9}
-In this paper, we propose a contribution valuation metric called vertical federated Shapley value (VerFedSV) for vertical federated learning (VFL). We demonstrate both theoretically and empirically that VerFedSV satisfies many desirable properties for fairness and is quite adaptable such that it can be applied under both synchronous and asynchronous VFL settings. 
+\section{Summary of contributions} \label{sec:8-9}
 
-There are a few interesting directions for future work.  For example, there is an interesting insight from the experiments that deserves future research.  We notice that when we keep adding clients with identical features, the total of the VerFedSV increases. This may suggest that some clients may ``cheat'' by constructing new clients with identical features so that they can receive unjustifiable rewards in the end. The issue can be resolved under the synchronous setting, for example, by checking the similarity between uploaded embeddings from clients. However, it seems there is no simple solution to resolve this issue under the asynchronous setting. 
+This chapter tackles the challenging problem of contribution valuation in vertical federated learning. We propose vertical federated Shapley value (VerFedSV) for this task, satisfying the desirable properties for fairness. We show that VerFedSV is quite adaptable such that it can be applied under both synchronous and asynchronous vertical federated learning settings. More specifically, under the synchronous vertical federated learning setting, we show that VerFedSV can be computed by solving low-rank matrix completion problems for embedding matrices, which are proven to be approximately low rank. We also give an approximation guarantee on VerFedSV given the tolerance for matrix completion. Under the asynchronous vertical federated learning setting, we show that VerFedSV can be directly computed and reflect the strength of clients' local computational resources. Finally, we show that the computational complexity of VerFedSV can be further reduced by applying Monte-Carlo sampling methods.
 
 \section{Proofs} \label{sec:8-10}
 
-\subsection{Proof for Theorem 1}
+\subsection{Proof for \autoref{thm:fair}}
 \begin{proof}
     We notice that the VerFedSV can be expressed as 
     \begin{align*}
@@ -488,7 +478,7 @@ There are a few interesting directions for future work.  For example, there is a
     which matches the expression for classical Shapley value. The result then follows. 
 \end{proof}
 
-\subsection{Proof for Proposition 1}
+\subsection{Proof for \autoref{prop:low-rank}}
 \begin{proof}
     It is evident that $\rank_\epsilon(\mathcal{H}^m) \leq \rank(\mathcal{H}^m) \leq d_m$ for all $m \in [M]$. So we only need to prove the remaining two upper bounds. First, we consider the difference between successive rows of the embedding matrix $\mathcal{H}^m$. For any $t \in [T-1]$ and $i \in [N]$, 
     \begin{align*}
@@ -518,7 +508,7 @@ There are a few interesting directions for future work.  For example, there is a
     \[\rank_{\epsilon}(\mathcal{H}^m) \leq \mathcal{N}\left(\{x^m_i: i \in [N]\}, \frac{\epsilon}{\gamma^m}\right).\]
 \end{proof}
 
-\section{Proof for Proposition 2}
+\subsection{Proof for \autoref{prop:syn_verfedsv}}
 \begin{proof}
     Define $U,\hat U: 2^{[M]}\to\mathbb{R}$ by 
     \[U(S) := \frac{1}{T}\sum_{t=1}^T U_t(S) \quad\text{and}\quad \hat U(S) := \frac{1}{T}\sum_{t=1}^T \hat U_t(S).\]
@@ -540,7 +530,7 @@ There are a few interesting directions for future work.  For example, there is a
     \end{align*}
 \end{proof}
 
-\subsection{Proof for Proposition 3}
+\subsection{Proof for \autoref{prop:asyn_diff_fre}}
 \begin{proof}
     We know that $\theta_1^*$ and $\theta_2^*$ are the optimal variables for the following convex optimization problem 
     \[\min_{\theta_1, \theta_2}\enspace \frac{1}{N}\sum_{i=1}^N f(\langle\theta_1, x_i\rangle + \langle\theta_2, x_i\rangle; y_i) = g(\theta_1 + \theta_2).\]
