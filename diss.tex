@@ -348,6 +348,9 @@
   \end{listing}%
 }
 
+\DeclareRobustCommand{\ttfamily}{\fontfamily{lmtt}\selectfont}
+\DeclareRobustCommand\sectt[1]{{\fontsize{13}{12}\bfseries\ttfamily#1}}
+
 %% If you have long page numbers (e.g., roman numbers in the 
 %% preliminary pages for page 28 = xxviii), you might need to
 %% uncomment the following and tweak the \@pnumwidth length
@@ -519,7 +522,7 @@
 %    10. Bibliography
 \begin{singlespace}
 \raggedright
-\bibliographystyle{abbrvnat}
+\bibliographystyle{plainnat}
 \bibliography{biblio}
 \end{singlespace}
 

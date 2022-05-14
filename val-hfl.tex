@@ -140,7 +140,7 @@ Indeed, $s_i$ and $s_j$ differ from each other with high probability. Specifical
 The following numerical example corroborates this observation.
 
 \begin{example}[Unfairness of FedSV] \label{ex:unfair}
-    Consider the MNIST data set~\citep{lecun-mnisthandwrittendigit-2010}. Set the number of clients to be 10 with indices $I = \{0, \dots, 9\}$. Distribute the data for clients $0, \dots, 8$ in a non-IID fashion as described in \autoref{sec:7-7-1} and set client $9$'s data set to be the same as client $0$'s. We train a simple fully connected neural network model using \texttt{FedAvg} for 10 rounds and randomly select 3 clients in each round. We repeat this experiment 50 times. The empirical results show that the relative difference 
+    Consider the MNIST data set. Set the number of clients to be 10 with indices $I = \{0, \dots, 9\}$. Distribute the data for clients $0, \dots, 8$ in a non-IID fashion as described in \autoref{sec:7-7-1} and set client $9$'s data set to be the same as client $0$'s. We train a simple fully connected neural network model using \texttt{FedAvg} for 10 rounds and randomly select 3 clients in each round. We repeat this experiment 50 times. The empirical results show that the relative difference 
     \begin{equation} \label{eq:relative_difference}
             d_{0,9} = \frac{|s_0 - s_9|}{\max\{s_0, s_9\}}
     \end{equation}
@@ -165,7 +165,7 @@ In order to complete a matrix with many missing entries, we have to explore the 
 Before we provide a concrete mathematical justification, let us employ some empirical examples to verify our insight. In the following example, we show that the utility matrix $\mathcal{U}$ is nearly low-rank in many circumstances, in the sense that only a few of its singular values are dominant and all the others are relatively negligible. 
 
 \begin{example}[Low-rankness of Utility Matrix] \label{ex:2}
-    We use three simple examples to show empirically that the utility matrix is approximately low-rank.  We train a logistic regression model, a fully connected neural network model, and a convolutional neural network model respectively for synthetic data, MNIST~\citep{lecun-mnisthandwrittendigit-2010}, and CIFAR10~\citep{Krizhevsky09learningmultiple} (see \autoref{sec:7-7} for a detailed description). On each data set, we have 10 clients, train the model for 100 rounds and randomly select 3 clients in each round. Thus, the utility matrix $\mathcal{U}$ has size $100\times 2^{10}$. Although we update the global model with the randomly selected clients in each round, in order to obtain the whole utility matrix, we do compute the updates of all clients in each round.
+    We use three simple examples to show empirically that the utility matrix is approximately low-rank.  We train a logistic regression model, a fully connected neural network model, and a convolutional neural network model respectively for synthetic data, MNIST, and CIFAR10 (see \autoref{sec:7-7} for a detailed description). On each data set, we have 10 clients, train the model for 100 rounds and randomly select 3 clients in each round. Thus, the utility matrix $\mathcal{U}$ has size $100\times 2^{10}$. Although we update the global model with the randomly selected clients in each round, in order to obtain the whole utility matrix, we do compute the updates of all clients in each round.
     
     The distribution of singular values is plotted in \autoref{fig:svds}. Clearly, the three different utility matrices are all nearly low-rank.
 
@@ -360,7 +360,7 @@ This section reports a series of experiments that examine how well ComFedSV can 
 \subsection{Experiment Setting} \label{sec:7-7-1}
 
 \subsubsection{Data Sets} 
-We perform experiments on both real and synthetic data. For synthetic data, we follow the setup as in~\citep{li2018federated}. For real data, we choose the widely used benchmark data sets MNIST~\citep{lecun-mnisthandwrittendigit-2010}, Fashion MNIST~\citep{xiao2017fashion}, and CIFAR10~\citep{krizhevsky2009learning}.  
+We perform experiments on both real and synthetic data. For synthetic data, we follow the setup as in~\citep{li2018federated}. For real data, we choose the widely used benchmark data sets MNIST, Fashion MNIST~\citep{xiao2017fashion}, and CIFAR10.  
 
 In reality, data sets from different data owners may have different distributions. To model this circumstance, for each data set, we consider two different ways for distributing the data: IID and non-IID. For synthetic data, according to \cite{li2018federated}, the data set has two parameters $\alpha$ and $\beta$, where $\alpha$ controls how much local models differ from each other and $\beta$ controls how much local data sets differ from each other. We choose $\alpha=0, \beta=0$ for IID and $\alpha=1, \beta=1$ for non-IID. For real data sets MNIST, Fashion MNIST, and CIFAR10, we randomly distributed the data to all clients for IID, and each client gets samples of only two classes for non-IID, which is the same setting as in the original \texttt{FedAvg} paper~\citep{mcmahan2017communication}.
 
