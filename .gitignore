@@ -17,3 +17,6 @@
 *.dblite
 *~
 diss.pdf
+*.fdb_latexmk
+*.fdb_latexmk
+*.gz

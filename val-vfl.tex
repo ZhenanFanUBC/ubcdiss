@@ -323,7 +323,7 @@ We adapt VerFedSV with synchronous VFL algorithms. First, we empirically verify 
     \label{fig:syn_embedding_matrix}
 \end{figure}
 
-In this experiment, we numerically verify that the embedding matrices are approximately rank as described by Proposition~\ref{prop:low-rank}. Because we want to access the full embedding matrix, we set the batch size equal to the number of data points for all clients. The numbers of clients for the \emph{Adult}, \emph{Web}, \emph{Covtype} and \emph{RCV1} datasets are, respectively, $M = 3, 15, 9, 14$. Since computing the $\epsilon$-rank (\autoref{def:rank}) is NP-hard \cite{udell2019big}, we instead compute the rank of its truncated singular value decomposition as an approximation. More precisely, given a matrix $X \in \mathbb{R}^{m, n}$, let 
+In this experiment, we numerically verify that the embedding matrices are approximately rank as described by Proposition~\ref{prop:low-rank}. Because we want to access the full embedding matrix, we set the batch size equal to the number of data points for all clients. The numbers of clients for the \emph{Adult}, \emph{Web}, \emph{Covtype} and \emph{RCV1} datasets are, respectively, $M = 3, 15, 9, 14$. Since computing the $\epsilon$-rank (\autoref{def:epsilon-rank}) is NP-hard \cite{udell2019big}, we instead compute the rank of its truncated singular value decomposition as an approximation. More precisely, given a matrix $X \in \mathbb{R}^{m, n}$, let 
 $\sigma_1 \geq \sigma_2 \geq \dots \geq \sigma_p$
 be its ordered singular values, where $p = \min\{m,n\}$. Then given $\epsilon \in (0, 1)$, we define its approximated $\epsilon$-rank as 
 \[\widehat \rank_\epsilon(X) = \max\{r \in [1, p] \mid \sigma_r \geq \epsilon \cdot \sigma_1\}.\]
