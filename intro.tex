@@ -179,10 +179,10 @@ The following theorem, developed by~\citet{rockafellar1998variational}, describe
     \end{itemize}
 \end{theorem}
 
-The perturbation function $F$ plays an important role in Fenchel-Rockafellar duality theory. Different choices of the perturbation function will lead to different dual problems. In the rest of this section, we will interpret three widely used primal-dual pairs: Lagrange dual, Fenchel dual and gauge dual, under this perturbation framework.  
+The perturbation function $F$ plays an important role in Fenchel-Rockafellar duality theory. Different choices of the perturbation function will lead to different dual problems. In the rest of this section, we will interpret three widely used primal-dual pairs: Lagrangian dual, Fenchel-Rockafellar dual and gauge dual, under this perturbation framework.  
 
 
-\subsection{Lagrange duality}
+\subsection{Lagrangian duality}
 Consider the general constrained convex optimization problem:
 \begin{equation} \label{prob:general_constrained} 
     \minimize{x \in \Re^n} f(x) \st c_i(x) \leq 0 \enspace \forall i = 1, \dots, m,
@@ -201,14 +201,14 @@ Then we can derive the corresponding conjugate function as
                  -\infty & \text{otherwise}.
              \end{cases}
 \end{align*}
-Therefore, the Lagrange dual to problem~\eqref{prob:general_constrained} is given by
+Therefore, the Lagrangian dual to problem~\eqref{prob:general_constrained} is given by
 \begin{equation} \label{prob:general_constrained_dual}
     \maximize{y\in\Re_+^m} \minimize{x \in \Re^n} f(x) + \sum_{i=1}^m \ip{y_i}{c_i(x)}.
 \end{equation}
-The following theorem characterizes the duality for the Lagrange primal-dual pair. 
+The following theorem, summarized by \citet{boyd:2004}, characterizes the duality correspondence for the Lagrangian primal-dual pair. 
 
-\begin{theorem}[Lagrange duality theory~\protect{\citep[Section~5.3]{boyd:2004}}] 
-    Let $p^*$ and $d^*$ denote respectively the optimal values for the Lagrange primal-dual pair:~\eqref{prob:general_constrained} and~\eqref{prob:general_constrained_dual}. 
+\begin{theorem}[Lagrangian duality theory~\protect{\citep[Section~5.3]{boyd:2004}}] 
+    Let $p^*$ and $d^*$ denote respectively the optimal values for the Lagrangian primal-dual pair:~\eqref{prob:general_constrained} and~\eqref{prob:general_constrained_dual}. 
     \item \textbf{Weak duality}. $p^* \geq d^*$. 
     \item \textbf{Strong duality}. 
     If there exist an interior-point feasible point $\hat x$ for the primal problem~\eqref{prob:general_constrained}, i.e. $c_i(\hat x) < 0$ for $i = 1,\dots,m$, then $p^* = d^*$. Furthermore, let $x^*$ and $y^*$ denote respectively the optimal solutions to the primal-dual pair:~\eqref{prob:general_constrained} and~\eqref{prob:general_constrained_dual}, then 
@@ -216,7 +216,7 @@ The following theorem characterizes the duality for the Lagrange primal-dual pai
 \end{theorem}
 
 
-\subsection{Fenchel duality}
+\subsection{Fenchel-Rockafellar duality}
 Consider the following optimization problem 
 \begin{equation} \label{prob:general_fenchel} 
     \minimize{x \in \Re^n} f(x) + g(Mx),
@@ -232,14 +232,14 @@ Then we can derive the corresponding conjugate function as
              \\&= - g^*(y) - \sup_{x\in\Re^n}\ip{-M^*y}{x} - f(x) 
              \\&= - g^*(y) - f(-M^*y).
 \end{align*}
-Therefore, the Fenchel dual to problem~\eqref{prob:general_fenchel} is given by
+Therefore, the Fenchel-Rockafellar dual to problem~\eqref{prob:general_fenchel} is given by
 \begin{equation} \label{prob:general_fenchel_dual}
     \maximize{y\in\Re^m} - g^*(y) - f(-M^*y).
 \end{equation}
-The following theorem characterizes the duality for the Fenchel primal-dual pair. 
+The following theorem, developed by \citet{rockafellar1970convex}, characterizes the duality correspondence for the Fenchel-Rockafellar primal-dual pair. 
 
-\begin{theorem}[Fenchel duality theory~\protect{\citep[Corollary 31.2.1]{rockafellar1970convex}}] 
-    Let $p^*$ and $d^*$ denote respectively the optimal values for the Fenchel primal-dual pair:~\eqref{prob:general_fenchel} and~\eqref{prob:general_fenchel_dual}. 
+\begin{theorem}[Fenchel-Rockafellar duality theory~\protect{\citep[Corollary 31.2.1]{rockafellar1970convex}}] 
+    Let $p^*$ and $d^*$ denote respectively the optimal values for the Fenchel-Rockafellar primal-dual pair:~\eqref{prob:general_fenchel} and~\eqref{prob:general_fenchel_dual}. 
     \item \textbf{Weak duality}. $p^* \geq d^*$. 
     \item \textbf{Strong duality}. 
     If $0\in\int(\dom g - M\dom f)$, then $p^* = d^*$. Furthermore, let $x^*$ and $y^*$ denote respectively the optimal solutions to the primal-dual pair:~\eqref{prob:general_fenchel} and~\eqref{prob:general_fenchel_dual}, then the following relationships hold
@@ -281,7 +281,7 @@ Therefore, the gauge dual to problem~\eqref{prob:general_gauge} is given by
 \begin{equation} \label{prob:general_gauge_dual}
     \maximize{y\in\Re^m} -\delta\Cs^*(M^*y) \st \ip{b}{y} \geq 1.
 \end{equation}
-The following theorem characterizes the duality for the gauge primal-dual pair. 
+The following theorem, developed by \citet{friedlander2014gauge}, characterizes the duality correspondence for the gauge primal-dual pair. 
 
 \begin{theorem}[Gauge duality theory~\protect{\citep[Theorem~5.1 and Corollary~5.2]{friedlander2014gauge}}] 
     Let $p^*$ and $d^*$ denote respectively the optimal values for the gauge primal-dual pair:~\eqref{prob:general_gauge} and~\eqref{prob:general_gauge_dual}. 
