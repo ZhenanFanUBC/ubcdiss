@@ -26,3 +26,6 @@ diss.pdf
 *.gz
 *.fdb_latexmk
 *.gz
+*.fdb_latexmk
+*.fls
+*.gz
