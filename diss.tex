@@ -30,7 +30,7 @@
 %%
 
 % For submission to GPS
-\documentclass[gpscopy,onehalfspacing,11pt]{ubcdiss}
+\documentclass[gpscopy,onehalfspacing,10pt]{ubcdiss}
 
 % For your own copies (looks nicer)
 % \documentclass[balanced,twoside,11pt]{ubcdiss}
@@ -347,6 +347,9 @@
   \end{minted}%
   \end{listing}%
 }
+
+% narrowest margin
+\usepackage[lmargin=1.0in,rmargin=0.75in,tmargin=0.75in,bmargin=0.75in]{geometry}
 
 \DeclareRobustCommand{\ttfamily}{\fontfamily{lmtt}\selectfont}
 \DeclareRobustCommand\sectt[1]{{\fontsize{13}{12}\bfseries\ttfamily#1}}

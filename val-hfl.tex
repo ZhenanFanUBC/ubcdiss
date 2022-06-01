@@ -71,7 +71,7 @@ For simplicity, here we let each client do only one step of deterministic local 
 
 Fairness is one of the most desirable properties for a data valuation metric \citep{ghorbani2019data,pei2020survey}. In the HFL setting, a data valuation metric should be able to reflect how much each data owner contributes to the performance of the final model. As we show in \autoref{sec:1-4-2}, Shapley value satisfies four foundamental requirements for fairness (\autoref{def:shapley}). 
 
-It is worth noting that although balance is an important requirement in economics, which guarantees that the payment is fully distributed to all players, it is not relevant in the setting of this paper, since we only care about the relative contributions between clients. 
+It is worth noting that although balance is an important requirement in economics, which guarantees that the payment is fully distributed to all players, it is not relevant in the setting of this chapter, since we only care about the relative contributions between clients. 
 
 However the data valuation metric in form~\eqref{eq:shapley} cannot be directly applied in federated learning, because evaluation of the utility function $U$ requires retraining models \citep{ghorbani2019data}, which is impractical in federated learning \citep{wang2020principled}. Therefore, we cannot expect any practical data valuation metric in federated learning exactly satisfies the above requirements for fairness.
 
@@ -218,7 +218,7 @@ Before describing the low-rank matrix completion problem, we need to introduce a
 the central server does not get a chance to observe the possible contribution by the client. Consequently, the contribution of the client cannot be estimated. To tackle this issue, we assume that every client is willing to participate in the federated learning in each round.  Therefore, no matter a client is selected by the server in a round, the potential value of the client should be recognized properly.  Formally, we have the following assumption.
 
 \begin{assumption}[Everyone Being Heard] \label{ass:main}
-The central server selects all clients for update in at least one round, that is, there exists $k>0$, $I_k = I$.  Without loss of generality, in the rest of the paper, we assume $I_1=I$. Our discussion can be easily generalized to any $I_k=I$.
+The central server selects all clients for update in at least one round, that is, there exists $k>0$, $I_k = I$.  Without loss of generality, in the rest of this chapter, we assume $I_1=I$. Our discussion can be easily generalized to any $I_k=I$.
 \end{assumption}
 
 Note that \autoref{ass:main} does not come with high costs. As explained in \autoref{sec:7-1}, the central server selects a subset of clients in each round only to reduce communication cost, and the communication cost for doing one round of all clients is equivalent to doing $\left \lceil{N / m}\right \rceil $ rounds of additional training, where $m = |I_t|$ for all $t$. 
@@ -288,7 +288,7 @@ We now state our theoretical guarantee on the fairness of the ComFedSV.
 
 In particular, as long as the utility matrix is perfectly recovered, i.e., $\mathcal{U} = WH^T$, \autoref{prop:fair} guarantees that clients with identical local data obtain the same evaluation.
 
-There are different kinds of fairness in machine learning and federated learning~\citep{zemel2013learning,donini2018empirical,li2019fair,lyu2020collaborative,chu2021fedfair}. In this work, we focus on the fairness in data valuation (\autoref{prop:fair}). Moreover, our proposed metric is adaptable to different training algorithms for federated learning. When there are training algorithms that can achieve some other requirements on fairness besides the ones described in the paper, it is possible to combine those training algorithms with our valuation metric. For example, \citet{chu2021fedfair} proposed an algorithm that can guarantee the fairness for protected groups. Our valuation metric ComFedSV can be easily adapted to their algorithm since we still have access to the uploaded local models in each iteration.
+There are different kinds of fairness in machine learning and federated learning~\citep{zemel2013learning,donini2018empirical,li2019fair,lyu2020collaborative,chu2021fedfair}. In this chapter, we focus on the fairness in data valuation (\autoref{prop:fair}). Moreover, our proposed metric is adaptable to different training algorithms for federated learning. When there are training algorithms that can achieve some other requirements on fairness besides the ones described in this chapter, it is possible to combine those training algorithms with our valuation metric. For example, \citet{chu2021fedfair} proposed an algorithm that can guarantee the fairness for protected groups. Our valuation metric ComFedSV can be easily adapted to their algorithm since we still have access to the uploaded local models in each iteration.
 
 \subsection{Estimating ComFedSV} \label{sec:7-6-5}
 
