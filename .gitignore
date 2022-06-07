@@ -33,3 +33,5 @@ diss.fdb_latexmk
 *.fls
 *.fdb_latexmk
 *.gz
+*.fdb_latexmk
+*.gz

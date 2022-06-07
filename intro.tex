@@ -162,7 +162,7 @@ The following theorem, developed by~\citet{rockafellar1998variational}, describe
       \caption{Strong duality.}
     \end{subfigure}
     \captionsetup{justification=centering}
-    \caption{Geometric illustration of weak and strong duality.}
+    \caption{Geometric illustration of weak and strong duality, where $g$ is the function defined in \eqref{prob:general_dual}.}
     \label{fig:duality}
 \end{figure}
 
@@ -171,11 +171,13 @@ The following theorem, developed by~\citet{rockafellar1998variational}, describe
         \item \textbf{Weak duality}. The inequality $v_F(0) \geq v_F^{**}(0)$ always holds. 
         \item \textbf{Strong duality}. If $0 \in \ri\dom v_F \cup \ri\dom v_F^{**}$, then $v_F(0) = v_F^{**}(0)$. 
         \item \textbf{Optimal solutions.} If the strong duality holds with finite optimal values, then the following characterizations of the optimal solutions to the primal-dual pair are equivalent
-            \begin{align}
+        \begin{equation} \label{eq:dual_opt}
+            \begin{split}
                 (x^*, 0) &\in \partial F^*(0,y^*); \\
                 (0, y^*) &\in \partial F(x^*,0); \\
                 v_F(0) = F^*(x^*, 0) &= -F^*(0,y^*) = v_F^{**}(0).
-            \end{align}
+            \end{split}
+        \end{equation}
     \end{itemize}
 \end{theorem}
 
@@ -187,24 +189,29 @@ Consider the general constrained convex optimization problem:
 \begin{equation} \label{prob:general_constrained} 
     \minimize{x \in \Re^n} f(x) \st c_i(x) \leq 0 \enspace \forall i = 1, \dots, m,
 \end{equation}
-where $f:\Re^n\to\Re$ and $c_i:\Re^n\to\Re$ for all $i\in[m]$ are convex functions. In this case, the perturbation function is defined as 
+where $f:\Re^n\to\Re$ and $c_i:\Re^n\to\Re$ for all $i\in[m]$ are convex functions. In this case, the perturbation function $F: \Re^n \times \Re^m \to \Re$ is defined as 
 \begin{equation}
-    F(x, u) = f(x) + \sum_{i = 1}^m \delta_{\leq 0}(c_i(x) + u_i).
+    F(x, u) = f(x) + \sum_{i = 1}^m \delta_{\leq 0}(c_i(x) + u_i),
 \end{equation}
-Then we can derive the corresponding conjugate function as 
+which satisfies \eqref{eq:value_fn_property}. Then we can derive the corresponding conjugate function as 
 \begin{align*}
-    -F^*(0, y) &= -\sup_{x\in\Re^n, u\in\Re^m} \ip{0}{x} + \ip{y}{u} - F(x,u)
-             \\&= -\sup_{x\in\Re^n, w\in\Re_+^m} \sum_{i=1}^m \ip{y_i}{- c_i(x) - w_i} - f(x)
-             \\&= 
-             \begin{cases}
-                 \inf_{x\in\Re^n} f(x) + \sum_{i=1}^m \ip{y_i}{c_i(x)} & \text{if} y \in\Re_+^m \\
-                 -\infty & \text{otherwise}.
-             \end{cases}
+    -F^*(0, y) 
+    &= -\sup_{x\in\Re^n, u\in\Re^m} \ip{0}{x} + \ip{y}{u} - F(x,u)
+    \\&= -\sup_{x\in\Re^n, u\in\Re^m} \ip{y}{u} - \sum_{i = 1}^m \delta_{\leq 0}(c_i(x) + u_i) - f(x)
+    \\&= -\sup_{x\in\Re^n, w\in\Re^m} \sum_{i=1}^m \ip{y_i}{-c_i(x) - w_i} - \sum_{i = 1}^m \delta_{\leq 0}(-w_i) - f(x) \quad (\mbox{let } w_i = -c_i(x) - u_i)
+    \\&= -\sup_{x\in\Re^n, w\in\Re_+^m} \sum_{i=1}^m \ip{y_i}{- c_i(x) - w_i} - f(x)
+    \\&= \inf_{x\in\Re^n, w\in\Re_+^m} f(x) + \sum_{i=1}^m \ip{y_i}{c_i(x) + w_i} 
+    \\&= 
+        \begin{cases}
+            \inf\limits_{x\in\Re^n} f(x) + \sum\limits_{i=1}^m \ip{y_i}{c_i(x)} & \text{if} y \in\Re_+^m \\
+            -\infty & \text{otherwise}.
+        \end{cases}
 \end{align*}
 Therefore, the Lagrangian dual to problem~\eqref{prob:general_constrained} is given by
 \begin{equation} \label{prob:general_constrained_dual}
-    \maximize{y\in\Re_+^m} \minimize{x \in \Re^n} f(x) + \sum_{i=1}^m \ip{y_i}{c_i(x)}.
+    \maximize{y\in\Re_+^m} g(y) \coloneqq \min_{x \in \Re^n} f(x) + \sum_{i=1}^m \ip{y_i}{c_i(x)},
 \end{equation}
+which corresponds to \eqref{prob:general_dual}.
 The following theorem, summarized by \citet{boyd:2004}, characterizes the duality correspondence for the Lagrangian primal-dual pair. 
 
 \begin{theorem}[Lagrangian duality theory~\protect{\citep[Section~5.3]{boyd:2004}}] 
@@ -212,8 +219,11 @@ The following theorem, summarized by \citet{boyd:2004}, characterizes the dualit
     \item \textbf{Weak duality}. $p^* \geq d^*$. 
     \item \textbf{Strong duality}. 
     If there exist an interior-point feasible point $\hat x$ for the primal problem~\eqref{prob:general_constrained}, i.e. $c_i(\hat x) < 0$ for $i = 1,\dots,m$, then $p^* = d^*$. Furthermore, let $x^*$ and $y^*$ denote respectively the optimal solutions to the primal-dual pair:~\eqref{prob:general_constrained} and~\eqref{prob:general_constrained_dual}, then 
-    \[y_i^*c_i(x^*) = 0 \enspace \forall i = 1,\dots,m.\]
+    \begin{equation} \label{eq:dual_opt_lagrangian}
+        y_i^*c_i(x^*) = 0 \enspace \forall i = 1,\dots,m.
+    \end{equation}
 \end{theorem}
+Note that \eqref{eq:dual_opt_lagrangian} can be derived from \eqref{eq:dual_opt}.
 
 
 \subsection{Fenchel-Rockafellar duality}
@@ -221,10 +231,11 @@ Consider the following optimization problem
 \begin{equation} \label{prob:general_fenchel} 
     \minimize{x \in \Re^n} f(x) + g(Mx),
 \end{equation}
-where $f:\Re^n\to\Re$ and $g:\Re^m\to\Re$ are closed convex functions, and $M:\Re^n\to\Re^m$ is a linear operator. In this case, the perturbation function is defined as 
+where $f:\Re^n\to\Re$ and $g:\Re^m\to\Re$ are closed convex functions, and $M:\Re^n\to\Re^m$ is a linear operator. In this case, the perturbation function $F: \Re^n \times \Re^m \to \Re$ is defined as 
 \begin{equation}
-    F(x, u) = f(x) + g(Mx + u).
+    F(x, u) = f(x) + g(Mx + u),
 \end{equation}
+which satisfies \eqref{eq:value_fn_property}. 
 Then we can derive the corresponding conjugate function as
 \begin{align*}
     -F^*(0, y) &= -\sup_{x\in\Re^n, u\in\Re^m} \ip{0}{x} + \ip{y}{u} - f(x) - g(Mx + u)
@@ -234,20 +245,24 @@ Then we can derive the corresponding conjugate function as
 \end{align*}
 Therefore, the Fenchel-Rockafellar dual to problem~\eqref{prob:general_fenchel} is given by
 \begin{equation} \label{prob:general_fenchel_dual}
-    \maximize{y\in\Re^m} - g^*(y) - f(-M^*y).
+    \maximize{y\in\Re^m} - g^*(y) - f(-M^*y),
 \end{equation}
+which corresponds to \eqref{prob:general_dual}. 
 The following theorem, developed by \citet{rockafellar1970convex}, characterizes the duality correspondence for the Fenchel-Rockafellar primal-dual pair. 
 
 \begin{theorem}[Fenchel-Rockafellar duality theory~\protect{\citep[Corollary 31.2.1]{rockafellar1970convex}}] 
     Let $p^*$ and $d^*$ denote respectively the optimal values for the Fenchel-Rockafellar primal-dual pair:~\eqref{prob:general_fenchel} and~\eqref{prob:general_fenchel_dual}. 
     \item \textbf{Weak duality}. $p^* \geq d^*$. 
     \item \textbf{Strong duality}. 
-    If $0\in\int(\dom g - M\dom f)$, then $p^* = d^*$. Furthermore, let $x^*$ and $y^*$ denote respectively the optimal solutions to the primal-dual pair:~\eqref{prob:general_fenchel} and~\eqref{prob:general_fenchel_dual}, then the following relationships hold
-    \begin{align*}
-          y^* &\in \partial g(Mx^*) \cap (M^*)^{-1}\partial f(x^*) \tand
+    If $0\in\ri(\dom g - M\dom f)$, then $p^* = d^*$. Furthermore, let $x^*$ and $y^*$ denote respectively the optimal solutions to the primal-dual pair:~\eqref{prob:general_fenchel} and~\eqref{prob:general_fenchel_dual}, then the following relationships hold
+    \begin{equation} \label{eq:dual_opt_fenchel}
+        \begin{split}
+            y^* &\in \partial g(Mx^*) \cap (M^*)^{-1}\partial f(x^*),
         \\x^* &\in \partial f^*(-M^*y^*)\cap M^{-1}\partial g^*(y^*).
-    \end{align*}
+        \end{split}
+    \end{equation}
 \end{theorem}
+Note that \eqref{eq:dual_opt_fenchel} can be derived from \eqref{eq:dual_opt}. 
 
 
 
@@ -262,15 +277,17 @@ $\lambda \coloneqq 1/\gauge\Cs(x)$ and $w \coloneqq \lambda x$, problem~\eqref{p
 \begin{equation} \label{prob:general_gauge2} 
     \inf_{\lambda > 0, w \in \Re^n} \frac{1}{\lambda} \st w \in \Cscr \tand Mw = \lambda b.
 \end{equation}
-Note that minimizing $1/\lambda$ is equivalent to minimizing $-\lambda$ for $\lambda \geq 0$. In this case, the perturbation function is defined as 
+Note that minimizing $1/\lambda$ is equivalent to minimizing $-\lambda$ for $\lambda \geq 0$. In this case, the perturbation function $F:\Re^{n+1} \times \Re^m$ is defined as 
 \begin{equation}
-    F(\lambda, w, u) = -\lambda + \delta\Cs(w) + \delta_{\{0\}}(\lambda b - Mw + u) + \delta_{\geq 0}(\lambda). 
+    F(\lambda, w, u) = -\lambda + \delta\Cs(w) + \delta_{\{0\}}(\lambda b - Mw + u) + \delta_{\geq 0}(\lambda),
 \end{equation}
+which satisfies \eqref{eq:value_fn_property}. 
 Then we can derive the corresponding conjugate function as
 \begin{align*}
     -F^*(0, y) &= -\sup_{\lambda\in\Re, w\in\Re^n, u\in\Re^m} \ip{y}{u} + \lambda - \delta\Cs(w) - \delta_{\{0\}}(\lambda b - Mw + u) - \delta_{\geq 0}(\lambda)
     \\&= -\sup_{\lambda\in\Re, w\in\Re^n} \lambda - \delta\Cs(w) - \delta_{\geq 0}(\lambda) - \ip{\lambda b - Mw}{y}
-    \\&= -\sup_{\lambda\geq 0} \delta\Cs^*(M^*y) + \lambda ( 1 - \ip{b}{y} )
+    \\&= -\sup_{\lambda\geq 0}  \lambda ( 1 - \ip{b}{y} ) - \sup_{w\in\Re^n} \ip{w}{M^*y} - \delta\Cs(w) 
+    \\&= -\sup_{\lambda\geq 0}  \lambda ( 1 - \ip{b}{y} ) - \delta\Cs^*(M^*y)
     \\&= 
         \begin{cases}
             -\delta\Cs^*(M^*y) & \text{if} \ip{b}{y} \geq 1 \\
@@ -279,17 +296,20 @@ Then we can derive the corresponding conjugate function as
 \end{align*}
 Therefore, the gauge dual to problem~\eqref{prob:general_gauge} is given by
 \begin{equation} \label{prob:general_gauge_dual}
-    \maximize{y\in\Re^m} -\delta\Cs^*(M^*y) \st \ip{b}{y} \geq 1.
+    \maximize{y\in\Re^m} -\delta\Cs^*(M^*y) \st \ip{b}{y} \geq 1,
 \end{equation}
+which corresponds to \eqref{prob:general_dual}. 
 The following theorem, developed by \citet{friedlander2014gauge}, characterizes the duality correspondence for the gauge primal-dual pair. 
 
 \begin{theorem}[Gauge duality theory~\protect{\citep[Theorem~5.1 and Corollary~5.2]{friedlander2014gauge}}] 
     Let $p^*$ and $d^*$ denote respectively the optimal values for the gauge primal-dual pair:~\eqref{prob:general_gauge} and~\eqref{prob:general_gauge_dual}. 
     \item \textbf{Weak duality}. If both primal problem~\eqref{prob:general_gauge} and dual problem~\eqref{prob:general_gauge_dual} are feasible, then $p^* d^* \geq 1$. 
     \item \textbf{Strong duality}. If either primal problem~\eqref{prob:general_gauge} or dual problem~\eqref{prob:general_gauge_dual} is strictly feasible and the other is feasible, then $p^* d^* = 1$. Furthermore, let $x^*$ and $y^*$ denote respectively the optimal solutions to the primal-dual pair:~\eqref{prob:general_gauge} and~\eqref{prob:general_gauge_dual}, then 
-    \[\ip{x^*}{M^*y^*} = \gauge\Cs(x^*)\delta\Cs^*(M^*y^*).\]
-    
+    \begin{equation} \label{eq:dual_opt_gauge}
+        \ip{x^*}{M^*y^*} = \gauge\Cs(x^*)\delta\Cs^*(M^*y^*).
+    \end{equation}    
 \end{theorem}
+Note that \eqref{eq:dual_opt_gauge} can be derived from \eqref{eq:dual_opt}.
 
 \section{Structured optimization} \label{sec:1-3}
 
