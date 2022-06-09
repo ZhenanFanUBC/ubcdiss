@@ -117,6 +117,10 @@ The following blanket assumption holds throughout this chapter.
   $M:\Re^n\to\Re^m$ has i.i.d.\@ standard Gaussian entries; the noise vector $\eta$ satisfies $\|\eta\|_2\leq \alpha$ for some scalar $\alpha$; and the relative signal powers $\{\lambda_i\}_{i=1}^k$ satisfy~\eqref{eq-lambda-def}.
 \end{assumption} 
 
+\subsection{Summary of contributions}\label{sec:3-6}
+
+In this chapter, we study the structural signal demixing problem. We develop a two-stage, decompression-deconvolution approach for compressed signal demixing motivated by the polar convolution of gauge functions and the polar alignment property developed in \autoref{ch:Dual-Struc-Opt}. Under the assumption of Gaussian measurements and randomly rotated signals, we develop explicit signal-recovery error and sample complexity bounds for the two-stage approach. These are the first known explicit error bounds for recovering an arbitrary number of mixed and compressed signals. Extensive numerical experiments on synthetic and real data verify the correctness of our theoretical results and the effectiveness of our approach.
+
 
 \section{Decompressing the superposition}\label{sec:3-2} 
 
@@ -128,7 +132,7 @@ The following blanket assumption holds throughout this chapter.
 
 As shown in \autoref{sec:3-1-2}, under the assumption that the individual signals $x\nai$ are $\Ascr_i$ sparse, the aggregate signal $\xagg$ is sparse with respect to the aggregate atomic set $\Ascr\subs$.
 Thus, the decompression of the observations $b$ in \eqref{eq:demixing-problem} is accomplished by minimizing the gauge to $\Ascr\subs$ to within the bound on the noise level $\|\eta\|_2\le\alpha$, as modeled by the recovery problem \eqref{eq:decompression}.
-Without noise (i.e, $\alpha=0$), the aggregate signal $\xagg$ is the unique solution to \eqref{eq:decompression} when the null space of the measurement operator $M$ has only a trivial intersection with the descent cone $\Dscr\subs\coloneqq\Dscr(\Ascr\subs, \xagg)$.
+Without noise (i.e., $\alpha=0$), the aggregate signal $\xagg$ is the unique solution to \eqref{eq:decompression} when the null space of the measurement operator $M$ has only a trivial intersection with the descent cone $\Dscr\subs\coloneqq\Dscr(\Ascr\subs, \xagg)$.
 In other words, $\xagg$ is the unique solution of \eqref{eq:decompression} if and only if 
 \begin{equation}\label{eq-unique-optimality}
   \Dscr\subs\cap\Null(M) = \{0\}.  
@@ -386,7 +390,7 @@ where $\|\cdot\|_1$ and $\|\cdot\|_\infty$ are the Schatten 1- and $\infty$-norm
 We reproduce the synthetic model described by Ong and Lustig, who construct the superposition $B = \sum_{i = 1}^k X\nai$,
 where $X\nai \in \Re^{m \times n}$ is block-wise low rank with respect to the multiscale partitions $\{\Pscr_i\}_{i = 1}^k$. In our experiment, we set $m = n = 64$, $k = 4$, and for each $i\in\irange1k$,
 \[m_p = n_p = 4^{i-1}  \quad \forall p \in \Pscr_i.\]
-At the lowest scale $i=1$, a block-wise low-rank matrix is a scalar, and so 1-sparse matrices are included with the atomic set $\Ascr_{\Pscr_1}$.  The solutions of the deconvolution procedure \autoref{eq:deconvolution} are shown in~\autoref{fig:multiscale}.
+At the lowest scale $i=1$, a block-wise low-rank matrix is a scalar, and so 1-sparse matrices are included with the atomic set $\Ascr_{\Pscr_1}$.  The solutions of the deconvolution procedure \eqref{eq:deconvolution} are shown in~\autoref{fig:multiscale}.
 
 \begin{figure}[t]
     \centering
@@ -395,9 +399,7 @@ At the lowest scale $i=1$, a block-wise low-rank matrix is a scalar, and so 1-sp
     \label{fig:multiscale}
 \end{figure}
 
-\section{Summary of contributions}\label{sec:3-6}
 
-In this chapter, we study the structural signal demixing problem. We develop a two-stage, decompression-deconvolution approach for compressed signal demixing motivated by the polar convolution of gauge functions and the polar alignment property developed in \autoref{ch:Dual-Struc-Opt}. Under the assumption of Gaussian measurements and randomly rotated signals, we develop explicit signal-recovery error and sample complexity bounds for the two-stage approach. These are the first known explicit error bounds for recovering an arbitrary number of mixed and compressed signals. Extensive numerical experiments on synthetic and real data verify the correctness of our theoretical results and the effectiveness of our approach.
 
 
 

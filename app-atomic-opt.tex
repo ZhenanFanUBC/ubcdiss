@@ -1,6 +1,6 @@
 %% The following is a directive for TeXShop to indicate the main file
 %%!TEX root = diss.tex
-\chapter{AtomicOpt.jl: a Julia package for structured optimiztaion}
+\chapter{AtomicOpt.jl: a Julia package for structured optimization}
 \label{ch:App-AtomicOpt}
 
 \section{Introduction} \label{sec:5-1}
@@ -35,14 +35,14 @@ As we introduced in \autoref{ch:App-Primal-Retrieval}, for better space complexi
 \begin{equation} \label{eq:main_prob_atomic_opt_dual} 
     \min_{r\in\Re^m}\enspace \gauge\MAs(b-r) \sut \|r\| \leq \alpha.
 \end{equation}
-Then near-feasible solutions to problem \eqref{eq:main_prob_atomic_opt} can obtained via \autoref{alg:primal_recover}. 
+Then near-feasible solutions to problem \eqref{eq:main_prob_atomic_opt} can obtained via Algorithm~\ref{alg:primal_recover}. 
 
 We describe the whole procedure and the candidate algorithms in \autoref{sec:5-2}. Then in \autoref{sec:5-3}, we introduce the basic atomic sets we include in this package. Finally, we show some examples using \texttt{AtomicOpt.jl}. 
 
 
 \section{Algorithms} \label{sec:5-2}
 
-In this section, we describe a procedure for obtaining near-feasible solutions to problem \eqref{eq:main_prob_atomic_opt}. The procedure first solves the dual formulation \eqref{eq:main_prob_atomic_opt_dual} using an algorithm requiring only the storage of several vectors of length $m$, which represents the size of the data $b$. The algorithm depends on the level-set method \cite{berg2011sparse,berg2008probing} and a generalized version of the dual conditional gradient method (\autoref{algo:dual-conditional-gradient}), which we describe in \autoref{sec:level} and \autoref{sec:dcg} respectively. As we show in \autoref{sec:primal_retrieval}, the solutions to the problem \eqref{eq:main_prob_atomic_opt} is subsequently obtained via an unconstrained linear least-squares problem that uses information implicit in the dual vector. \autoref{alg-level-set} summarizes the overall procedure. 
+In this section, we describe a procedure for obtaining near-feasible solutions to problem \eqref{eq:main_prob_atomic_opt}. The procedure first solves the dual formulation \eqref{eq:main_prob_atomic_opt_dual} using an algorithm requiring only the storage of several vectors of length $m$, which represents the size of the data $b$. The algorithm depends on the level-set method \cite{berg2011sparse,berg2008probing} and a generalized version of the dual conditional gradient method (Algorithm~\ref{algo:dual-conditional-gradient}), which we describe in \autoref{sec:level} and \autoref{sec:dcg} respectively. As we show in \autoref{sec:primal_retrieval}, the solutions to the problem \eqref{eq:main_prob_atomic_opt} is subsequently obtained via an unconstrained linear least-squares problem that uses information implicit in the dual vector. \autoref{alg-level-set} summarizes the overall procedure. 
 
 \begin{algorithm}[t]
   \DontPrintSemicolon
@@ -124,15 +124,15 @@ The level-set algorithm requires $\BigOh(\log(1/\epsilon))$ approximate evaluati
   \Return{$r\t$, $\sum_{i=1}^k p_i\t$, $\ell\t$}
 \end{algorithm}
 
-The level-set subproblems are solved approximately using the generalized dual conditional-gradient method described by \autoref{alg:dcg}, which is generalized version of \autoref{algo:dual-conditional-gradient}. The main computational cost are in \autoref{algo-expose-atom} and \autoref{algo-line-search}. 
+The level-set subproblems are solved approximately using the generalized dual conditional-gradient method described by Algorithm~\ref{alg:dcg}, which is generalized version of Algorithm~\ref{algo:dual-conditional-gradient}. The main computational cost are in Algorithm~\ref{algo-expose-atom} and Algorithm~\ref{algo-line-search}. 
 
-In \autoref{algo-expose-atom}, we use $r\t$ to expose atoms from $M\Ascr_i$, which can be implemented in parallel using the following identity, i.e.,
+In Algorithm~\ref{algo-expose-atom}, we use $r\t$ to expose atoms from $M\Ascr_i$, which can be implemented in parallel using the following identity, i.e.,
 \begin{equation*}
   \Escr(M\Ascr_i;\,r\t) \equiv M\cdot\Escr(\Ascr_i, M^*r\t).
 \end{equation*}
 Recall that $\Ascr_i$ is the basic atomic set, so $\Escr(\Ascr_i, M^*r\t)$ can be efficiently computed. This formulation is convenient in cases where the operator $M$ can be applied implicitly to elements of the atomic set $\Ascr_i$. 
 
-\autoref{algo-line-search} exhibits the exact linesearch, i.e., it solves the following box-constrained optimization problem
+Algorithm~\ref{algo-line-search} exhibits the exact linesearch, i.e., it solves the following box-constrained optimization problem
 \begin{equation} \label{eq:line_search}
   \min_{\theta_1, \dots, \theta_k \in [0,1]} \enspace \left\|r\t - \sum_{i=1}^k \theta_i\Delta r_i\t\right\|.
 \end{equation}
@@ -158,16 +158,11 @@ In this section, we introduce some basic atomic sets implemented in \texttt{Atom
   using AtomicOpt
   using LinearAlgebra
   using Test
-  # set dimension
-  n = 10
-  # construct atomic set 
-  A = OneBall(n)
-  # generate random vector
-  z = randn(n)
-  # expose atom
-  a = expose(A, z)
-  # test
-  @test dot(a,z) ≈ support(A, z)
+  n = 10                          # set dimension
+  A = OneBall(n)                  # construct atomic set 
+  z = randn(n)                    # generate random vector
+  a = expose(A, z)                # expose atom
+  @test dot(a,z) ≈ support(A, z)  # test
 \end{code}
 
 \paragraph{\texttt{NucBall}} refers to the atomic set described in \autoref{example-nuclear-norm}. The basic usage is shown in the following code block. 
@@ -175,16 +170,11 @@ In this section, we introduce some basic atomic sets implemented in \texttt{Atom
   using AtomicOpt
   using LinearAlgebra
   using Test
-  # set dimension
-  n1, n2 = 10, 15
-  # construct atomic set 
-  A = NucBall(n1, n2)
-  # generate random matrix
-  z = randn(n1, n2)
-  # expose atom
-  a = expose(A, z)
-  # test
-  @test dot(a,z) ≈ support(A, z)
+  n1, n2 = 10, 15                 # set dimension 
+  A = NucBall(n1, n2)             # construct atomic set 
+  z = randn(n1, n2)               # generate random matrix
+  a = expose(A, z)                # expose atom
+  @test dot(a,z) ≈ support(A, z)  # test
 \end{code}
 
 \paragraph{\texttt{TraceBall}} refers to the atomic set described in \autoref{example-trace-norm}. The basic usage is shown in the following code block. 
@@ -192,16 +182,11 @@ In this section, we introduce some basic atomic sets implemented in \texttt{Atom
   using AtomicOpt
   using LinearAlgebra
   using Test
-  # set dimension
-  n = 10
-  # construct atomic set 
-  A = TraceBall(n)
-  # generate random matrix
-  z = randn(n, n)
-  # expose atom
-  a = expose(A, z)
-  # test
-  @test dot(a,z) ≈ support(A, z)
+  n = 10                          # set dimension
+  A = TraceBall(n)                # construct atomic set 
+  z = randn(n, n)                 # generate random matrix
+  a = expose(A, z)                # expose atom
+  @test dot(a,z) ≈ support(A, z)  # test
 \end{code}
 
 \paragraph{\texttt{BlkNucBall}} refers to the atomic set described in \autoref{sec:3-5-4}. The basic usage is shown in the following code block. 
@@ -209,16 +194,11 @@ In this section, we introduce some basic atomic sets implemented in \texttt{Atom
   using AtomicOpt
   using LinearAlgebra
   using Test
-  # set dimension
-  n, bn = 10, 2
-  # construct atomic set 
-  A = BlkNucBall(n, n, bn, bn)
-  # generate random matrix
-  z = randn(n, n)
-  # expose atom
-  a = expose(A, z)
-  # test
-  @test dot(a,z) ≈ support(A, z)
+  n, bn = 10, 2                   # set dimension
+  A = BlkNucBall(n, n, bn, bn)    # construct atomic set 
+  z = randn(n, n)                 # generate random matrix
+  a = expose(A, z)                # expose atom
+  @test dot(a,z) ≈ support(A, z)  # test
 \end{code}
 
 
@@ -232,25 +212,16 @@ In this section, we show how to use \texttt{AtomicOpt.jl} to solve some structur
   using LinearAlgebra
   using Printf
   import Random: seed!, randperm
-  # set dimensions
-  m, n, k = 2^8, 2^10, 8
-  # random measurement operator
-  M = randn(m, n) 
-  # ground-truth signal with nnz = k
-  p = randperm(n); p = p[1:k]; 
-  x0 = zeros(n); x0[p] = randn(k)
-  # noise
-  η = randn(m)/100
-  # measurement
-  b = M*x0 + η
-  # atomic set
-  A = OneBall(n; maxrank=k)
-  # solve the basis pursuit denoise problem
-  sol = level_set(M, b, A, α = norm(η))
-  # construct primal solution
-  x = constructPrimal(sol)
-  # report error
-  @printf("relative difference between x0 and x: .2%f", norm(x - x0)/norm(x0))
+  m, n, k = 2^8, 2^10, 8                  # set dimensions
+  M = randn(m, n)                         # random measurement operator
+  p = randperm(n); p = p[1:k];            # nnz positions
+  x0 = zeros(n); x0[p] = randn(k)         # ground-truth signal with nnz = k
+  η = randn(m)/100                        # noise
+  b = M*x0 + η                            # measurement
+  A = OneBall(n; maxrank=k)               # atomic set
+  sol = level_set(M, b, A, α = norm(η))   # solve the basis pursuit denoise problem
+  x = constructPrimal(sol)                # construct primal solution
+  @printf("relative difference between x0 and x: .2%f", norm(x - x0)/norm(x0)) 
 \end{code}
 
 \paragraph{Low-rank matrix completion} refers to the problem introduced in \autoref{ex:mc}. The following code block summarizes how to solve this problem using \texttt{AtomicOpt.jl}.
@@ -260,28 +231,18 @@ In this section, we show how to use \texttt{AtomicOpt.jl} to solve some structur
   using SparseArrays
   using Printf
   import Random: seed!, randperm
-  # generate a random m×n matrix with rank r
-  m, n, r = 100, 100, 3 
-  X = rand(m, n)
+  m, n, r = 100, 100, 3                         # set dimensions
+  X = rand(m, n)                                # generate a random m×n matrix with rank r
   U, S, V = svd(X)
-  X0 = U[:,1:r] * Diagonal( S[1:r] ) * V[:,1:r]'
-  # generate a random mask with nnz ≈ m*n*p
-  p = 0.5
+  X0 = U[:,1:r] * Diagonal( S[1:r] ) * V[:,1:r]'  
+  p = 0.5                                       # generate a random mask with nnz ≈ m*n*p
   mask = sprand(Bool, m, n, p); 
-  mask = convert(SparseMatrixCSC{Float64, Int64}, mask)
-  # measurement
-  B =  mask .* X0
-  b =  B.nzval
-  # operator
-  Mop = MaskOP(mask)
-  # atomic set
-  A = NucBall(m, n, r)
-  # solve the matrix completion problem
-  sol = level_set(M, b, A, α = 0.0)
-  # construct primal variable
-  x = constructPrimal(sol)
-  X = reshape(x, m, n)
-  # Report recovery error
+  mask = convert(SparseMatrixCSC{Float64, Int64}, mask) 
+  B =  mask .* X0; b =  B.nzval                 # measurement
+  Mop = MaskOP(mask)                            # operator
+  A = NucBall(m, n, r)                          # atomic set
+  sol = level_set(M, b, A, α = 0.0)             # solve the matrix completion problem
+  x = constructPrimal(sol); X = reshape(x, m, n)# construct primal variable
   @printf("relative difference between X0 and X: .2%f", norm(X - X0)/norm(X0))
 \end{code}
 
@@ -291,34 +252,27 @@ In this section, we show how to use \texttt{AtomicOpt.jl} to solve some structur
   using LinearAlgebra
   using SparseArrays
   using Printf
-  import Random: seed!, randperm
-  # generate a random m×n matrix with rank r
-  m, n, r = 100, 100, 3 
-  X = rand(m, n)
-  U, S, V = svd(X)
+  m, n, r = 100, 100, 3                  # set dimensions
+  X = rand(m, n); U, S, V = svd(X)       # generate a random m×n matrix with rank r
   x1 = U[:,1:r] * Diagonal( S[1:r] ) * V[:,1:r]'
-  # generate a random m*n matrix with nnz ≈ m*n*p
-  p = 0.01
+  p = 0.01                               # generate a random m*n matrix with nnz ≈ m*n*p
   x2 = randn(m, n) .* sprand(Bool, m, n, p)
   k = nnz(x2)
-  # measurement
-  b = vec(x1 + x2)
-  # atomic set
-  A1 = NucBall(m, n, maxrank=r); A1 *= gauge(A1, xl)
-  A2 = OneBall(m*n, maxrank=k); A2 *= gauge(A2, xs)
-  A = A1 + A2
-  # solve the sparse and low-rank decomposition problem
-  sol = level_set(I(m*n), b, A, α = 0.0)
-  # construct primal variable
-  x = constructPrimal(sol)
-  # Report recovery error
+  b = vec(x1 + x2)                       # measurement
+  A1 = NucBall(m, n, maxrank=r)
+  A1 *= gauge(A1, xl)                    # atomic set 1
+  A2 = OneBall(m*n, maxrank=k)
+  A2 *= gauge(A2, xs)                    # atomic set 2
+  A = A1 + A2                            # atomic set
+  sol = level_set(I(m*n), b, A, α = 0.0) # solve the problem
+  x = constructPrimal(sol)               # construct primal variable
   @printf("relative difference for x1: .2%f", norm(x1 - x[1])/norm(x1))
   @printf("relative difference for x2: .2%f", norm(x2 - x[2])/norm(x2))
 \end{code}
 
 
-\section{Summary of contributions} \label{sec:5-5} 
-In this chapter, we introduce our Julia package \texttt{AtomicOpt.jl} for solving structured optimization problems. The key design of this package depends on the level-set method, dual conditional gradient method and the primal-retrieval strategy developed in \autoref{ch:App-Primal-Retrieval}. All the numerical experiments conducted in \autoref{ch:Dual-Struc-Opt}, \autoref{ch:App-Sig-Demix} and \autoref{ch:App-Primal-Retrieval} are reproducible using \texttt{AtomicOpt.jl}. Note that \texttt{AtomicOpt.jl} provides not only a solver but also a framework for structured optimization. Users can easily add new basic atomic sets to it, as long as the implementation of the expose operation is known. 
+% \section{Summary of contributions} \label{sec:5-5} 
+% In this chapter, we introduce our Julia package \texttt{AtomicOpt.jl} for solving structured optimization problems. The key design of this package depends on the level-set method, dual conditional gradient method and the primal-retrieval strategy developed in \autoref{ch:App-Primal-Retrieval}. All the numerical experiments conducted in \autoref{ch:Dual-Struc-Opt}, \autoref{ch:App-Sig-Demix} and \autoref{ch:App-Primal-Retrieval} are reproducible using \texttt{AtomicOpt.jl}. Note that \texttt{AtomicOpt.jl} provides not only a solver but also a framework for structured optimization. Users can easily add new basic atomic sets to it, as long as the implementation of the expose operation is known. 
 
 
 

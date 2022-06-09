@@ -1,6 +1,6 @@
 %% The following is a directive for TeXShop to indicate the main file
 %%!TEX root = diss.tex
-\chapter{Primal-rerieval strategy for structured optimization}
+\chapter{Primal-retrieval strategy for structured optimization}
 \label{ch:App-Primal-Retrieval}
 
 \section{Introduction} \label{sec:4-1}
@@ -42,7 +42,7 @@ We make the definition of the function $\texttt{EssCone}_{\Ascr, M, k}$ explicit
     x^{(t)} \coloneqq \argmin{x} f(b - Mx) \text{subject to} x \in \Cscr^{(t)} := \texttt{EssCone}_{\Ascr, M, k}(y^{(t)}),
 \end{equation}
 by solving which we are able to retrieve a primal variable $x^{(t)}$ in each iteration $t$.
-The detailed algorithm is shown in \autoref{alg:primal_recover}. Note that our primal-retrieval strategy is not aiming to recover the optimal solutions to~\eqref{prob:primal1}, \eqref{prob:primal2} or~\eqref{prob:primal3}. These problems serve as a guidance for our atom-identification rule. The final output of \autoref{alg:primal_recover} maybe different from the optimal solutions to~\eqref{prob:primal1}, \eqref{prob:primal2} or~\eqref{prob:primal3}. 
+The detailed algorithm is shown in Algorithm~\ref{alg:primal_recover}. Note that our primal-retrieval strategy is not aiming to recover the optimal solutions to~\eqref{prob:primal1}, \eqref{prob:primal2} or~\eqref{prob:primal3}. These problems serve as a guidance for our atom-identification rule. The final output of Algorithm~\ref{alg:primal_recover} maybe different from the optimal solutions to~\eqref{prob:primal1}, \eqref{prob:primal2} or~\eqref{prob:primal3}. 
 
 \begin{algorithm}[t]
     \DontPrintSemicolon\setcounter{AlgoLine}{-1}
@@ -69,6 +69,10 @@ Solving dual formulations of nuclear-norm or trace-norm regularized problems has
 Another related work line is directly developing a memory-efficient primal-based algorithm based on hard-thresholding. For example, the gradient hard thresholding algorithm \cite{YuanLZ17}, the periodical hard-thresholding \cite{Allen-ZhuHHL17} and many proximal-gradient or ADMM-based algorithms that use hard-thresholding as an implementation heuristic \cite{mazumder2010spectral,Lin11,hsieh2014nuclear}. This line of works are primal-based algorithms and are tangential to this paper. We do not include them in our discussion. 
 
 The theoretical analysis of our primal-retrieval is related to atom-identification \cite{BurM88,hare2004identifying,hare2011identifying}, and especially some recently developed safe-screening rules \cite{Ghaoui12,wang2013lasso,liu2014safe,WangZLWY14,Raj2015ScreeningRF,BonnefoyERG15,XiangWR17,NdiayeFGS17,ZhangHLYCHW17,kuang2017screening,Atamtrk2020SafeSR,Bao20} for various kind of sparse optimization problems. Our \autoref{thm:p0} can be viewed as a generalization of the gap-safe screening rules to general structured optimization problems as well as more problem formulations. Some of the techniques used in our analysis are related to the facial reduction strategy from Krislock and Wolcowicz~\cite{krislock2010explicit}. 
+
+\subsection{Summary of contributions}
+
+In this chapter, we proposed a simple primal-retrieval strategy for a class of structured data-fitting problems using the polar alignment property developed in \autoref{ch:Dual-Struc-Opt}. Given a dual-based algorithm converging to the optimum dual solution, we demonstrate theoretically that for polyhedral atomic sets, our proposed strategy can obtain a feasible primal variable, and for spectral atomic sets, our proposed strategy can obtain a near-feasible primal variable. Extensive numerical experiments are conducted to support our analysis. 
 
 
 \section{Convex relaxations}
@@ -207,7 +211,7 @@ Our next proposition shows that when the atomic set is polyhedral, we can guaran
     \text{and}
     x^{(t)} \mbox{ is feasible for } \eqref{eq:main_prob} 
     \quad \forall t>T.\]
-    It follows that \autoref{alg:primal_recover} will terminate in $T$ iterations regardless of the tolerance $\epsilon$. 
+    It follows that Algorithm~\ref{alg:primal_recover} will terminate in $T$ iterations regardless of the tolerance $\epsilon$. 
 \end{proposition}
 
 \autoref{prop:polyhedral} ensures that the atom-identification rule~\autoref{thm:p0} is guaranteed to discard superfluous atoms in finite iterations as long as we have available an iterative solver that can generate dual iterates converge to a solution, and  our proposed primal-retrieval method can guarantee a feasible solution to \eqref{eq:main_prob}. 
@@ -215,7 +219,7 @@ Our next proposition shows that when the atomic set is polyhedral, we can guaran
 \begin{corollary} \label{coro:polyhedral}
     For each problem $i= 1, 2, 3$, suppose we have a dual oracle that can generate iterates $y^{(t)}$ converging to optimal variable $y_i^*$ with convergence rate
     \[d_i(y_i^{(t)}) - d_i(y_i^*) \in \Oscr\left( t^{-\alpha} \right)\]
-    for some $\alpha > 0$. If the atomic set $\Ascr$ is polyhedral and the problem pair (\Probi, \Drobi) is $\delta$-nondegenerate for some $\delta > 0$. Then \autoref{alg:primal_recover} with $\epsilon=0$ will terminate in $\Oscr\left(\delta^{-2/\alpha}\right)$ iterations. 
+    for some $\alpha > 0$. If the atomic set $\Ascr$ is polyhedral and the problem pair (\Probi, \Drobi) is $\delta$-nondegenerate for some $\delta > 0$. Then Algorithm~\ref{alg:primal_recover} with $\epsilon=0$ will terminate in $\Oscr\left(\delta^{-2/\alpha}\right)$ iterations. 
 \end{corollary}
 
 \section{Primal-retrieval for spectral atomic set} \label{sec:spectral}
@@ -366,12 +370,12 @@ Let $\Cscr_y$ denote the cone generated according to equation \eqref{eq:cone_spe
 where $\epsilon = \epsilon_i$ for $i = 1, 2, 3$ as defined in \autoref{thm:p0} depending on the problem formulation.
 \end{proposition}
 
-\autoref{prop:spectral} characterizes the error bound for our primal-retrieval strategy when $\Ascr$ is spectral. Our next corollary shows that \autoref{alg:primal_recover} can terminate in polynomial time with any tolerance $\epsilon > 0$.
+\autoref{prop:spectral} characterizes the error bound for our primal-retrieval strategy when $\Ascr$ is spectral. Our next corollary shows that Algorithm~\ref{alg:primal_recover} can terminate in polynomial time with any tolerance $\epsilon > 0$.
 
 \begin{corollary} \label{coro:spectral}
     For each problem $i= 1, 2, 3$, suppose we have a dual oracle that can generate iterates $y^{(t)}$ converging to optimal variable $y_i^*$ with convergence rate
     \[d_i(y_i^{(t)}) - d_i(y_i^*) \in \Oscr\left( t^{-\alpha} \right)\]
-    for some $\alpha > 0$. If the atomic set $\Ascr$ is spectral then \autoref{alg:primal_recover} with $\epsilon>0$ will terminate in $\Oscr\left(\epsilon^{-4/\alpha}\right)$ iterations. 
+    for some $\alpha > 0$. If the atomic set $\Ascr$ is spectral then Algorithm~\ref{alg:primal_recover} with $\epsilon>0$ will terminate in $\Oscr\left(\epsilon^{-4/\alpha}\right)$ iterations. 
 \end{corollary}
 
 \section{Unconstrained primal-retrieval}
@@ -382,7 +386,7 @@ The main idea is to replace the function \texttt{EssCone} with \texttt{EssSpan},
 \subsection{Symmetric polyhedral atomic set}
 When the atomic set $\Ascr$ is symmetric and polyhedral, we can define the function \texttt{EssSpan} as 
 \[\texttt{EssSpan}(\Ascr, M, y, k) \coloneqq \left\{\sum_{i=1}^k c_i a_i ~\bigg\vert~ c_i \in \Re ~\forall i\right\},\]
-where $\{a_1, \dots, a_k\}$ are the top-$k$ atoms in $\Ascr$ with respect to the inner product with $M^*y$; see \autoref{eq:top-k}. Then the primal-retrieval problem \eqref{eq:primal_recover_polyhedral} can become much cheaper then the previous one, i.e.
+where $\{a_1, \dots, a_k\}$ are the top-$k$ atoms in $\Ascr$ with respect to the inner product with $M^*y$; see \eqref{eq:top-k}. Then the primal-retrieval problem \eqref{eq:primal_recover_polyhedral} can become much cheaper then the previous one, i.e.
 \begin{equation} \label{eq:primal_recover_polyhedral2} \tag{PR-Poly-Symm}
 \hat x = \sum_{i=1}^k \hat c_ia_i \text{where} \hat c = \argmin{c \in \Re^k} f\left( b - M\sum_{i=1}^k c_ia_i \right). 
 \end{equation}
@@ -505,9 +509,7 @@ By \cite[Proposition~7.3]{fan2019alignment}, we know that \eqref{eq:rpca} is equ
 \end{equation}
 where $\Ascr = \lambda \Ascr_1 + \Ascr_2$, $\Ascr_1 = \{uv^T \mid u \in \mR^m,\ v \in \mR^n,\ \|u\|_2=\|v\|_2 = 1\}$ and $\Ascr_2 = \{\pm e_ie_j^T \mid i \in [m], j \in [n]\}$. The recovered low-rank component is shown in \autoref{fig:face_shadow}. As we can see from the figure, most of the shadow are successfully removed. This experiment suggests that our primal-retrieval technique can potentially be used for more complex atomic set and allow the underlying the dual-algorithm to produce satisfactory result within a reasonable number of iterations. 
 
-\section{Summary of contributions}
 
-In this chapter, we proposed a simple primal-retrieval strategy for a class of structured data-fitting problems using the polar alignment property developed in \autoref{ch:Dual-Struc-Opt}. Given a dual-based algorithm converging to the optimum dual solution, we demonstrate theoretically that for polyhedral atomic sets, our proposed strategy can obtain a feasible primal variable, and for spectral atomic sets, our proposed strategy can obtain a near-feasible primal variable. Extensive numerical experiments are conducted to support our analysis. 
 
 
 
@@ -688,7 +690,7 @@ Therefore, we can get upper and lower bounds for $\beta^*$ via level-set method 
       & \langle a', M^* y_i \rangle \\
       \leq~ & \langle a', M^* y_i^* \rangle + | \langle M a', y_i^* - y_i \rangle | \\
       \leq~ & \langle a', M^* y_i^* \rangle + \frac{\delta}{4} \\
-      \leq~ & \sigma_{\Ascr}( M^* y_i^* ) - \delta + \frac{\delta}{4} \quad \text{(By \autoref{eq:Aprime})} \\
+      \leq~ & \sigma_{\Ascr}( M^* y_i^* ) - \delta + \frac{\delta}{4} \quad \text{(By \eqref{eq:Aprime})} \\
       =~& \sigma_{\Ascr}( M^* y_i^* ) - \frac{3\delta}{4}.
   \end{align*}
     Therefore, 
@@ -744,7 +746,7 @@ Therefore, we can get upper and lower bounds for $\beta^*$ via level-set method 
     p_1 = q_1 = \sqrt{\frac{\sigma_1 - \sigma_{r+1} - \epsilon}{ \sigma_1 - \sigma_{r+1} } } \text{and} p_{r+1} = q_{r+1} = \sqrt{1 - p_1^2}.
   \]
   When $\sigma_1 - \sigma_{r+1} < \epsilon$, the solution is simply $p_1 = q_1 = 0, p_{r+1}= q_{r+1} = 1$.
-  Therefore the optimal value of \eqref{eq:reduced_p1} is $\max\{1 - \epsilon / ( \sigma_1 - \sigma_{r+1} ), 0\}$, plug this into \autoref{eq:rho_exp} and the proof is finished. 
+  Therefore the optimal value of \eqref{eq:reduced_p1} is $\max\{1 - \epsilon / ( \sigma_1 - \sigma_{r+1} ), 0\}$, plug this into \eqref{eq:rho_exp} and the proof is finished. 
 \end{proof}
 
 \begin{proposition}[Hausdorff error bound] \label{prop:dist_to_sol}
@@ -756,7 +758,7 @@ Therefore, we can get upper and lower bounds for $\beta^*$ via level-set method 
 
 \subsection{Proof of \autoref{prop:spectral}}
 \begin{proof}
-  By \autoref{prop:dist_to_sol}, we know that there exist $\tilde{x}$ satisfies \autoref{eq:dist_to_sol}.
+  By \autoref{prop:dist_to_sol}, we know that there exist $\tilde{x}$ satisfies \eqref{eq:dist_to_sol}.
   Then by the $L$-smoothness of $f$,
   \begin{align}
       f( b - M \tilde{x} ) &~\leq~ f( b - M x^* ) + \langle \nabla f( b - M x^* ), M( x^* - \tilde{x} ) \rangle + \frac{L}{2} \| M( x^* - \tilde{x} ) \|^2  \nonumber \\
@@ -766,7 +768,7 @@ Therefore, we can get upper and lower bounds for $\beta^*$ via level-set method 
   \begin{align*}
       \| \nabla f( b - M x^* ) - \nabla f(0) \|^2 \leq 2L ( f(b - M x^*) - f(0) ).
   \end{align*}
-  Note that $f(0)$ and $\nabla f(0) = 0$, the above reduces to $\| \nabla f( b - M x^* ) \| \leq \sqrt{2 L \alpha}$. Combining with \autoref{eq:errorBoundIntermediate1}, we obtain
+  Note that $f(0)$ and $\nabla f(0) = 0$, the above reduces to $\| \nabla f( b - M x^* ) \| \leq \sqrt{2 L \alpha}$. Combining with \eqref{eq:errorBoundIntermediate1}, we obtain
   \begin{align*}
       f( b - M \tilde{x} ) &~\leq~ f( b - M x^* ) + \sqrt{2 L \alpha} \| M( x^* - \tilde{x} ) \| + \frac{L}{2} \| M( x^* - \tilde{x} ) \|^2 \\
       &~\leq~ f( b - M x^* ) + \sqrt{2 L \alpha} \| M \| \rho( \suppa(x^*), \widehat{\Ascr} )\cdot \sqrt{| \suppa(x^*) |} \cdot \| x^* \|_F  \\

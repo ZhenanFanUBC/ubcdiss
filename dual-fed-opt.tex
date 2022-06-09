@@ -9,7 +9,7 @@ As we introduced in \autoref{sec:1-4}, there is increasing interest in training 
 
 The learning process in FL can be formulated as a distributed optimization problem, which is also known as federated optimization (FO). Assume there are $N$ clients and each client $i$ maintains a local dataset $\Dscr_i$. FO aims to solve the  empirical-risk minimization problem
 \begin{equation} \label{eq:primal}
-  \minimize{w\in\Real^d}\enspace F(w) \coloneqq \sum_{i = 1}^N f_i(w) \tag{P}
+  \minimize{w\in\Real^d}\enspace F(w) \coloneqq \sum_{i = 1}^N f_i(w) 
 \end{equation}
 in a distributed manner, where $w$ is the global model parameter and each local objective $f_i:\Real^d \to\Real$ is defined by 
 \begin{equation*} %\label{eq:local_objective}
@@ -26,6 +26,10 @@ Dual approaches for empirical-risk minimization problem \eqref{eq:primal} are we
 
 Our approach, in contrast, is based on the dual problem, which is a separable optimization problem with a structured linear constraint~\eqref{eq:dual}. We show that the random block coordinate descent method for problems with linear constraint proposed by \citet{necoara2017random}, is especially suitable for the FL setting. Because it is important to control the amount of local computation carried out by each client, we show how to modify this method to accommodate inexact gradient oracles. We also show how Nesterov's acceleration can be used to decrease overall complexity. As a result, we obtain convergence rates that are better than other state-of-the-art FO algorithms in certain scenarios. 
 
+\subsection{Summary of contributions}
+
+In this chapter, by tackling the federated optimization problem from a dual perspective, we develop a federated dual coordinate descent (FedDCD) algorithm, which is based on the random block coordinate descent (RBCD) method proposed by \citet{necoara2017random}. We show that FedDCD fits very well to the settings of federated optimization. Moreover, we extend the FedDCD with inexact gradient oracles and Nesterov's acceleration. The resulting convergence rates are better than the current state-of-the-art federated optimization algorithms in certain situations. We also develop a complexity lower bound for federated optimization, the lower bound suggests that there is still a gap of $\sqrt{N}$ between the rate of accelerated FedDCD and the lower bound.
+
 \section{Related work}
 \label{sec:relatedWork}
 
@@ -40,7 +44,7 @@ The method we develop is based on a variation of coordinate descent adapted to p
 
 The dual problem of problem \eqref{eq:primal} is given by 
 \begin{equation} \label{eq:dual}
-  \minimize{y_1, \dots, y_N \in \Real^d}\enspace G(y) \coloneqq \sum_{i=1}^N f_i^*(y_i) \enspace\st\enspace \sum_{i=1}^N y_i = 0, \tag{D}
+  \minimize{y_1, \dots, y_N \in \Real^d}\enspace G(y) \coloneqq \sum_{i=1}^N f_i^*(y_i) \enspace\st\enspace \sum_{i=1}^N y_i = 0, 
 \end{equation}
 where $f_i^*$ is the convex conjugate function of $f_i$. Throughout this paper, we denote $y^*$ as a solution of problem \eqref{eq:dual}. To obtain this dual problem let $w^*$ denote the optimal solution to the primal problem \eqref{eq:primal}. By the first-order optimality condition, we know that 
 \[0 \in \partial\left(\sum_{i = 1}^N f_i\right)(w^*),\]
@@ -72,7 +76,7 @@ A basic assumption in FL is that the central server does not have control over c
     There exist a positive integer $\tau \in \{2,\dots,N\}$, such that in each round, only $\tau$ clients uniformly randomly distributed among the set of all clients, who can communicate with the central server.
 \end{assumption}
 
-Now we introduce some notations that will only be used in this chapter. For any integer $N$, we denote $[N]$ as the set $\{1,2,\ldots, N\}$. Given $I \subseteq [N]$ and $\{g_i \in \Real^d \mid i \in [N]\}$, we define the concatenation $g_I \in \Real^{Nd}$ as 
+Now we introduce notation that will only be used in this chapter. For any integer $N$, we denote $[N]$ as the set $\{1,2,\ldots, N\}$. Given $I \subseteq [N]$ and $\{g_i \in \Real^d \mid i \in [N]\}$, we define the concatenation $g_I \in \Real^{Nd}$ as 
 \[
     g_{I}[(i-1)d + 1 : i\cdot d] = 
     \begin{cases} 
@@ -84,9 +88,9 @@ Given $I \subseteq [N]$, we define the linear manifold
 \[
     \Cscr_I= \left\{y \in\Real^{Nd} ~\Bigg|~ y_i\in\Real^d, ~\sum_{i\in I}y_i = 0\right\}.
 \]
-It follows that $\Cscr_{[N]}$ corresponds to the constraint set in \autoref{eq:dual}. Let $e_d \in \Real^d$ denote the vector of all ones, and $e_I$ denote vector where $e_i = 1$ if $i \in I$ and $e_i = 0$ elsewhere.  For any positive definite matrix $W\in\Real^{Nd\times Nd}$, we define the weighted norm as $\|x\|_W := \sqrt{x^TWx}$. The projection operator onto the set $\Cscr_I$ with respect to the weighted norm $\|\cdot\|_W$ is defined as
+It follows that $\Cscr_{[N]}$ corresponds to the constraint set in \eqref{eq:dual}. Let $e_d \in \Real^d$ denote the vector of all ones, and $e_I$ denote vector where $e_i = 1$ if $i \in I$ and $e_i = 0$ elsewhere.  For any positive definite matrix $W\in\Real^{Nd\times Nd}$, we define the weighted norm as $\|x\|_W := \sqrt{x^TWx}$. The projection operator onto the set $\Cscr_I$ with respect to the weighted norm $\|\cdot\|_W$ is defined as
 \[
-    \proj_{\Cscr_I}^{W}(x) = \argmin{y} \|y-x\|_W^2 \enspace\st\enspace y \in \Cscr_I.
+    \proj_{\Cscr_I}^{W}(x) = \argmin{y} \left\{ \|y-x\|_W^2 \mid y \in \Cscr_I \right\}.
 \]
 
 
@@ -113,7 +117,7 @@ where $\Lambda\in\Real^{Nd \times Nd} \coloneqq \diag( \lambda_1, \ldots, \lambd
 
 Finally, the central server will send back each participating client the updated primal models, who will update their local dual representations accordingly, i.e.,
 \[y_i^{(t+1)} = y_i^{(t)} - \eta^{(t)}\hat w_i^{(t)},\]
-where $\eta^{(t)}$ is the learning rate. \autoref{alg:rbcd} summarizes all of these steps.  
+where $\eta^{(t)}$ is the learning rate. Algorithm~\ref{alg:rbcd} summarizes all of these steps.  
 
 \begin{algorithm}[t]
     \DontPrintSemicolon
@@ -144,7 +148,7 @@ where $\eta^{(t)}$ is the learning rate. \autoref{alg:rbcd} summarizes all of th
 We can obtain a convergence rate for this method by directly applying results derived by \citet{necoara2017random}.
 
 \begin{theorem}[Convergence rate of FedDCD] \label{thm:necoaraConvergenceRate}
-    Let $w^{(T)}$ and $y^{(T)}$ be the iterates generated from \autoref{alg:rbcd} after $T$ iterations with the diagonal scaling matrix $\Lambda = \alpha^{-1} \mathbb{I}_{Nd \times Nd}$. If \autoref{assum:stronglyCvx_smooth} hold, then
+    Let $w^{(T)}$ and $y^{(T)}$ be the iterates generated from Algorithm~\ref{alg:rbcd} after $T$ iterations with the diagonal scaling matrix $\Lambda = \alpha^{-1} \mathbb{I}_{Nd \times Nd}$. If \autoref{assum:stronglyCvx_smooth} holds, then
     \begin{equation}
         \mE \left[ G( y^{(T)} ) - G( y^* ) \right] \leq \left( 1 - \frac{\tau - 1}{N-1} \frac{\alpha}{\beta} \right)^{T} ( G(y^{(0)}) - G(y^*) ), \label{eq:necoaraDualConvergenceStrongCVX}
     \end{equation}
@@ -160,18 +164,18 @@ We can obtain a convergence rate for this method by directly applying results de
     \end{equation}
 \end{theorem}
 
-The rate \eqref{eq:necoaraDualConvergenceStrongCVX} is based on a minor modification of~\citet[Theorem~3.1]{necoara2017random}. By strong convexity of the primal problem, we are able to extend the result to primal variables, which is shown in \autoref{eq:necoaraPrimalConvergenceStrongCVX}. Furthermore, if we assume a bound on the data heterogeneity, i.e. \autoref{assum:dissimilar}, then we can get a better convergence rate on the primal variables; see \autoref{eq:necoaraPrimalConvergenceDissimilar}.
+The rate \eqref{eq:necoaraDualConvergenceStrongCVX} is based on a minor modification of~\citet[Theorem~3.1]{necoara2017random}. By strong convexity of the primal problem, we are able to extend the result to primal variables, which is shown in \eqref{eq:necoaraPrimalConvergenceStrongCVX}. Furthermore, if we assume a bound on the data heterogeneity, i.e. \autoref{assum:dissimilar}, then we can get a better convergence rate on the primal variables; see \eqref{eq:necoaraPrimalConvergenceDissimilar}.
 
 \subsection{Applicability under federated learning}
-In this section, we discuss the properties of FedDCD (\autoref{alg:rbcd}) and argue that it is a suitable algorithm for FL in the sense that it respects the governing FL assumptions (\autoref{assum:govern}), which are different from classical distributed optimization, as described in \autoref{sec:1-4}. Specifically, 
+In this section, we discuss the properties of FedDCD (Algorithm~\ref{alg:rbcd}) and argue that it is a suitable algorithm for FL in the sense that it respects the governing FL assumptions (\autoref{assum:govern}), which are different from classical distributed optimization, as described in \autoref{sec:1-4}. Specifically, 
 \begin{itemize}
     \item \textbf{Reduced communication.} 
     \autoref{tab:communicationComplexity} summaries the communication complexities of some existing FO methods such as mini-batch SGD (MB-SGD) \citep{WoodworthPS20}, FedAvg (local SGD) \citep{mcmahan2017communication}, SCAFFOLD \citep{pmlr-v119-karimireddy20a}. Compared to the rates of other algorithms, our communication complexity only involves a logarithmic dependence on $\epsilon$ (but with a cost that $N$ appears in the nominator). These rates implies that when $N/\tau$ is not too large, FedDCD converges faster than other algorithms.
     On the other hand, if $N/\tau$ is large, i.e. the participation rate is small, MB-SGD and FedAvg (local SGD) converges faster since their convergence rates are independent from the number of clients. 
-    \item \textbf{Data privacy.} As shown in \autoref{alg:rbcd}, our method only requires clients to send local model updates to the server, which is similar to most existing FO methods \citep{mcmahan2017communication,li2018federated,yuan2021federated,karimireddy2020mime}. Local data privacy is thus preserved. 
+    \item \textbf{Data privacy.} As shown in Algorithm~\ref{alg:rbcd}, our method only requires clients to send local model updates to the server, which is similar to most existing FO methods \citep{mcmahan2017communication,li2018federated,yuan2021federated,karimireddy2020mime}. Local data privacy is thus preserved. 
     \item \textbf{Data heterogeneity.} 
-    The data heterogeneity between clients is captured by the parameter $\zeta$ in \autoref{assum:dissimilar}, i.e., a larger $\zeta$ indicates greater data heterogeneity between clients. \autoref{eq:necoaraPrimalConvergenceDissimilar} reveals the impact of $\zeta$ on the convergence rate. In the extreme case when all the clients have same local data, i.e., $f_i = f_j$ for all $i,j \in [N]$, \autoref{alg:rbcd} will reach the optimal point at the first iteration.
-    \item \textbf{Partial participation.} By design, \autoref{alg:rbcd} only needs $\tau$ clients to participate in each round, where $\tau$ can be any number between $2$ and $N$. This feature offers flexibility for the numebr of participating clients in each round. \autoref{thm:necoaraConvergenceRate} also implies that the convergence rate improves as more clients participate. Note that the convergence analysis can also reveal the behaviour of the method when the number of participating clients is allowed to vary across rounds.
+    The data heterogeneity between clients is captured by the parameter $\zeta$ in \autoref{assum:dissimilar}, i.e., a larger $\zeta$ indicates greater data heterogeneity between clients. \eqref{eq:necoaraPrimalConvergenceDissimilar} reveals the impact of $\zeta$ on the convergence rate. In the extreme case when all the clients have same local data, i.e., $f_i = f_j$ for all $i,j \in [N]$, Algorithm~\ref{alg:rbcd} will reach the optimal point at the first iteration.
+    \item \textbf{Partial participation.} By design, Algorithm~\ref{alg:rbcd} only needs $\tau$ clients to participate in each round, where $\tau$ can be any number between $2$ and $N$. This feature offers flexibility for the numebr of participating clients in each round. \autoref{thm:necoaraConvergenceRate} also implies that the convergence rate improves as more clients participate. Note that the convergence analysis can also reveal the behaviour of the method when the number of participating clients is allowed to vary across rounds.
 \end{itemize}
 
 \begin{table}[t]
@@ -184,18 +188,18 @@ In this section, we discuss the properties of FedDCD (\autoref{alg:rbcd}) and ar
     MB-SGD & $\displaystyle \BigOh \left( \frac{\sigma^2}{\tau \alpha \epsilon}  + \left( 1 - \frac{\tau}{N} \right) \frac{\zeta^2}{\tau \alpha \epsilon} + \frac{\beta}{\alpha} \log\left(\frac{1}{\epsilon}\right) \right) $ \\ 
     FedAvg (local SGD) & $\displaystyle \BigOh \left( \frac{\sigma^2}{\tau K \alpha \epsilon} + \frac{\sqrt{\beta}( \zeta K + \sigma \sqrt{K} ) }{\alpha \sqrt{\epsilon}} + \frac{\beta}{\alpha} \log\left(\frac{1}{\epsilon}\right) \right)$  \\
     SCAFFOLD & $\displaystyle \BigOh \left( \frac{\sigma^2}{\tau K \alpha \epsilon}  + \left(\frac{\beta}{\alpha} +\frac{N}{\tau} \right)\log\left(\frac{1}{\epsilon}\right) \right) $  \\
-    FedDCD (Ours)& $\displaystyle \BigOh\left( \frac{(N-1) \beta}{(\tau-1) \alpha} \log\left( \frac{\zeta}{ \epsilon } \right) \right)$ \\
-    AccFedDCD (Ours)& $\displaystyle \BigOh\left( \frac{(N-1) }{(\tau-1) } \sqrt{ \frac{\beta}{\alpha} } \log\left( \frac{\zeta}{ \epsilon } \right) \right)$ \\
+    FedDCD (\autoref{ch:Dual-Fed-Opt})& $\displaystyle \BigOh\left( \frac{(N-1) \beta}{(\tau-1) \alpha} \log\left( \frac{\zeta}{ \epsilon } \right) \right)$ \\
+    AccFedDCD (\autoref{ch:Dual-Fed-Opt})& $\displaystyle \BigOh\left( \frac{(N-1) }{(\tau-1) } \sqrt{ \frac{\beta}{\alpha} } \log\left( \frac{\zeta}{ \epsilon } \right) \right)$ \\
     \bottomrule 
     \end{tabular}
 %  \captionsetup{justification=centering}
-    \caption{Communication complexities of different algorithms, where $K$ is the number of local steps of FedAvg and SCAFFOLD, $\sigma$ is the gradient variance bound. To make a fair comparison, we present our rate in averaged empirical risk instead of the sum of empirical risk (we divide \autoref{eq:primal} by $N$). See \citet{WoodworthPS20} for a more comprehensive summary of the rates. The rate of AccFedDCD is from \autoref{sec:accFedDCD}.}
+    \caption{Communication complexities of different algorithms, where $K$ is the number of local steps of FedAvg and SCAFFOLD, $\sigma$ is the gradient variance bound. To make a fair comparison, we present our rate in averaged empirical risk instead of the sum of empirical risk (we divide \eqref{eq:primal} by $N$). See \citet{WoodworthPS20} for a more comprehensive summary of the rates. The rate of AccFedDCD is from \autoref{sec:accFedDCD}.}
     \label{tab:communicationComplexity}
 \end{table}
 
 \section{Inexact federated dual coordinate descent}
 \label{sec:inexactFedDCD}
-A drawback of \autoref{alg:rbcd} is that the calculation of local primal model $w_i^{(t)}$ requires exact minimization of the individual primal objective, e.g., solving \eqref{eq:exact_gradient}. This could potentially be computationally prohibitive as clients may have limited local computational resources. 
+A drawback of Algorithm~\ref{alg:rbcd} is that the calculation of local primal model $w_i^{(t)}$ requires exact minimization of the individual primal objective, e.g., solving \eqref{eq:exact_gradient}. This could potentially be computationally prohibitive as clients may have limited local computational resources. 
 A natural remedy is to solve \eqref{eq:exact_gradient} inexactly. The convergence of coordinate descent with inexact gradients has been studied by~\citet{CassioliLS13,TappendenRG16,LiuSY21}. \citet{LiuSY21} recently extended the MSDA algorithm~\citep{Scaman2017OptimalAF} by using \emph{lazy dual gradients}. Our approach is related to their work and we use some of their intermediate results to build our analysis. 
 
 First, we introduce the inexact gradient oracle. 
@@ -206,14 +210,14 @@ Given a function $u : \Real^p \to \Real$ and $\delta \in (0,1)$, we say that $\t
 \end{align}
 where $g_{\init}$ is an initial guess of the true gradient $\nabla u(x)$ and the expectation is taken over the oracle itself as the oracle can be a randomized procedure.
 \end{definition}
-To incorporate inexact gradient oracle into FedDCD, we only need to modify line 5 of \autoref{alg:rbcd} to
+To incorporate inexact gradient oracle into FedDCD, we only need to modify line 5 of Algorithm~\ref{alg:rbcd} to
 \begin{equation} \label{eq:inexact_gradient}
     w_i^{(t)} = \texttt{oracle}_{f_i^*, \delta}(y^{(t)}_i, w_{i}^{(t-1)}),
 \end{equation}
 where $\texttt{oracle}_{f_i^*, \delta}$ is a $\delta$-inexact gradient oracle for $f_i^*$ and 
 we let $w_i^{(-1)} \coloneqq 0~\forall i \in [N]$.
 
-Next, we show that the $\delta$-inexact gradient oracle can be implemented by running some standard optimization algorithms locally on clients' devices. Specifically, when \autoref{assum:stronglyCvx_smooth} is satisfied, we can bound the number of local updates required to satisfy \autoref{eq:inexact_gradient} with different algorithms. Assume that client $i$ has $n_i$ data points on its device, we list some standard algorithms for solving \autoref{eq:inexact_gradient} below along with the number of local steps required:
+Next, we show that the $\delta$-inexact gradient oracle can be implemented by running some standard optimization algorithms locally on clients' devices. Specifically, when \autoref{assum:stronglyCvx_smooth} is satisfied, we can bound the number of local updates required to satisfy \eqref{eq:inexact_gradient} with different algorithms. Assume that client $i$ has $n_i$ data points on its device, we list some standard algorithms for solving \eqref{eq:inexact_gradient} below along with the number of local steps required:
 \begin{itemize}
     \item Gradient descent with initial point $w_i^{(t-1)}$ needs $\BigOh\left( \frac{ n_i \beta}{\alpha} \log\left( \frac{1}{\delta} \right) \right)$ gradient steps for $i \in [N], t \in \mathbb{N}$ \citep{cvxopt_lecture};
     \item When each individual loss functions $f_i$'s are finite sums such that 
@@ -229,7 +233,7 @@ We then show the convergence rate of FedDCD with inexact gradient oracle.
 \begin{theorem}[Convergence rate of inexact FedDCD] \label{thm:inexactConvergence}
     Suppose that \autoref{assum:stronglyCvx_smooth} holds. Define an auxiliary constant
     \[\kappa ~=~ \frac{ (\tau-1) \alpha}{32 (N-1) \beta}.\]
-    Let $w^{(T)}$ and $y^{(T)}$ be the iterates generated from \autoref{alg:rbcd} with $\delta$-inexact gradient oracle where $\delta=(1-\kappa)/4$, learning rate $\eta^{(t)} = 1/4$ for all $t$, and diagonal scaling matrix $\Lambda = \alpha^{-1} \mathbb{I}_{Nd \times Nd}$. Then
+    Let $w^{(T)}$ and $y^{(T)}$ be the iterates generated from Algorithm~\ref{alg:rbcd} with $\delta$-inexact gradient oracle where $\delta=(1-\kappa)/4$, learning rate $\eta^{(t)} = 1/4$ for all $t$, and diagonal scaling matrix $\Lambda = \alpha^{-1} \mathbb{I}_{Nd \times Nd}$. Then
     \begin{equation} \label{eq:InexactDualConvergenceStrongCVX}
         \mE \left[ G( y^{(T)} ) - G( y^* ) \right] \leq \left( 1 - \kappa \right)^{T} ( G(y^{(0)}) - G(y^*)  ), 
     \end{equation}
@@ -241,12 +245,12 @@ We then show the convergence rate of FedDCD with inexact gradient oracle.
     \[\mE \left[ \| w^{(T)} - w^* \|^2 \right] \leq \frac{20}{3\alpha^2}(1-\kappa)^T \zeta^2.\]
 \end{theorem}
 
-\autoref{thm:inexactConvergence} implies that \autoref{alg:rbcd} can still enjoy linear convergence rate when using appropriate gradient accuracy $\delta$ and learning rate $\eta^{(t)}$ as specified above. We only suffer from a loss in the constant term compared with the convergence rate with exact gradient oracles, c.f., \autoref{thm:necoaraConvergenceRate}.
+\autoref{thm:inexactConvergence} implies that Algorithm~\ref{alg:rbcd} can still enjoy linear convergence rate when using appropriate gradient accuracy $\delta$ and learning rate $\eta^{(t)}$ as specified above. We only suffer from a loss in the constant term compared with the convergence rate with exact gradient oracles, c.f., \autoref{thm:necoaraConvergenceRate}.
 
 \section{Accelerated federated dual coordinate descent}
 \label{sec:accFedDCD}
 
-In this section, we apply Nesterov's acceleration to \autoref{alg:rbcd} and obtain improved convergence rates. Random coordinate descent with Nesterov's acceleration has been widely studied; see~\citet{Nesterov12,LeeS13,LinLX15,ZhuQRY16,NesterovAccCD}. However, the analysis in the literature is almost exclusively focused on unconstrained problems or problems with separable regularizers and therefore does not apply to \autoref{eq:dual} because of the linear constraint. In the following of this section, we adapt the accelerated randomized coordinate descent algorithm to problems linear constraints.
+In this section, we apply Nesterov's acceleration to Algorithm~\ref{alg:rbcd} and obtain improved convergence rates. Random coordinate descent with Nesterov's acceleration has been widely studied; see~\citet{Nesterov12,LeeS13,LinLX15,ZhuQRY16,NesterovAccCD}. However, the analysis in the literature is almost exclusively focused on unconstrained problems or problems with separable regularizers and therefore does not apply to \eqref{eq:dual} because of the linear constraint. In the following of this section, we adapt the accelerated randomized coordinate descent algorithm to problems linear constraints.
 
 \begin{algorithm}
     \DontPrintSemicolon
@@ -293,15 +297,15 @@ In this section, we apply Nesterov's acceleration to \autoref{alg:rbcd} and obta
 \end{algorithm}
 
 
-The accelerated FedDCD method is detailed in \autoref{alg:fedArbcd}. 
-The detailed algorithm is shown in , we call it accelerated FedDCD. Accelerated FedDCD follows the standard algorithm template of accelerated coordinate descent: we introduce auxiliary variables $v_i^{(t)}, u_i^{(t)}$ and $z_i^{(t)}$, where $v_i^{(t)}$ is a linear combination of $y_i^{(t)}$ and $z_i^{(t)}$ (see line 18 of \autoref{alg:fedArbcd}) and $u_i^{(t)}$ is a linear combination of $z_i^{(t)}$ and $v_i^{(t)}$ (see line 26 of \autoref{alg:fedArbcd}). In each round, we sample two sets of clients and calculate their gradients, the calculation of gradient is based on the variable $v_i^{(t)}$ instead of $y_i^{(t)}$ (see line 21 and line 33).
+The accelerated FedDCD method is detailed in Algorithm~\ref{alg:fedArbcd}. 
+The detailed algorithm is shown in , we call it accelerated FedDCD. Accelerated FedDCD follows the standard algorithm template of accelerated coordinate descent: we introduce auxiliary variables $v_i^{(t)}, u_i^{(t)}$ and $z_i^{(t)}$, where $v_i^{(t)}$ is a linear combination of $y_i^{(t)}$ and $z_i^{(t)}$ (see line 18 of Algorithm~\ref{alg:fedArbcd}) and $u_i^{(t)}$ is a linear combination of $z_i^{(t)}$ and $v_i^{(t)}$ (see line 26 of Algorithm~\ref{alg:fedArbcd}). In each round, we sample two sets of clients and calculate their gradients, the calculation of gradient is based on the variable $v_i^{(t)}$ instead of $y_i^{(t)}$ (see line 21 and line 33).
 The major difference between accelerated FedDCD and standard accelerated RCD is in line 23 and 35, where accelerated FedDCD requires a partial projection step to keep the updated iterates feasible.
 Note that the standard efficient implementation of accelerated RCD requires a  change of variable technique \citep{LeeS13}, which is not necessary in our setting because all clients can independently update their local models in parallel.
 
 The convergence rate of accelerated FedDCD is given by the following result, which shows that it enjoys essentially the same convergence rate of standard accelerated RCD for unconstrained problems~\citep{LeeS13,Lu18}.
 
 \begin{theorem}[Convergence rate of accelerated FedDCD] \label{thm:accFedDCDStronglyCVX}
-    Let $y^{(T)}$ and $w^{(T)}$ be the iterates generated from \autoref{alg:fedArbcd} with diagonal scaling matrix $\Lambda = \alpha^{-1} \mathbb{I}_{Nd \times Nd}$. Suppose that \autoref{assum:stronglyCvx_smooth} holds, then
+    Let $y^{(T)}$ and $w^{(T)}$ be the iterates generated from Algorithm~\ref{alg:fedArbcd} with diagonal scaling matrix $\Lambda = \alpha^{-1} \mathbb{I}_{Nd \times Nd}$. Suppose that \autoref{assum:stronglyCvx_smooth} holds, then
    \begin{equation} \label{eq:necoaraDualConvergenceStrongCVXAcc}
        \mE \left[ G( y^{(T)} ) - G( y^* ) \right] ~\leq~ \left( 1 - \frac{ \sqrt{\frac{\alpha}{\beta}} }{ \frac{N-1}{\tau -1}+ \sqrt{\frac{\alpha}{\beta}} } \right)^{T} ( G(y^{(0)}) - G(y^*) ),
    \end{equation}
@@ -332,11 +336,11 @@ We follow the black-box procedure from \cite{Scaman2017OptimalAF,Scaman2018Optim
 \begin{enumerate}
     \item \textbf{Clients' memory:} at time $t$, each client $i$ can store the past models, denoted by $\Mscr_{i,t} \subset \Real^d$. The stored models  either come from each client's local update or client-server communication, that is
     \[
-        \Mscr_{i,t} = \Mscr_{i,t}^{comp} \cup \Mscr_{i,t}^{comm} \quad \forall i \in [N].
+        \Mscr_{i,t} = \Mscr_{i,t}^{\mbox{comp}} \cup \Mscr_{i,t}^{\mbox{comm}} \quad \forall i \in [N].
     \]
     \item \textbf{Clients' local computation:} at time $t \geq 0$, the clients can update their local model via arbitrary first-order oracles for arbitrary steps:
     \[
-        \Mscr_{i,t}^{comp} = \bigcup_{k=0}^{\infty} \Ascr_k,
+        \Mscr_{i,t}^{\mbox{comp}} = \bigcup_{k=0}^{\infty} \Ascr_k,
     \]
     where
     \begin{align*}
@@ -345,25 +349,25 @@ We follow the black-box procedure from \cite{Scaman2017OptimalAF,Scaman2018Optim
     \end{align*}
     \item \textbf{Client-server communication:} at time $t \geq 0$, the server can collect the models from the randomly generated participating clients at time $t-1$:
     \[
-        \Mscr_{server, t} = \mathrm{Span} \left( \Mscr_{server, t-1} \cup  \left( \bigcup_{i \in \Nscr_t} \Mscr_{i, t-1} \right) \right),
+        \Mscr_{\mbox{server}, t} = \mathrm{Span} \left( \Mscr_{\mbox{server}, t-1} \cup  \left( \bigcup_{i \in \Nscr_t} \Mscr_{i, t-1} \right) \right),
     \]
     where the set of participating clients $\Nscr_t$ is uniformly generated from $\{1, \dots, N\}$ and $|\Nscr_t| = \tau \in \{2, \dots, N\}$. The client could also receive a new model through the communication with the central server:
     \[
-        \Mscr_{i,t}^{comm} = \left\{ w \right\}, \qquad w \in \Mscr_{server, t-1},
+        \Mscr_{i,t}^{\mbox{comm}} = \left\{ w \right\}, \qquad w \in \Mscr_{\mbox{server}, t-1},
     \]
-    where $w$ could an arbitrary model from $\Mscr_{server, t-1}$.
+    where $w$ could an arbitrary model from $\Mscr_{\mbox{server}, t-1}$.
     \item \textbf{Output model:} at time $t$, the server selects one model in its memory as output:
     \[
-        w^{(t)} \in \Mscr_{server, t}.
+        w^{(t)} \in \Mscr_{\mbox{server}, t}.
     \]
 \end{enumerate}
 
 For simplicity, we assume all clients and server have trivial initialization, i.e.,
-\[M_{server, 0}, M_{i,0} = \{0\}~\forall i \in [N].\] 
+\[M_{\mbox{server}, 0}, M_{i,0} = \{0\}~\forall i \in [N].\] 
 We also assume that in every round the communication cost is 1 time unit, and that the server and clients are allowed to conduct local computation within each time unit. The major difference between our black-box procedure and the distributed optimization black-box procedure from \citet{Scaman2017OptimalAF} is that we have an additional constraint on random participation that constrains the server from communicating with no more than $\tau$ uniform randomly-generated clients in each round.
 
 \begin{theorem}[Lower bound] \label{thm:lowerBound}
-    There exist $N$ functions $f_i$'s that satisfy \autoref{assum:stronglyCvx_smooth}, such that for any positive integer $T$ and any algorithm from our black-box procedure we have
+    There exist functions $f_1, \dots, f_N$ that satisfy \autoref{assum:stronglyCvx_smooth}, such that for any positive integer $T$ and any algorithm from our black-box procedure we have
     \[\mE_{ \Nscr_i, i \in [T] } \left[ f( w^{(T)} ) - f(w^*) \right]  ~\geq~ \Omega \left( \left( 1 - \min\left\{ \frac{\tau}{\sqrt{N}} \frac{4}{ \sqrt{ \beta/\alpha }}, \frac{8 \sqrt{2} }{\beta/\alpha} , 1\right\} \right)^T \right).\]
 \end{theorem}
 
@@ -380,7 +384,7 @@ when $\beta/\alpha$ is large. Compared to the iteration complexity of accelerate
 We conduct experiments on real-world datasets to evaludate the effectiveness of FedDCD and accelereated FedDCD. We include the following algorithms for comparison. 
 \begin{itemize}
     \item \textbf{Primal methods} (baseline algorithms): FedAvg~\citep{mcmahan2017communication}, FedProx~\citep{li2018federated} and SCAFFOLD~\citep{pmlr-v119-karimireddy20a}. 
-    \item \textbf{Dual methods}: FedDCD (\autoref{alg:rbcd}) and AccFedDCD (\autoref{alg:fedArbcd}).
+    \item \textbf{Dual methods}: FedDCD (Algorithm~\ref{alg:rbcd}) and AccFedDCD (Algorithm~\ref{alg:fedArbcd}).
 \end{itemize}
 
 \subsection{Data sets and implementation} \label{sec:details}
@@ -498,9 +502,7 @@ As we can see from the plots, for the MLR model, AccFedDCD out performs all the 
     \label{tab:exp3}
 \end{table}
 
-\section{Summary of contributions}
 
-In this chapter, by tackling the federated optimization problem from a dual perspective, we develop a federated dual coordinate descent (FedDCD) algorithm, which is based on the random block coordinate descent (RBCD) method proposed by \citet{necoara2017random}. We show that FedDCD fits very well to the settings of federated optimization. Moreover, we extend the FedDCD with inexact gradient oracles and Nesterov's acceleration. The resulting convergence rates are better than the current state-of-the-art federated optimization algorithms in certain situations. We also develop a complexity lower bound for federated optimization, the lower bound suggests that there is still a gap of $\sqrt{N}$ between the rate of accelerated FedDCD and the lower bound.
 
 
 
@@ -552,9 +554,9 @@ Next we present some useful lemmas for our analysis.
 \begin{proof}
     By definition, the projection operator can be expressed as 
 \begin{equation} \label{eq:proj_cI}
-    \proj_{\Cscr_I}^{W}(x) = \argmin{d} \frac{1}{2} (d - x)^TW(d-x) \enspace\st\enspace e_I^Td = 0.
+    \proj_{\Cscr_I}^{W}(x) = \argmin{d} \left\{ \frac{1}{2} (d - x)^TW(d-x) \mid e_I^Td = 0 \right\}.
 \end{equation}
-The Lagrangian function with respect to \autoref{eq:proj_cI} takes the form 
+The Lagrangian function with respect to \eqref{eq:proj_cI} takes the form 
 \[\Lscr(d, \lambda) = \frac{1}{2} (d - x)^TW(d-x) + \lambda e_I^Td.\]
 By checking the optimility condition with respect to $d$, we have
 \[\nabla_d \Lscr(d, \lambda) = W(d - x) + \lambda e_I = 0 \enspace\Rightarrow\enspace d = x - \lambda W^{-1} e_I.\]
@@ -591,7 +593,7 @@ Our next lemma gives explicit expressions for the expectations of $P_I$ and $G_I
 \begin{proof}
     The symmetry of $G_{I}$ and the idempotent of $P_{I}$ follow directly from the definitions. 
     
-    For \autoref{eq:GeqGTLG}, we have
+    For \eqref{eq:GeqGTLG}, we have
     \begin{align*}
         G_{I}^T \bL G_{I} &~=~ G_{I} \bL G_{I} ~=~ P_{I} \bL^{-1} \bL P_{I} \bL^{-1} ~=~ P_{I} \bL^{-1} ~=~ G_{I}.
     \end{align*}
@@ -626,18 +628,18 @@ Our next lemma gives explicit expressions for the expectations of $P_I$ and $G_I
         &= \binom{n-2}{\tau-2} \frac{1}{\binom{n-1}{\tau-1}e^TW^{-1}e}e^TW^{-1}e\\
         &= \frac{\tau-1}{n-1}.
     \end{align*}
-    This finishes the proof for~\autoref{eq:Pnexp}.
+    This finishes the proof for~\eqref{eq:Pnexp}.
     
     For any $x\in \Real^n$,
     \begin{align*}
         \mE_I \left[ \| G_I x \|_{\bL}^2 \right] &~=~ \mE_I \left[ x^T G_I^T \bL G_I x \right] \\
-        &~=~ \mE_I \left[ x^T G_I x \right] \qquad \text{(By \autoref{eq:GeqGTLG})} \\
-        &~=~ \frac{\tau - 1}{n-1}   x^T G_{[n]} x  \qquad \text{(By \autoref{eq:Gnexp})} \\
+        &~=~ \mE_I \left[ x^T G_I x \right] \qquad \text{(By \eqref{eq:GeqGTLG})} \\
+        &~=~ \frac{\tau - 1}{n-1}   x^T G_{[n]} x  \qquad \text{(By \eqref{eq:Gnexp})} \\
         &~=~ \frac{\tau - 1}{n-1} \| G_{[n]} x \|^2_{\bL}.
     \end{align*}
-    This finishes the proof for~\autoref{eq:GnormExp}.
+    This finishes the proof for~\eqref{eq:GnormExp}.
     
-    Finally, we prove \autoref{eq:GIpExp},
+    Finally, we prove \eqref{eq:GIpExp},
     \begin{align*}
         \mE \left[\ip{G_Ix}{y}_{\bL} \right] &= \frac{\tau - 1}{n-1} \ip{G_{[n]}x}{y}_{\bL}\\
         &= \frac{\tau - 1}{n-1} \ip{x}{G_{[n]}\bL y}\\
@@ -658,11 +660,11 @@ Our next lemma gives explicit expressions for the expectations of $P_I$ and $G_I
 \end{proof}
 
 \begin{lemma}[Gradient at optimal] \label{lemma:gradient_optimal}
-    Let $x^*$ be the optimal solution to \autoref{eq:CDObj}. Then we have $P_{[n]}^T\nabla h(x^*) = 0$. 
+    Let $x^*$ be the optimal solution to \eqref{eq:CDObj}. Then we have $P_{[n]}^T\nabla h(x^*) = 0$. 
 \end{lemma}
 
 \begin{proof}
-    Since $x^*$ is the optimal solution to \autoref{eq:CDObj}, by the first order optimality condition, we know that $-\nabla h(x^*) \in \Nscr_\Cscr(x^*)$, where $\Nscr_\Cscr(x^*)$ is the normal cone of $\Cscr$ at $x^*$. By the definition of normal cone, we know that 
+    Since $x^*$ is the optimal solution to \eqref{eq:CDObj}, by the first order optimality condition, we know that $-\nabla h(x^*) \in \Nscr_\Cscr(x^*)$, where $\Nscr_\Cscr(x^*)$ is the normal cone of $\Cscr$ at $x^*$. By the definition of normal cone, we know that 
     \begin{align*}
                     ~&~ \ip{-\nabla h(x^*)}{z - x^*} \leq 0 \enspace\forall z \in \Cscr \\
         \Rightarrow ~&~ \ip{-\nabla h(x^*)}{P_{[n]} z - x^*} \leq 0 \enspace\forall z \in \Real^n \\
@@ -755,7 +757,7 @@ Our next lemma gives explicit expressions for the expectations of $P_I$ and $G_I
     \begin{align*}
        \mE[ h(y) ] &~\leq~ \mE \left[ h(x) + \langle \nabla h(x), y - x \rangle + \frac{1}{2} \| y - x \|_{\bL}^2 \right] \\
        &~=~ h(x) - \mE \left[ \langle \nabla h(x), G_I \nabla h(x) \rangle + \frac{1}{2}  \| G_I \nabla h(x) \|_{\bL}^2 \right] \\
-       &~=~ h(x) - \frac{1}{2} \frac{\tau-1}{n-1} \| G_{[n]} \nabla h(x) \|_{\bL}^2 \quad \text{(By \autoref{eq:GnormExp} and \autoref{eq:GeqGTLG})}.
+       &~=~ h(x) - \frac{1}{2} \frac{\tau-1}{n-1} \| G_{[n]} \nabla h(x) \|_{\bL}^2 \quad \text{(By \eqref{eq:GnormExp} and \eqref{eq:GeqGTLG})}.
     \end{align*}
     For the second inequality, apply \autoref{lemma:GnormLowerAndUpperBound} to the above equation, we get
     \begin{align*}
@@ -786,7 +788,7 @@ Our next lemma gives explicit expressions for the expectations of $P_I$ and $G_I
     \Return{$x^{(T)}$}
 \end{algorithm}
 
-In this section, we analyze the convergence behaviour of RBCD with inexact gradient oracle for solving \autoref{eq:CDObj}. The detailed algorithm is shown in \autoref{alg:inexactrbcd} and the convergence rate is shown in the following theorem. 
+In this section, we analyze the convergence behaviour of RBCD with inexact gradient oracle for solving \eqref{eq:CDObj}. The detailed algorithm is shown in Algorithm~\ref{alg:inexactrbcd} and the convergence rate is shown in the following theorem. 
 \begin{theorem} \label{thm:inexact_rbcd}
     Assume \autoref{ass:hStruncture} is satisfied. Let
     \begin{align}
@@ -794,13 +796,13 @@ In this section, we analyze the convergence behaviour of RBCD with inexact gradi
         \delta &~=~ (1-\kappa) / 2, \nonumber \\
         \eta &~=~ \min \left\{ \frac{1}{4}, \frac{L_{\min}^{\frac{3}{2}}}{4 r^{\frac{1}{2}} L_{\max}^{\frac{3}{2}} } \right\}.
     \end{align} 
-    Let $x^{(T)}$ be the iterate generated from \autoref{alg:inexactrbcd}, then we have 
+    Let $x^{(T)}$ be the iterate generated from Algorithm~\ref{alg:inexactrbcd}, then we have 
     \[\mE\left[h(x^{(T)})\right] - h(x^*) \leq (1-\kappa)^T\left[h(x^{(0)}) - h(x^*) \right]. \]
 \end{theorem}
 
 Our analysis is enlightened by a recent work from \citet{LiuSY21}, who extended the distributed dual accelerated gradient algorithm~\citep{Scaman2017OptimalAF} with \emph{lazy dual gradient}. Before presenting the proof of \autoref{thm:inexact_rbcd}, we first cite an important lemma from \citep{LiuSY21} which gives a bound on the difference between inexact and exact gradients. 
 \begin{lemma}[\protect{\citet[Lemma~1]{LiuSY21}}] \label{lemma:LiuLemma1}
-    Given $\delta > 0$. Let $\{ x^{(t)} \}_{t=0}^{\infty}$ and $\{ \wt{\nabla} h(x^{(t)}) \}_{t=0}^{\infty}$ be generated from \autoref{alg:inexactrbcd} with $\delta/2$-inexact gradient oracle. Then $\forall t \in \mathbb{N}$,
+    Given $\delta > 0$. Let $\{ x^{(t)} \}_{t=0}^{\infty}$ and $\{ \wt{\nabla} h(x^{(t)}) \}_{t=0}^{\infty}$ be generated from Algorithm~\ref{alg:inexactrbcd} with $\delta/2$-inexact gradient oracle. Then $\forall t \in \mathbb{N}$,
     \begin{align}
         \mE\left[\| \wt{\nabla} h(x^{(t)}) - {\nabla} h(x^{(t)}) \|^2 \right] \leq \sum_{j=0}^{t-1} \delta^{t-j} \mE \left[ \| \nabla h(x^{(j)}) - {\nabla} h(x^{(j+1)}) \|^2 \right]. \label{eq:recursiveGradDiff}
     \end{align}
@@ -872,7 +874,7 @@ Next, we show the proof for \autoref{thm:inexact_rbcd}.
         &+ \frac{2 \alpha r \eta^2 L_{\max}^3 }{ L_{\min}^3 }  \mE \left[ \sum_{j=0}^{t-1} \delta^{t-j} \| \nabla h(x^{(j)}) - {\nabla} h(x^{(j+1)}) \|^2 \right],
     \end{align*}
     the last inequality is from \autoref{lemma:LiuLemma1}.
-    Now we can determine the hyperparameters in the Lyapunov function by plugging the above inequality into~\autoref{eq:decompose3} 
+    Now we can determine the hyperparameters in the Lyapunov function by plugging the above inequality into~\eqref{eq:decompose3} 
     \begin{equation} \label{eq:recursion}
     \begin{split}
         &\mE\left[ h(x^{(t+1)}) \right] \\
@@ -958,10 +960,10 @@ Next, we show the proof for \autoref{thm:inexact_rbcd}.
     }
 \end{algorithm}
 
-In this section, we analyze the convergence behaviour of accelerated RBCD for solving \autoref{eq:CDObj}. The detailed algorithm is shown in \autoref{alg:accelerated_rbcd} and the convergence rate is shown in the following theorem. 
+In this section, we analyze the convergence behaviour of accelerated RBCD for solving \eqref{eq:CDObj}. The detailed algorithm is shown in Algorithm~\ref{alg:accelerated_rbcd} and the convergence rate is shown in the following theorem. 
 
 \begin{theorem} \label{thm:accelerated_rbcd}
-    Assume that $h$ is $\mu$-strongly convex, let $\{x^{(t)}\}_{t=0}^\infty$, $\{y^{(t)}\}_{t=0}^\infty$ and $\{z^{(t)}\}_{t=0}^\infty$ be the iterates generated from \autoref{alg:accelerated_rbcd}, then
+    Assume that $h$ is $\mu$-strongly convex, let $\{x^{(t)}\}_{t=0}^\infty$, $\{y^{(t)}\}_{t=0}^\infty$ and $\{z^{(t)}\}_{t=0}^\infty$ be the iterates generated from Algorithm~\ref{alg:accelerated_rbcd}, then
     \begin{align*}
         \mE \left[ h( x^{(T)} ) - h(x^*) \right] \leq \left( 1 - \frac{ \sqrt{\frac{\mu}{L_{\max}}}}{ \frac{1}{r} + \sqrt{\frac{\mu}{L_{\max}}} } \right)^T \left( h(x^{(0)}) - h(x^*) \right)
     \end{align*}
@@ -1108,7 +1110,7 @@ In this section, we build the bridge connecting the result proved in the appendi
     \begin{align*}
         & \sum_{i=1}^N \|w_i^{(t)} - w^*\|^2 
         \\\leq~& 2\sum_{i=1}^N \|\tilde w_i^{(t)} - w^*\|^2 + 2\sum_{i=1}^N \|\tilde w_i^{(t)} - w_i^{(t)}\|^2
-        \\\leq~& \frac{4}{\alpha}\left[G(y^{(t)}) - G(y^*) \right] + 2\sum_{i=1}^N \|\tilde w_i^{(t)} - w_i^{(t)}\|^2 \qquad \text{(By \autoref{eq:primalDual1})}
+        \\\leq~& \frac{4}{\alpha}\left[G(y^{(t)}) - G(y^*) \right] + 2\sum_{i=1}^N \|\tilde w_i^{(t)} - w_i^{(t)}\|^2 \qquad \text{(By \eqref{eq:primalDual1})}
         \\\leq~& \frac{4}{\alpha}\left[G(y^{(t)}) - G(y^*) \right] + 2 \sum_{i=1}^N \sum_{j=0}^{t-1}\delta^{t-j}\|\tilde w_i^{(j)} - \tilde w_i^{(j+1)}\|^2 \qquad \text{(By \autoref{lemma:LiuLemma1})}
         \\\leq~& \frac{4}{\alpha}\left[G(y^{(t)}) - G(y^*) \right] + 2  \sum_{j=0}^{t-1}\delta^{t-j} \sum_{i=1}^N \left( 2\|\tilde w_i^{(j)} -  w_i^{*}\|^2 + 2 \|\tilde w_i^{(j+1)} -  w_i^{*}\|^2 \right)
         \\\leq~& \frac{4}{\alpha}\left[G(y^{(t)}) - G(y^*) \right] + \frac{8}{\alpha} \sum_{j=0}^{t-1} \delta^{t-j}\left[G(y^{(j)}) - G(y^*) \right] 

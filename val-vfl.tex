@@ -22,6 +22,10 @@ VFL algorithms can be divided into two categories: synchronous methods~\citep{Go
  among clients are required, and asynchronous ones
  ~\citep{Hu2019FDMLAC,Gu2020PrivacyPreservingAF,chen2020vafl}, where clients are allowed to conduct local computation asynchronously. We show that VerFedSV is applicable to both synchronous and asynchronous VFL settings. Under the synchronous setting, we show that FedSV can be computed by leveraging some matrix-completion techniques. Although there are many similarities between synchronous and asynchronous VFL settings, contribution valuation in an asynchronous VFL setting is more complicated because the contribution of a client not only depends on the relevance of the client's data to the training task, but also depends on the client's local computational resource. We demonstrate that our design can reflect the strength of clients' local computational resources under the asynchronous setting. To the best of our knowledge, we are the first to consider the contributions in local computational resources. The proofs to all the mathematical statements in this chapter is contained in \autoref{sec:8-10}.
 
+ \subsection{Summary of contributions} \label{sec:8-9}
+
+This chapter tackles the challenging problem of contribution valuation in vertical federated learning. We propose vertical federated Shapley value (VerFedSV) for this task, satisfying the desirable properties for fairness. We show that VerFedSV is quite adaptable such that it can be applied under both synchronous and asynchronous vertical federated learning settings. More specifically, under the synchronous vertical federated learning setting, we show that VerFedSV can be computed by solving low-rank matrix completion problems for embedding matrices, which are proven to be approximately low rank. We also give an approximation guarantee on VerFedSV given the tolerance for matrix completion. Under the asynchronous vertical federated learning setting, we show that VerFedSV can be directly computed and reflect the strength of clients' local computational resources. Finally, we show that the computational complexity of VerFedSV can be further reduced by applying Monte-Carlo sampling methods.
+
 \section{Related work} \label{sec:8-2}
 
 We have introduced various Shapley-value-based valuation strategies for machine learning and HFL in \autoref{sec:7-2}. In this section, we introdcue some recent work on contribution valuation in VFL. 
@@ -452,10 +456,6 @@ We evaluate the effectiveness of VerFedSV in both the synchronous and asynchrono
     \caption{Kendall's rank correlation between the results of SHAP and VerFedSV's.}
     \label{tab:comparasion_shap}
 \end{table}
-
-\section{Summary of contributions} \label{sec:8-9}
-
-This chapter tackles the challenging problem of contribution valuation in vertical federated learning. We propose vertical federated Shapley value (VerFedSV) for this task, satisfying the desirable properties for fairness. We show that VerFedSV is quite adaptable such that it can be applied under both synchronous and asynchronous vertical federated learning settings. More specifically, under the synchronous vertical federated learning setting, we show that VerFedSV can be computed by solving low-rank matrix completion problems for embedding matrices, which are proven to be approximately low rank. We also give an approximation guarantee on VerFedSV given the tolerance for matrix completion. Under the asynchronous vertical federated learning setting, we show that VerFedSV can be directly computed and reflect the strength of clients' local computational resources. Finally, we show that the computational complexity of VerFedSV can be further reduced by applying Monte-Carlo sampling methods.
 
 \section{Proofs} \label{sec:8-10}
 

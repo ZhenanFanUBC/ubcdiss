@@ -3,11 +3,11 @@
 \chapter{Background and roadmap}
 \label{ch:Introduction}
 
-Optimization~\citep{bert:1999} refers to finding the minimum or maximum of a function given a set of constraints, which stays at the core of many fields, such as machine learning~\citep{sra2012optimization,Bubeck15}, data mining~\citep{shi2011optimization}, and signal processing~\citep{mattingley2010real,palomar2010convex}, to mention just a few. With big data and hardware technology development, optimization approaches are gaining increasing attention because of their broad applicability and attractive theoretical properties. In the meantime, in the fields such as computer vision~\citep{krizhevsky2012imagenet} and natural language processing~\citep{wolf2020transformers}, models might contain millions of variables, resulting in optimization problems with enormous dimensions. Because of this, computational efficiency is a significant problem that must be appropriately addressed, which necessitates the development of efficient and scalable optimization algorithms. 
+Optimization~\citep{bert:1999} refers to finding the minimum or maximum of a function given a set of constraints. This problem is fundamental to many fields, including machine learning~\citep{sra2012optimization,Bubeck15}, data mining~\citep{shi2011optimization}, and signal processing~\citep{mattingley2010real,palomar2010convex}. With big data and hardware technology development, optimization approaches are gaining increasing attention because of their broad applicability and attractive theoretical properties. In the meantime, in fields such as computer vision~\citep{krizhevsky2012imagenet} and natural language processing~\citep{wolf2020transformers}, models might contain millions of variables, resulting in optimization problems with enormous dimensions. Because of this, computational efficiency is a significant factor that must be addressed appropriately through the development of efficient and scalable optimization algorithms. 
 
 In recent years, many significant breakthroughs have been made for computational efficiency regarding a class of optimization techniques known as the duality approach~\citep{combettes2011proximal,shalev2013stochastic,jaggi2014communication}. The main idea of the duality approach is to transform the original problem into a ``dual" problem that has the same optimal value as the original problem under certain conditions and whose solution characterizes the optimality of the original problem. More importantly, it has been recognized that working on the dual of an optimization problem may significantly simplify its solution or enjoy a better convergence rate~\citep{komodakis2015playing}. 
 
-\citet{rockafellar1970convex} developed a perturbation framework for studying the duality approach, which uses tools in convex analysis and the theory of conjugate function. This thesis investigates and extends the duality approach to two classes of optimization problems: structured optimization~\citep{bach2012optimization,chandrasekaran2012convex}, whose solution adopts some specific structural requirements, and federated learning~\citep{wang2021field}, which aims to learn models from decentralized data resources collaboratively. We also explore some exciting application scenarios of structured optimization in federated learning. 
+\citet{rockafellar1970convex} developed a perturbation framework for studying the duality approach, which uses tools in convex analysis and the theory of conjugate functions. This thesis investigates and extends the duality approach to two classes of optimization problems: structured optimization~\citep{bach2012optimization,chandrasekaran2012convex}, whose solution adopts some specific structural requirements, and federated learning~\citep{wang2021field}, which aims to learn models from decentralized data resources collaboratively. We also explore some exciting application scenarios of structured optimization in federated learning. 
 
 For the rest of this chapter, \autoref{sec:1-1} introduces some basic notations and definitions that will be used in this thesis. We then review the duality perturbation framework in \autoref{sec:1-2}. Finally, in \autoref{sec:1-3} and \autoref{sec:1-4}, respectively, we introduce the backgrounds for structured optimization and federated learning, as well as the roadmap for the thesis. 
 
@@ -15,7 +15,7 @@ For the rest of this chapter, \autoref{sec:1-1} introduces some basic notations 
 
 \section{Basic definitions and notations} \label{sec:1-1}
 
-Unless otherwise specified, we use capital letters $A, B, \dots$ to denote matrices or linear operators, lowercase letters $a, b, \dots$ to denote vectors, calligraphic letters $\Ascr, \Bscr, \dots$ to denote sets, and Greek letters $\alpha, \beta, \dots$ to denote scalars.
+Unless otherwise specified, we use capital Roman letters $A, B, \dots$ to denote matrices or linear operators, lowercase Roman letters $a, b, \dots$ to denote vectors, calligraphic letters $\Ascr, \Bscr, \dots$ to denote sets, and Greek letters $\alpha, \beta, \dots$ to denote scalars.
 
 We work with $n$-vectors in $\Real^n$ and $p$-by-$n$ matrices in $\Real^{p\times
 n}$. The restriction to real-valued vectors and matrices considerably simplifies
@@ -29,7 +29,7 @@ and $z$ is $\ip x z = \sum_{j} x_j z_j$. The dot product of two $p$-by-$n$
 matrices $X$ and $Z$ is the trace inner product $\ip X Z = \trace(X\T Z) =
 \sum_{ij}X_{ij}Z_{ij}$.
 
-A vector norm $\|x\|$ always refers to the 2-norm, i.e., $\|x\| = \sqrt{\ip{x}{x}}$ unless otherwise specified. Matrix norms always refer to the Schatten norm, e.g., if $(s_1, s_2,\ldots)$ are
+A vector norm $\|x\|$ always refers to the 2-norm, i.e., $\|x\| = \sqrt{\ip{x}{x}}$, unless otherwise specified. Matrix norms always refer to the Schatten norm, e.g., if $(s_1, s_2,\ldots)$ are
 the singular values of $X$, then
 \[
   \|X\|_1 = \sum_i s_i,
@@ -57,12 +57,12 @@ A set $\Cscr$ is convex if
     \forall (x, y, \lambda) \in \Cscr\times\Cscr\times[0,1], 
     \enspace \lambda x + (1-\lambda)y \in \Cscr. 
 \]
-A real-valued function $g:\Re^n\to\Re$ is convex if
+A real-valued function $g:\Re^n\to\Re\cup\{+\infty\}$ is convex if
 \[
     \forall (x, y, \lambda) \in \Re^n\times\Re^n\times[0,1], 
     \enspace g\left(\lambda x + (1-\lambda)y\right) \leq \lambda g(x) + (1-\lambda)g(y). 
 \]
-Given a convex function $g:\Re^n\to\Re$ and a vector $x\in\Re^n$, the subdifferential of $g$ at $x$ is defined as 
+Given a convex function $g:\Re^n\to\Re\cup\{+\infty\}$ and a vector $x\in\Re^n$, the subdifferential of $g$ at $x$ is defined as 
 \[\partial g(x) = \{z\in\Re^n \mid g(y) + \ip{z}{x - y} \leq g(x) ~\forall y \in \Re^n\}.\]
 For any convex set $\Cscr$, its polar set is given by 
 \begin{equation} \label{eq-polar-set}
@@ -170,7 +170,7 @@ The following theorem, developed by~\citet{rockafellar1998variational}, describe
     \begin{itemize}
         \item \textbf{Weak duality}. The inequality $v_F(0) \geq v_F^{**}(0)$ always holds. 
         \item \textbf{Strong duality}. If $0 \in \ri\dom v_F \cup \ri\dom v_F^{**}$, then $v_F(0) = v_F^{**}(0)$. 
-        \item \textbf{Optimal solutions.} If the strong duality holds with finite optimal values, then the following characterizations of the optimal solutions to the primal-dual pair are equivalent
+        \item \textbf{Optimal solutions.} If the strong duality holds with finite optimal values, then the following characterizations of the optimal solutions to the primal-dual pair are equivalent:
         \begin{equation} \label{eq:dual_opt}
             \begin{split}
                 (x^*, 0) &\in \partial F^*(0,y^*); \\
@@ -290,8 +290,8 @@ Then we can derive the corresponding conjugate function as
     \\&= -\sup_{\lambda\geq 0}  \lambda ( 1 - \ip{b}{y} ) - \delta\Cs^*(M^*y)
     \\&= 
         \begin{cases}
-            -\delta\Cs^*(M^*y) & \text{if} \ip{b}{y} \geq 1 \\
-            -\infty & \text{otherwise}.
+            -\delta\Cs^*(M^*y) & \mbox{if } \ip{b}{y} \geq 1 \\
+            -\infty & \mbox{otherwise}.
         \end{cases}
 \end{align*}
 Therefore, the gauge dual to problem~\eqref{prob:general_gauge} is given by
@@ -302,11 +302,11 @@ which corresponds to \eqref{prob:general_dual}.
 The following theorem, developed by \citet{friedlander2014gauge}, characterizes the duality correspondence for the gauge primal-dual pair. 
 
 \begin{theorem}[Gauge duality theory~\protect{\citep[Theorem~5.1 and Corollary~5.2]{friedlander2014gauge}}] 
-    Let $p^*$ and $d^*$ denote respectively the optimal values for the gauge primal-dual pair:~\eqref{prob:general_gauge} and~\eqref{prob:general_gauge_dual}. 
+    Let $p^*$ and $d^*$ denote respectively the optimal values for the gauge primal-dual pair~\eqref{prob:general_gauge} and~\eqref{prob:general_gauge_dual}. 
     \item \textbf{Weak duality}. If both primal problem~\eqref{prob:general_gauge} and dual problem~\eqref{prob:general_gauge_dual} are feasible, then $p^* d^* \geq 1$. 
     \item \textbf{Strong duality}. If either primal problem~\eqref{prob:general_gauge} or dual problem~\eqref{prob:general_gauge_dual} is strictly feasible and the other is feasible, then $p^* d^* = 1$. Furthermore, let $x^*$ and $y^*$ denote respectively the optimal solutions to the primal-dual pair:~\eqref{prob:general_gauge} and~\eqref{prob:general_gauge_dual}, then 
     \begin{equation} \label{eq:dual_opt_gauge}
-        \ip{x^*}{M^*y^*} = \gauge\Cs(x^*)\delta\Cs^*(M^*y^*).
+        \ip{x^*}{M^*y^*} = \gauge\Cs(x^*)\cdot\delta\Cs^*(M^*y^*).
     \end{equation}    
 \end{theorem}
 Note that \eqref{eq:dual_opt_gauge} can be derived from \eqref{eq:dual_opt}.
@@ -357,9 +357,9 @@ In \autoref{ch:App-AtomicOpt}, we introduce our open-source package \texttt{Atom
 
 \section{Federated learning} \label{sec:1-4}
 
-With the development of artificial intelligence, people recognize that many powerful machine learning models are driven by large decentralized datasets, e.g., AlphaGo~\citep{silver2016mastering} and AlexNet~\citep{krizhevsky2012imagenet}. In many industry-scale applications, training data is distributed in the form of silos, that is, training data is obtained and maintained by many data owners instead of being centralized at the place of a single owner or a data center. Because of industrial competition, privacy concerns, legal restrictions, and many other possible reasons, integrating or centralizing data from different sources faces enormous resistance and is often even infeasible~\citep{li2020review}. Federated learning, originally proposed by~\citet{federated2016}, is promising for training machine learning models on distributed data sources. It facilitates collaboration among a group of data owners (aka.~``clients'') and, at the same time, preserves their privacy. The central idea of federated learning is to periodically aggregate local models from clients to produce a more general and capable global model.
+With the development of artificial intelligence, people recognize that many powerful machine learning models are driven by large decentralized datasets, e.g., AlphaGo~\citep{silver2016mastering} and AlexNet~\citep{krizhevsky2012imagenet}. In many industry-scale applications, training data is distributed in the form of silos, that is, training data is obtained and maintained by many data owners instead of being centralized at the place of a single owner or a data center. Because of industrial competition, privacy concerns, legal restrictions, and many other possible reasons, integrating or centralizing data from different sources faces enormous resistance and is often even infeasible~\citep{li2020review}. Federated learning, originally proposed by~\citet{federated2016}, is promising for training machine learning models on distributed data sources. It facilitates collaboration among a group of data owners (``clients'') and, at the same time, preserves their privacy. The central idea of federated learning is to periodically aggregate local models from clients to produce a more general and capable global model.
 
-Federated learning can be further be classified into two main categories: horizontal federated learning and vertical federated learning~\cite{yang2019federated}. Horizontal federated learning refers to the scenarios where various clients' data sets share the same feature space but have separate sample IDs, and vertical federated learning refers to the scenarios where data sets owned by different clients share the identical sample IDs but have distinctive features. A simple characterization is shown in \autoref{fig:hfl_and_vfl}. 
+Federated learning can be further be classified into two main categories: horizontal federated learning and vertical federated learning~\cite{yang2019federated}. Horizontal federated learning refers to scenarios where various clients' data sets share the same feature space but have separate sample IDs, and vertical federated learning refers to scenarios where data sets owned by different clients share the identical sample IDs but have distinctive features. A simple characterization is shown in \autoref{fig:hfl_and_vfl}. 
 
 \begin{figure}[t] 
     \begin{subfigure}{.48\textwidth}
@@ -398,7 +398,7 @@ The following assumptions hold for federated optimization.
 \end{itemize}
 \end{assumption}
 
-In \autoref{ch:Dual-Fed-Opt}, we study the federated optimization problem from a dual perspective. We propose a new algorithm termed federated dual coordinate descent (FedDCD), which is based on a type of coordinate descent method developed by \citet{necoara2017random}.  Additionally, we
+In \autoref{ch:Dual-Fed-Opt}, we study the federated optimization problem from a dual perspective. We propose a new algorithm termed federated dual coordinate descent (FedDCD) that is based on a type of coordinate descent method developed by \citet{necoara2017random}.  Additionally, we
 enhance the FedDCD method with inexact gradient oracles and Nesterov's acceleration. We demonstrate
 theoretically that our proposed approach achieves better convergence rates than the state-of-the-art
 primal federated optimization algorithms under certain situations. Numerical experiments on real-world
@@ -421,7 +421,7 @@ The Shapley value of a participant is defined as the expectation of the marginal
     \end{enumerate}
 \end{definition}
 
-Under the federated learning setting, a utility function is usually defined as the model performance on a data set. The symmetry requires that the same contributions to the performance should receive the same evaluation, which implies that clients with same local data sets should receive same evaluation. The zero element requires that no contribution, no value is recognized. The additivity requires that if there are multiple tasks and thus multiple test data sets, then the contributions of any client with respect to the test data sets can be expressed as the sum of the contributions with respect to those different tasks and test data sets. Note that, although balance is a necessary condition in many economic contests because it ensures payment is fully distributed to all clients, it is irrelevant in the context of federated learning because we are only concerned about the relative contributions of clients. It is shown~\cite{dubey1975uniqueness,ghorbani2019data} that if the data valuation metric $v$ satisfies symmetry, zero element, and additivity, then $v$ must have the form
+Under the federated learning setting, a utility function is usually defined as the model performance on a data set. The symmetry requires that the same contributions to the performance should receive the same evaluation, which implies that clients with same local data sets should receive identical evaluations. The zero element requires that no contribution implies that no value is recognized. The additivity requires that if there are multiple tasks and thus multiple test data sets, then the contributions of any client with respect to the test data sets can be expressed as the sum of the contributions with respect to those different tasks and test data sets. Note that, although balance is a necessary condition in many economic contests because it ensures payment is fully distributed to all clients, it is irrelevant in the context of federated learning because we are only concerned about the relative contributions of clients. \citet{dubey1975uniqueness} and \citet{ghorbani2019data} show that if the data valuation metric $v$ satisfies symmetry, zero element, and additivity, then $v$ must have the form
 \begin{equation} \label{eq:shapley}
     v(i) = c \sum\limits_{S \subseteq I \setminus\{i\}} \frac{1}{\binom{N-1}{|S|}} \left[U(S\cup\{i\}) - U(S)\right],
 \end{equation}

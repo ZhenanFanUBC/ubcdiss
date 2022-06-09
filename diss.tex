@@ -57,7 +57,7 @@
 
 %% Math or theory people may want to include the handy AMS macros
 %\usepackage{amssymb}
-%\usepackage{amsmath}
+% \usepackage{amsmath}
 %\usepackage{amsfonts}
 
 %% The pifont package provides access to the elements in the dingbat font.   
@@ -297,14 +297,16 @@
 \newcommand{\observationautorefname}{Observation}
 
 %% New Theorems
-\newtheorem{assumption}{Assumption}
-\newtheorem{proposition}{Proposition}
-\newtheorem{definition}{Definition}
-\newtheorem{corollary}{Corollary}
-\newtheorem{theorem}{Theorem}
-\newtheorem{lemma}{Lemma}
-\newtheorem{example}{Example}
-\newtheorem{observation}{Observation}
+\newtheorem{assumption}{Assumption}[chapter]
+\newtheorem{proposition}{Proposition}[chapter]
+\newtheorem{definition}{Definition}[chapter]
+\newtheorem{corollary}{Corollary}[chapter]
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{lemma}{Lemma}[chapter]
+\newtheorem{example}{Example}[chapter]
+\newtheorem{observation}{Observation}[chapter]
+
+
 
 %% Algorithm
 \usepackage[ruled,vlined,linesnumbered,inoutnumbered,algochapter]{algorithm2e} 
