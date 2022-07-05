@@ -48,3 +48,6 @@ diss.synctex.gz
 diss.fdb_latexmk
 diss.synctex.gz
 diss.fdb_latexmk
+*.fdb_latexmk
+*.fls
+diss.synctex.gz
