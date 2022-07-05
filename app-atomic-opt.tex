@@ -143,9 +143,9 @@ The conditional-gradient method converges to the required optimality within $\Bi
 \subsection{Primal retrieval} \label{sec:primal_retrieval}
 Once \autoref{alg-level-set} reaches \autoref{alg-primal-recovery}, the vector $r\t$ contains information about the atoms that are in the support of each of minimizers $x_i^*$ to the problem \eqref{eq:main_prob_atomic_opt_cvx}; cf. \autoref{th:polar-alignment}. According the result developed in \autoref{ch:App-Primal-Retrieval}, we can then obtain near-feasible solutions to the original cardinality-constrained problem \eqref{eq:main_prob_atomic_opt} via solving the following constrained optimization problem
 \begin{equation} \label{eq:primal-recovery}
-  \min_{x_1, \dots, x_k \in \Re^n} \enspace \left\|b - M\sum_{i=1}^k x_i\right\| \st x_i \in \texttt{EssCone}_{\Ascr_i, M, k_i}(r\t),
+  \min_{x_1, \dots, x_k \in \Re^n} \enspace \left\|b - M\sum_{i=1}^k x_i\right\| \st x_i \in \EssCone_{\Ascr_i, k_i}(M^*r\t),
 \end{equation}
-where $\texttt{EssCone}$ is defined as in \eqref{eq:ess_cone}. The primal-retrieval problem \eqref{eq:primal-recovery} is solved by using \texttt{IterativeSolvers.jl}\footnote{\url{https://github.com/JuliaLinearAlgebra/IterativeSolvers.jl}}, which provides a Julia wrapper for the well-known conjugate gradient method.  
+where $\EssCone$ is defined as in \eqref{eq-essential-cone-poly} and \eqref{eq:cone_spectral}. The primal-retrieval problem \eqref{eq:primal-recovery} is solved by using \texttt{IterativeSolvers.jl}\footnote{\url{https://github.com/JuliaLinearAlgebra/IterativeSolvers.jl}}, which provides a Julia wrapper for the well-known conjugate gradient method.  
 
 
 

@@ -42,3 +42,6 @@ diss.fdb_latexmk
 *.fls
 *.fdb_latexmk
 *.gz
+diss.fdb_latexmk
+diss.fls
+diss.synctex.gz

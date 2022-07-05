@@ -11,13 +11,13 @@ The formulation we consider takes the form
 \begin{equation} \label{eq:main_prob} 
     \find x\in\Re^n \sut f(b - Mx) \leq \alpha \tand \card_\Ascr(x) \leq k,
 \end{equation}
-where $f:\Re^n\to\Re$ is an $L$-smooth and convex function, $M: \Re^n \to \Re^m$ is a linear operator with $m < n$, $b \in \Re^m$ is the observation vector, and $\Ascr \subseteq \Re^n$ is the atomic dictionary. The cardinality function 
+where $f:\Re^n\to\Re$ is an $L$-smooth and convex function, $M: \Re^n \to \Re^m$ is a linear operator with $m < n$, $b \in \Re^m$ is the observation vector, and $\Ascr \subseteq \Re^n$ is the atomic set. The cardinality function 
 \begin{equation}\label{eq-card-fcn}
     \card_\Ascr(x) \coloneqq \inf\left\{ \mathbf{nnz}(c) ~\bigg\vert~ x = \textstyle\sum\limits_{a \in \Ascr} c_a a, \enspace c_a \geq 0\right\}
 \end{equation}
-measures the complexity of $x$ with respect to the atomic set $\Ascr$.  The loss term $f(b - Mx)$ measures the quality of the fit. When $\Ascr = \{ \pm e_1,\pm e_2, \ldots,\pm e_n \}$ is the set of signed canonical unit vectors, the function $\card_\Ascr(x)$ simply counts the number of nonzero elements in $x$. Typically $k\ll n$, which indicates that we seek a feasible model parameter $x$ that has an efficient representation in terms of the atoms in $\Ascr$.
+measures the complexity of $x$ with respect to the atomic set $\Ascr$.  The loss term $f(b - Mx)$ measures the quality of the fit. When $\Ascr = \{ \pm e_1,\pm e_2, \ldots,\pm e_n \}$ is the set of signed canonical unit vectors, the function $\card_\Ascr(x)$ simply counts the number of nonzero elements in $x$. Typically $k\ll n$, which indicates that we seek a feasible model parameter $x$ that has an efficient representation in terms of $k$ atoms from the set $\Ascr$.
 
-For the application areas that we hope to target, the two characteristics of this feasibility problem that pose the biggest challenge to efficient implementation are the combinatorial nature of the cardinality constraint, and the high-dimensionality of the parameter space. To address the combinatorial challenge, we follow van den Berg and Friedlander~\cite{berg2008probing,berg2011sparse} and Chandrasekaran et al.~\cite{chandrasekaran2012convex}, and use the convex gauge function as a tractable proxy for the cardinality function~\eqref{eq-card-fcn}; see \eqref{eq:gauge1}. In tandem with the convexity of the loss function, this function allows us to formulate three alternative relaxed convex optimization problems that under certain conditions have approximate solutions that satisfy the feasibility problem; see problems~\eqref{prob:primal1},~\eqref{prob:primal2}, and~\eqref{prob:primal3} in \autoref{sec:4-2}. 
+For the application areas that we hope to target, the two characteristics of this feasibility problem that pose the biggest challenge to efficient implementation are the combinatorial nature of the cardinality constraint, and the high-dimensionality of the parameter space. To address the combinatorial challenge, we build on the general atomic-sparsity framework introduced in \autoref{sec:1-3} and use the convex gauge function as a tractable proxy for the cardinality function~\eqref{eq-card-fcn}; see \eqref{eq:gauge1}. In tandem with the convexity of the loss function, this function allows us to formulate three alternative relaxed convex optimization problems that under certain conditions have approximate solutions that satisfy the feasibility problem; see problems~\eqref{prob:primal1},~\eqref{prob:primal2}, and~\eqref{prob:primal3} in \autoref{sec:4-2}.
 
 The high-dimensionality of the parameter space, however, may imply that it's inefficient---and maybe even practically impossible---to solve these convex relaxations because it's infeasible to directly store the approximations to a feasible solution $x$. Instead, we wish to develop methods that leverage the efficient representation that feasible solutions have in terms of the atoms in the dictionary $\Ascr$. For example, consider the case in which the dictionary is the set of ${n \times n}$ rank-one matrices, and $M$ is the trace linear operator that maps these matrices into $m$-vectors. Any method that iterates directly on the parameters $x$ requires $\BigOh(n^2+m)$ storage. An alternative is the widely-used conditional gradient method \cite{frank1956algorithm}, which requires $\BigOh( n t+m )$ storage after $t$ iterations~\cite{jaggi2013revisiting}, but also often requires a substantial number of iterations $t$ to converge. Instead of storing $x$ directly, we use the dual problems to the convex relaxations ~\eqref{prob:primal1},~\eqref{prob:primal2}, and~\eqref{prob:primal3}, which require only $\BigOh(m)$ storage, and still allow us to collect information on which atoms in $\Ascr$ participate in the construction of a feasible $x$.
 
@@ -33,24 +33,26 @@ We prove that when the atomic dictionary is polyhedral, we can set $\epsilon$ to
 
 We demonstrate via numerical experiments on real-world datasets that this approach is effective in practice.
 
-There are three important components in our primal-retrieval algorithm. The first is an arbitrary iterative oracle $\texttt{oracle}_{f,\Ascr,M,b}(\cdot)$ that can generate iterates $y^{(t)}$ converging to the optimal dual variable $y^*$ of any of the dual problem \Drobi. The second is an atom-identifier $\texttt{EssCone}_{\Ascr, M, k}(\cdot)$ which can map a dual variable $y$ to the cone generated from the essential atoms identified by $y$ such that any element in this cone will have cardinality at most $k$, i.e., 
-\begin{equation} \label{eq:ess_cone}
-  \texttt{EssCone}_{\Ascr, M, k}(y) \subseteq \{x \mid \card(A; x) \leq k\}.
-\end{equation}
-We make the definition of the function $\texttt{EssCone}_{\Ascr, M, k}$ explicit when the atomic set $\Ascr$ is polyhedral (\autoref{sec:polyhedral}) or spectral (\autoref{sec:spectral}). The third is the following reduced convex optimization problem,  
+There are three important elements in our primal-retrieval algorithm. The first element is an atom-identifier function $\EssCone_{\Ascr, k}(\cdot)$ that maps $M^*y$, where $y$ is any feasible dual variable, to a cone generated by $k$ atoms that have been identified as \emph{essential}, that is, these atoms have the property that 
+\[
+  \EssCone_{\Ascr, k}(M^*y) \subseteq \{x \mid \card(A; x) \leq k\}.
+\]
+The explicit definition of the essential cone depends on the particular atomic set $\Ascr$. In \autoref{sec:primal-retrieval}, we make it explicit for atomic sets that are polyhedral (\autoref{sec:polyhedral}) and spectral (\autoref{sec:spectral}).
+
+The second element is an arbitrary function $\texttt{oracle}_{f,\Ascr,M,b}(\cdot)$ (such as an appropriate first-order iterative method) that generates dual iterates $y^{(t)}$ converging to the optimal dual variable $y^*$ of any of the dual problem \Drobi. It's this oracle that generates the dual estiamtes subsequently used by $\EssCone_{\Ascr,k}$.
+
+The third algorithmic component is the reduced convex optimization problem
 \begin{equation} \label{eq:primal_recover} \tag{PR}
-    x^{(t)} \coloneqq \argmin{x} f(b - Mx) \text{subject to} x \in \Cscr^{(t)} := \texttt{EssCone}_{\Ascr, M, k}(y^{(t)}),
+    x^{(t)} \in \argmin{x}\{ f(b - Mx) | x \in \EssCone_{\Ascr, k}(M^*y^{(t)})\},
 \end{equation}
-by solving which we are able to retrieve a primal variable $x^{(t)}$ in each iteration $t$.
-The detailed algorithm is shown in Algorithm~\ref{alg:primal_recover}. Note that our primal-retrieval strategy is not aiming to recover the optimal solutions to~\eqref{prob:primal1}, \eqref{prob:primal2} or~\eqref{prob:primal3}. These problems serve as a guidance for our atom-identification rule. The final output of Algorithm~\ref{alg:primal_recover} maybe different from the optimal solutions to~\eqref{prob:primal1}, \eqref{prob:primal2} or~\eqref{prob:primal3}. 
+which at each iteration constructs a primal estimate $x^{(t)}$ using the atoms identified through the dual estimate $y^{(t)}$.  The detailed algorithm is shown in Algorithm~\ref{alg:primal_recover}. Note that our primal-retrieval strategy is not aiming to recover the optimal solutions to~\eqref{prob:primal1}, \eqref{prob:primal2} or~\eqref{prob:primal3}. These problems serve as a guidance for our atom-identification rule. The final output of Algorithm~\ref{alg:primal_recover} maybe different from the optimal solutions to~\eqref{prob:primal1}, \eqref{prob:primal2} or~\eqref{prob:primal3}.
 
 \begin{algorithm}[t]
     \DontPrintSemicolon\setcounter{AlgoLine}{-1}
     \SetKwComment{tcp}{[}{]}
-    \KwIn{data-fitting constraint $\alpha$, cardinality constraint $k$, atomic set $\Ascr$, loss function $f$, linear operator $M$, observation $b$ and tolerance $\epsilon$} 
+    \KwIn{data-fitting constraint $\alpha$, cardinality constraint $k$, atomic set $\Ascr$, loss function $f$, linear operator $M$, observation $b$ and tolerance $\epsilon\geq0$} 
     \For{$t = 1, 2, \dots$}{
         $y^{(t)} \leftarrow \texttt{oracle}_{f,\Ascr,M,b}(y^{(t-1)})$\;
-        $\Cscr^{(t)} \leftarrow \texttt{EssCone}_{\Ascr, M, k}(y^{(t)})$\;
         $x^{(t)} \leftarrow$ solution to~\eqref{eq:primal_recover}\;
         \lIf{$f(b - Mx^{(t)}) \leq \alpha + \epsilon$}{break}
     }
@@ -78,7 +80,7 @@ In this chapter, we proposed a simple primal-retrieval strategy for a class of s
 \section{Convex relaxations}
 \label{sec:4-2}
 
-In this section, we introduce various types of structured optimization problems, which are known as the convex relaxations to the structured data-fitting problem~\eqref{eq:main_prob}. More specifically, 
+In this section, we introduce convex relaxations to the structured data-fitting problem~\eqref{eq:main_prob}. In particular, 
 we consider the following three related gauge-regularized optimization
 problems:
 \begin{align} 
@@ -86,16 +88,16 @@ problems:
   & \minimize{x}\enspace p_2(x) := f(b - Mx) \enspace\text{subject to}\enspace \gauge\As(x) \leq \tau, \label{prob:primal2} \tag{P$_2$} \\
   & \minimize{x}\enspace p_3(x) := \gauge\As(x)  \enspace\text{subject to}\enspace f(b - Mx) \leq \alpha \label{prob:primal3} \tag{P$_3$}. 
 \end{align}
-It's well known that under mild conditions, these three formulations are equivalent to each other for appropriate choice of the positive parameters $\lambda, \tau$, and $\alpha$~\cite{FrieTsen:2006}. Practitioners often prefer one of these formulations depending on their application. For example, tasks related to machine learning, including feature selection and recommender system, typically feature one of the first two formulations~\cite{tibshirani1996regression,yul06,Meinshausen06}.  On the other hand, applications in signal processing and related fields, such as as compressed sensing and phase retrieval, usually use the third formulation~\cite{berg2008probing,candes:2013}. 
+It's well known that under mild conditions, these three formulations are equivalent for appropriate choices of the positive parameters $\lambda, \tau$, and $\alpha$~\cite{FrieTsen:2006}. Practitioners often prefer one of these formulations depending on their application. For example, tasks related to machine learning, including feature selection and recommender systems, typically feature one of the first two formulations~\cite{tibshirani1996regression,yul06,Meinshausen06}.  On the other hand, applications in signal processing and related fields, such as as compressed sensing and phase retrieval, often use the third formulation~\cite{berg2008probing,candes:2013}. 
 
-Our primal-retrieval strategy relies on the hypothesis that the structured optimization problems \eqref{prob:primal1}, \eqref{prob:primal2} and \eqref{prob:primal3} are reasonable convex relaxations to the structured data-fitting problem~\eqref{eq:main_prob}, in the sense that the corresponding optimal solutions are feasible to \eqref{eq:main_prob}. We formalize this in the following assumption.
+Our primal-retrieval strategy relies on the hypothesis that the atomic-sparse optimization problems \eqref{prob:primal1}, \eqref{prob:primal2} and \eqref{prob:primal3} are reasonable convex relaxations to the structured data-fitting problem~\eqref{eq:main_prob}, in the sense that the corresponding optimal solutions are feasible for \eqref{eq:main_prob}. We formalize this in the following assumption.
 
 \begin{assumption} \label{ass:blanket}
-    Let $x^*$ denote the optimal solution to any of \eqref{prob:primal1}, \eqref{prob:primal2} or \eqref{prob:primal3}. Then $x^*$ is feasible for \eqref{eq:main_prob}, i.e., 
-    \[f(b - Mx^*) \leq \alpha \tand |\suppa(x^*)| \leq k.\]
+  Let $x^*$ denote the optimal solution to any of \eqref{prob:primal1}, \eqref{prob:primal2} or \eqref{prob:primal3}. Then $x^*$ is feasible for \eqref{eq:main_prob}: 
+  \[f(b - Mx^*) \leq \alpha \tand |\suppa(x^*)| \leq k.\]
 \end{assumption}
 
-As we mentioned in \autoref{sec:4-1}, for the sake of less space complexity, people will solve the corresponding dual problems. The Fenchel-Rockafellar duals for problems~\eqref{prob:primal1}--\eqref{prob:primal3} can be formulated as:
+As described in \autoref{sec:4-1}, the Fenchel-Rockafellar duals for these problems have typically smaller space complexity. These dual problems can be formulated as
 \begin{align} 
   & \minimize{y}  d_1(y) := f^*(y) - \ip{b}{y} \text{subject to} \sigma\As(M^*y) \leq \lambda, \label{prob:dual1} \tag{D$_1$}\\
   & \minimize{y} d_2(y) := f^*(y) - \ip{b}{y} + \tau\sigma\As(M^*y), \label{prob:dual2} \tag{D$_2$}\\
@@ -109,10 +111,10 @@ The derivation of these dual problems can be found in \autoref{app:duals}.
 
 \section{Atom identification} \label{sec:atom_iden}
 
-In this section, we illustrate why it is reasonable to identify atoms with the dual variable. The task of developing atom identification rules that apply with full generality to any atomic set $\Ascr\subseteq\Re^n$---even those that are uncountably infinite---requires tools that accommodate general notions of ``activity'' in
-the same way. For example, the simplex multipliers tell us which primal
-variables of a linear program are positive or zero. Our atom identification rules use information about the atoms of the atomic sets that are exposed through the dual variable, and shows which atoms support an optimal solution. The following
-result, due to Fan et al.~\cite[Proposition~4.5 and Theorem~5.1]{fan2019alignment}, makes this precise.
+In this section, we demonstrate how the optimal dual variables can be used to identify essential atoms that participate in the primal solutions. In order to develop atomic-identification rules that apply to arbitrary atomic set $\Ascr\subseteq\Re^n$---even those that are uncountably infinite---we require generalized notions of active constraint sets. In linear programming, for example, the simplex multipliers give information about the optimal primal support. By analogy, our atomic-identification rules give information about the essential atoms that participate in the support of the primal optimal solutions. In addition, we extend the identification rules to approximate the essential atoms from approximate dual solutions. 
+
+We build on the following
+result, due to Fan et al.~\cite[Proposition~4.5 and Theorem~5.1]{fan2019alignment}.
 \begin{theorem}[Atom identification]\label{thm:opt_supp_id} Let
   $x^*$ and $ y^*$ be optimal primal-dual solutions for problems \Probi~and \Drobi, with
   $i=1,2,3$. Then
@@ -127,112 +129,152 @@ Obviously, for any $\epsilon \geq 0$, we would have
 \[\Escr\As(z) \subseteq \Escr\As(z, \epsilon).\]
 
 \begin{theorem}[Generalized atom identification]\label{thm:p0}
-    Let $x_i$ and $y_i$ be feasible primal and dual vectors, respectively for
-    problems \Probi\ and \Drobi, with $i = 1, 2, 3$. Then
-    \begin{equation}\label{eq:1} 
-      \suppa(x_i^*) \subseteq \Escr\As(M^*y_i, \epsilon_i),
-    \end{equation}
-    where each $\epsilon_i$ is defined for problem $i$ as follows:
-    \begin{itemize} 
-    \item \label{thm:p1} $\epsilon_1 = \opa{M}\sqrt{2L \left( d_1(y_1) - d_1(y_1^*) \right)}$,
-  
-    \item \label{thm:p2} $\epsilon_2 = 2\opa{M}\sqrt{2L \left( d_2(y_2) - d_2(y_2^*) \right)}$,
-      
-    \item \label{thm:p3} $\epsilon_3 = 2\opa{M}\sqrt{2\bar{\beta}L (
-          \max\{d_3(y_3, \underline{\beta}), d_3(y_3, \bar{\beta})\} - d_3( y_3^* ) ) }$, 
-    \end{itemize}
-    where $\underline{\beta}$ and $\bar{\beta}$ are positive lower and
-    upper bounds, respectively, for $\beta^*$, and the atomic operator norm is defined by 
-    $\|M\|\As:=\max_{a\in\Ascr}\|Ma\|_2$.
+  Let $x_i$ and $y_i$ be feasible primal and dual vectors, respectively for
+  problems \Probi\ and \Drobi, with $i = 1, 2, 3$. Then
+  \begin{equation}\label{eq:1} 
+    \suppa(x_i^*) \subseteq \Escr\As(M^*y_i, \epsilon_i),
+  \end{equation}
+  where each $\epsilon_i$ is defined for problem $i$ by
+  \begin{itemize} \setlength\itemsep{-0.0em}
+    % \item \label{thm:p1} $\epsilon_1 = \opa{M} \| y_1 - y_1^* \| $,
+    % \item \label{thm:p2p3} $\epsilon_i = 2\opa{M} \| y_i - y_i^* \|$,~\quad $i \in \{2,3\}$. \blu{[Change to $d(y) - d(y^*)$]}
+  \item \label{thm:p1} $\epsilon_1 = \opa{M}\sqrt{2L \left( d_1(y_1) - d_1(y_1^*) \right)}$,
+
+  \item \label{thm:p2} $\epsilon_2 = 2\opa{M}\sqrt{2L \left( d_2(y_2) - d_2(y_2^*) \right)}$,
+    
+  \item \label{thm:p3} $\epsilon_3 = 2\opa{M}\sqrt{2\bar{\beta}L (
+        \max\{d_3(y_3, \underline{\beta}), d_3(y_3, \bar{\beta})\} - d_3( y_3^*, \beta^*) ) }$, 
+  \end{itemize}
+  where $\underline{\beta}$ and $\bar{\beta}$ are positive lower and
+  upper bounds, respectively, for $\beta^*$, and $\|M\|\As:=\max_{a\in\Ascr}\|Ma\|_2$ is the induced atomic operator norm.
 \end{theorem}
 
-\autoref{thm:p0} suggests that the underlying sparsity pattern of $x_i^*$ is contained by the $\epsilon$-exposed atoms of $M^* y_i$. When $\suppa(x_i^*) = \Escr\As(M^* y_i^*)$, one will have better approximation of $\suppa(x_i^*)$ as the function value of the dual problem $d_i(y_i)$ getting close to its optimal objective value $d_i(y_i^*)$. \autoref{thm:p0} can be viewed as a generalization of the gap safe-screening rule developed by Ndiaye et al.~\cite{NdiayeFGS17}, which applies to~\eqref{prob:primal1} with $\gamma\As$ being the one-norm. In the gap safe screening rule, for the sake of computation, the objective gap of the dual problem $d_i(y_i) - d_i(y_i^*)$ is upper bounded by the duality gap by leveraging the strong convexity property of the dual problem. In our work, \autoref{thm:p0} mostly serves as a technical tools for error bound analysis and we don't need to compute or approximate $d_i(y_i) - d_i(y_i^*)$ during our algorithm. For simplicity and cleanness, we use dual objective gap but not the duality gap to measure $\epsilon_i$ for \autoref{thm:p0}. Note that the development of the atom-identification rule for~\eqref{prob:primal3} is more involved than for the first two problems~\eqref{prob:primal1} and~\eqref{prob:primal2} because the dual objective contains the perspective map of $f^*(\cdot) + \alpha$~\cite{aravkin2018foundations}. The proofs for parts (a) and (b) of \autoref{thm:p0} depend on the strong convexity of $f^*$, implied by the Lipschitz smoothness of $f$. This convenient property, however, does not hold for the perspective map applied to $f^*$. We resolve this problem by imposing the additional assumption that we have bounds available on the dual optimal variable $\beta^*$. \autoref{app:bounds} describes how to obtain these bounds during the course of the level-set method developed by Aravkin et al.~\cite{aravkin2016levelset}.
+\autoref{thm:p0} asserts that the underlying atomic support of $x_i^*$ is contained in the set of the $\epsilon$-exposed atoms of $M^* y_i$.  Moreover, when $y_i\to y_i^*$ (and, for problem~\eqref{prob:dual3}, the bounds $\underline\beta\to\beta^*$ and $\bar\beta\to\beta^*$), each $\epsilon_i\to0$, and thus~\eqref{eq:1} implies that we have a tighter containment for the optimal atomic support.  The proofs for parts (a) and (b) of \autoref{thm:p0} depend on the strong convexity of $f^*$, which is implied by the Lipschitz smoothness of $f$. This convenient property, however, is not available for part (c) because the dual objective of \eqref{prob:dual3} is the perspective map of $f^* + \alpha$, which is not strongly convex~\cite{aravkin2018foundations}. We resolve this technical difficulty by instead imposing the additional assumption that bounds are available on the dual optimal variable $\beta^*$. \autoref{app:bounds} describes how to obtain these bounds during the course of the level-set method developed by Aravkin et al.~\cite{aravkin2016levelset}. 
 
-\autoref{thm:opt_supp_id} and \autoref{thm:p0} suggest that the function $\texttt{EssCone}_{\Ascr, M, k}$ should depend on the exposed atoms of the dual variable $y$, i.e., 
-\[\cone(\Escr\As(M^*y)) \subseteq \texttt{EssCone}_{\Ascr, M, k}(y) \subseteq \cone(\Escr\As(M^*y, \epsilon)).\]
-Next, we show that how can we adopt the atom-identification rules to efficient primal-retrieval methods for polyhedral and spectral atomic sets. 
+\section{Primal retrieval} \label{sec:primal-retrieval}
 
-\section{Primal-retrieval for polyhedral atomic set} \label{sec:polyhedral}
+\autoref{thm:p0} serves mainly as a technical tool for error bound analysis, in particular because it's impractical to compute or approximate $\epsilon_i$. However, \autoref{thm:opt_supp_id} and \autoref{thm:p0} motivate us to define an atom-identifier function $\EssCone_{\Ascr, M, k}$ that depends on the dual variable $y$ and satisfies the inclusions 
+\[\cone(\Escr\As(M^*y)) \subseteq \EssCone_{\Ascr, k}(M^*y) \subseteq \cone(\Escr\As(M^*y, \epsilon)).\]
 
-In this section, we consider the case when $\Ascr$ is polyhedral. We formalize the definition of the function $\texttt{EssCone}_{\Ascr, M, k}$ under this setting. Given a feasible dual vector $y$, we first compute the top-$k$ atoms in $\Ascr$ with respect to the inner product with $M^*y$, i.e. 
+The next two sections demonstrate how to construct such a function for polyhedral and spectral atomic sets, which are two important examples that appear frequently in practice. With this function we can thus implement the primal-recovery problem required by Step~3 of Algorithm~\ref{alg:primal_recover}. Moreover, we show how to use the error bounds of \autoref{thm:p0} to analyze the atomic-identification properties of the resulting algorithm.
+
+
+\subsection{Primal-retrieval for polyhedral atomic sets} \label{sec:polyhedral}
+
+In this section we formalize a definition for the function $\EssCone_{\Ascr, k}$ for the case in which $\Ascr$ is a finite set of vectors, which implies that the convex hull is  polyhedral. Given a feasible dual vector $y$, consider the top-$k$ atoms in $\Ascr$ with respect to the inner product with the vector $M^*y$:
 \begin{equation} \label{eq:top-k}
-  \begin{split}
-                & \{a_1, \dots, a_k\} \subseteq \Ascr \\
-    \text{s.t.} & \ip{M^*y}{a_i} \geq \ip{M^*y}{a} \enspace\forall i \in [k] \text{and}\\
-                & a \in \Ascr\setminus\{a_1, \dots, a_k\}.
-  \end{split}
+    \Ascr_k := \{a_1, \dots, a_k\} \subseteq \Ascr \text{such that} \ip{M^*y}{a_i} \geq \ip{M^*y}{a} \enspace\forall i \in [k] ~\mbox{and}~ a \in \Ascr\setminus\{a_1, \dots, a_k\}.
 \end{equation}
-Then we construct the convex cone generated from these atoms, i.e., 
-\[\texttt{EssCone}_{\Ascr, M, k}(y) \coloneqq \left\{\sum_{i=1}^k c_i a_i ~\bigg\vert~ c_i \geq 0 ~\forall i\right\}.\]
-The primal-retrieval problem \eqref{eq:primal_recover} then becomes
-\begin{equation} \label{eq:primal_recover_polyhedral} \tag{PR-Poly}
-\hat x = \sum_{i=1}^k \hat c_ia_i \text{where} \hat c = \argmin{c \in \Re^k_+} f\left( b - M\sum_{i=1}^k c_ia_i \right). 
+Note that there may be many sets of $k$ atoms that satisfy this property. We then construct the cone of essential atoms as the convex conic hull generated from this set of top-$k$ atoms, i.e.,
+\begin{equation}\label{eq-essential-cone-poly}
+  \EssCone_{\Ascr, k}(M^*y) \coloneqq \cone\Ascr_k.
 \end{equation}
+Thus, the primal-retrieval computation in step~3 of Algorithm~\ref{alg:primal_recover} is given by 
+\begin{equation*}
+\hat x = \sum_{i=1}^k \hat c_ia_i, 
+\end{equation*}
+where
+\begin{equation} \label{eq-top-k-recover}
+  \hat c \in \argmin{c \in \Re^k_+} f_k(c),
+  \text{with} f_k(c) := f\left( b - M\sum_{i=1}^k c_ia_i \right),
+\end{equation}
+is the $k$-vector of coefficients obtained by minimizing the reduced objective over a $k$-dimensional polyhedron defined by the top-k atoms.
 
-\begin{example}[Basis pursuit denoising] \label{ex:bpdn}
-    The basis pursuit denoising (BPDN)~\cite{cds98} problem arises in sparse recovery applications. Let $M:\Re^n \to \Re^m$ be some
-    measurement matrix. Let $x^\natural$ denote the original sparse signal and
-    $b = Mx^\natural + \eta$ be the vector of observations, where $\eta \in \Re^m$ is the noise. For some expected noise level $\alpha > 0$, the BPDN model is 
-    \begin{equation} \label{eq:bpdn}
-        \minimize{x\in\Re^m}\enspace \|x\|_1  \enspace\text{subject to}\enspace \|Mx - b\|_2 \leq \alpha.
-    \end{equation}
-    In this case, the atomic set $\Ascr$ is the set of signed unit one hot vectors, i.e., $\Ascr = \{\pm e_1, \dots, \pm e_n\}$. There are many dual methods that can generate iterates $y^{(t)}$ converging to the optimal dual solution to \eqref{eq:bpdn} under proper rescaling, e.g., level-set method~\cite{aravkin2016levelset} with dual-conditional-gradient suboracle~\cite{fan2019alignment}. Then our proposed primal-retrieval strategy can be conducted by executing the following steps:
-    \begin{itemize}
-        \item Find $k$ indices of $M^*y^{(t)}$ with largest absolute value: $\{i_1, \dots, i_k\} \subset [n]$ and the corresponding signs $s_i \coloneqq \sign([M^*y^{(t)}]_i)$ for $i \in \{i_1, \dots, i_k\}$. 
-        \item Solve the primal-retrieval problem
-        \begin{equation} \label{eq:bpdn_pr}
-            c^{(t)} = \argmin{c \in \Re_{\geq 0}^k} g(c) \coloneqq \|M[s_{i_1}e_{i_1} \dots s_{i_k}e_{ik}]c - b\|.
-        \end{equation}
-        The reduced problem can be solved efficiently via accelerated projected gradient descent in $\BigOh( m k \log(1/\epsilon) )$ flops if $M[s_{i_1}e_{i_1} \dots s_{i_k}e_{ik}]$ has full column rank.
-        \item If $g(c^{(t)}) \leq \alpha$, then we can terminate the algorithm and return the primal variable 
-        \[x^{(t)} = [s_{i_1}e_{i_1} \dots s_{i_k}e_{ik}]c^{(t)}.\]
-        Otherwise, we just proceed to the next iteration. 
-    \end{itemize}
-    We conduct numerical experiments for the basis pursuit denoising problem in \autoref{sec:bpdn}. 
+\begin{example}[Sparse vector recovery] \label{ex:bpdn}
+  We consider the problem of recovering a sparse vector $x^\natural$ from noisy observations $b:=Mx^\natural + \eta$, where $M:\Re^n \to \Re^m$ is a given measurement matrix and $\eta \in \Re^m$ is standardized Gaussian noise. For some expected noise level $\alpha > 0$, the sparse recovery problem can be thus be expressed as 
+  \begin{equation} \label{eq:sparse_recovery}
+      \find x\in\Re^n \sut \|b - Mx\|_2 \leq \alpha \tand \texttt{nnz}(x) \leq k,
+  \end{equation}
+  which corresponds to~\eqref{eq:main_prob} with $f=\|\cdot\|_2$ and with the atomic set
+  \begin{equation}\label{eq-signed-e}
+    \Ascr = \{\pm e_1, \dots, \pm e_n\},
+  \end{equation}
+  where each $e_i$ is the $i$th canonical unit vector. The basis pursuit denoising (BPDN) approach approximates this problem by replacing the cardinality constraint with an optimization problem that minimizes the 1-norm of the solution:
+  \begin{equation} \label{eq:bpdn}
+    \minimize{x\in\Re^n} \|x\|_1  \enspace\mbox{subject to}\enspace \|Mx - b\|_2 \leq \alpha;
+  \end{equation}
+  see Chen et al.~\cite{cds98}. This convex relaxation corresponds to problem \eqref{prob:primal3}.
+  
+  There are many dual methods that generate iterates $y^{(t)}$ converging to the optimal dual solution to~\eqref{eq:bpdn}, including the level-set method coupled with the dual conditional-gradient suboracle, as described by~\cite{aravkin2016levelset,fan2019alignment}. The resulting primal-retrieval strategy for Step~3 of Algorithm~\ref{alg:primal_recover} can thus be implemented by executing the following steps:
+  \begin{itemize}
+      \item (Top-$k$ atoms) Find the top $k$ indices $\{i_1, \dots, i_k\} \subset [n]$ of the vector $M^*y^{(t)}$ with largest absolute value and gather their corresponding signs $s_i \coloneqq \sign([M^*y^{(t)}]_i)$ for $i \in \{i_1, \dots, i_k\}$. The top-$k$ atoms are thus $\Ascr_k=\{s_{i_1}e_{i_1},\ldots,s_{i_k}e_{i_k}\}$; see~\eqref{eq:top-k}.
+      \item (Retrieve coefficients) Solve the reduced problem~\eqref{eq-top-k-recover}, where in this case,
+      \begin{equation} \label{eq:bpdn_pr}
+          c^{(t)} \in \argmin{c \in \Re_+^k} f_k(c),
+          \text{where} f_k(c) = \|M[s_{i_1}e_{i_1} \cdots s_{i_k}e_{i_k}]c - b\|_2.
+      \end{equation}
+      This is a nonnegative least-squares problem for which many standard algorithms are available. For example, an accelerated projected gradient descent method requires $\BigOh( m k \log(1/\epsilon) )$ iterations when $M[s_{i_1}e_{i_1} \dots s_{i_k}e_{ik}]$ has full column rank. 
+      \item (Termination) Step~4 of Algorithm~\ref{alg:primal_recover} is implemented simply by verifying that $f_k(c^{(t)}) \leq \alpha$. (As verified by \autoref{coro:polyhedral}, we may take $\epsilon=0$ in this polyhedral case.) Thus, we can terminate the algorithm and return the primal variable 
+      \[x^{(t)} = [s_{i_1}e_{i_1} \dots s_{i_k}e_{ik}]c^{(t)},\]
+      which is the superposition of the top-$k$ atoms.  Otherwise, the algorithm proceeds to the next iteration. 
+  \end{itemize}
+  We describe numerical experiments for the sparse vector recovery problem in \autoref{sec:bpdn}. 
 \end{example}
 
-Next, we show that under mild conditions, we can guarantee the quality of the recovered solution. Before stating the result, we first introduce the notion of "degeneracy", which is generalized from the definition by Nutini et al.~\cite{nutini2019active}. 
+\subsubsection{Iteration complexity}\label{sec-iteration-complexity}
+
+In order to guarantee the quality of the recovered solution, we rely on a notion of degeneracy introduced by Nutini et al.~\cite{nutini2019active}. 
 
 \begin{definition}
-    Let $x^*$ and $y^*$ be optimal primal and dual vectors, respectively for
-    problems \Probi\ and \Drobi, where $\Ascr$ is polyhedral. Let $\delta$ be a positive scalar. 
-    The problem pair (\Probi, \Drobi) is $\delta$-nondegenerate if for any $a\in\Ascr$, either $a\in\suppa(x^*)$ or $\ip{a}{M^*y^*} \leq \sigma\As(M^*y^*) - \delta$. 
+  Let $x^*$ and $y^*$, respectively, be optimal primal and dual solutions for problems \Probi\ and \Drobi, where $\Ascr$ is polyhedral. Let $\delta$ be a positive scalar. The problem pair (\Probi, \Drobi) is $\delta$-nondegenerate if for any $a\in\Ascr$, either $a\in\suppa(x^*)$ or $\ip{a}{M^*y^*} \leq \sigma\As(M^*y^*) - \delta$. 
 \end{definition}
 
-Our next proposition shows that when the atomic set is polyhedral, we can guarantee to have finite-time atom identification property. 
+The next proposition guarantees a finite-time atom identification property when the atomic set is polyhedral.
 
 \begin{proposition}[Finite-time atom-identification] \label{prop:polyhedral} For each problem $i
-    = 1, 2, 3$, let $\{y_i^{(t)}\}_{t=1}^\infty$
-    be the sequence that converges to optimal dual solutions $
-    y_i^*$. If the atomic set $\Ascr$ is polyhedral and the problem pair (\Probi, \Drobi) is $\delta$-nondegenerate for some $\delta > 0$,
-    then there exists
-    $T > 0$ such that 
-    \[\Cscr^{(t)} \supseteq \Escr\As( M^* y_i^*) 
-    \text{and}
-    x^{(t)} \mbox{ is feasible for } \eqref{eq:main_prob} 
-    \quad \forall t>T.\]
-    It follows that Algorithm~\ref{alg:primal_recover} will terminate in $T$ iterations regardless of the tolerance $\epsilon$. 
+  = 1, 2, 3$, let $\{y_i^{(t)}\}_{t=1}^\infty$ be a sequence that converges to an optimal dual solution $y_i^*$. If the atomic set $\Ascr$ is polyhedral and the problem pair (\Probi, \Drobi) is $\delta$-nondegenerate, then there exists $T > 0$ such that 
+  \[
+   \EssCone_{\Ascr, k}(M^*y^{(t)}) \supseteq \Escr\As( M^* y_i^*) 
+  \text{and}
+  x^{(t)} \mbox{ is feasible for } \eqref{eq:main_prob} 
+  \quad \forall t>T.\]
+  It follows that Algorithm~\ref{alg:primal_recover} will terminate in $T$ iterations regardless of the tolerance $\epsilon$. 
 \end{proposition}
 
-\autoref{prop:polyhedral} ensures that the atom-identification rule~\autoref{thm:p0} is guaranteed to discard superfluous atoms in finite iterations as long as we have available an iterative solver that can generate dual iterates converge to a solution, and  our proposed primal-retrieval method can guarantee a feasible solution to \eqref{eq:main_prob}. 
+\autoref{prop:polyhedral} ensures that the atom-identification property described by~\autoref{thm:p0} is guaranteed to discard superfluous atoms in a finite number of iterations as long as we have available an iterative solver that generates dual iterates converging to a solution. Thus, Algorithm~\ref{alg:primal_recover} is guaranteed to generate a feasible solution to~\eqref{eq:main_prob}.
+The following corollary characterizes a bound on $T$ in terms of the convergence rate of the dual method.
 
 \begin{corollary} \label{coro:polyhedral}
-    For each problem $i= 1, 2, 3$, suppose we have a dual oracle that can generate iterates $y^{(t)}$ converging to optimal variable $y_i^*$ with convergence rate
-    \[d_i(y_i^{(t)}) - d_i(y_i^*) \in \Oscr\left( t^{-\alpha} \right)\]
-    for some $\alpha > 0$. If the atomic set $\Ascr$ is polyhedral and the problem pair (\Probi, \Drobi) is $\delta$-nondegenerate for some $\delta > 0$. Then Algorithm~\ref{alg:primal_recover} with $\epsilon=0$ will terminate in $\Oscr\left(\delta^{-2/\alpha}\right)$ iterations. 
+  For each problem $i= 1, 2, 3$, suppose the dual oracle generates iterates $y^{(t)}$ converging to optimal variable $y_i^*$ with rate
+  \[d_i(y_i^{(t)}) - d_i(y_i^*) \in \Oscr\left( t^{-\alpha} \right)\]
+  for some $\alpha > 0$. If the atomic set $\Ascr$ is polyhedral and the problem pair (\Probi, \Drobi) is $\delta$-nondegenerate, then Algorithm~\ref{alg:primal_recover} with $\epsilon=0$ terminates in $\Oscr\left(\delta^{-2/\alpha}\right)$ iterations. 
 \end{corollary}
 
-\section{Primal-retrieval for spectral atomic set} \label{sec:spectral}
+\subsubsection{Centrosymmetry and unconstrained primal recovery}
 
-In this section, consider the case when $\Ascr$ is spectral, i.e.,
-\begin{align*}
-    \Ascr &= \{uv^T \mid u \in \mR^m,\ v \in \mR^n,\ \|u\|_2=\|v\|_2 = 1\} \text{or} \\
+Further computational savings are possible when the atomic set $\Ascr$ is centrosymmetric, i.e.,
+\begin{equation}\label{eq-centro-symmetric}
+  a\in\Ascr \iff -a\in\Ascr.
+\end{equation}
+Centrosymmetry is a common property, and perhaps the prototypical example is the set of signed canonical unit vectors given by the set~\eqref{eq-signed-e}. Whenever centrosymmetry holds, $\cone\Ascr=\Span\Ascr$. This motivates us to replace the function $\EssCone$ with the function
+\[
+  \EssSpan_{\Ascr, k}(M^*y) \coloneqq \Span\Ascr_k,
+\]
+where $\Ascr_k$ is the collection of top-$k$ atoms defined by \autoref{eq:top-k}. Thus, the primal-retrieval optimization problem~\eqref{eq-top-k-recover} reduces to the unconstrained version
+\begin{equation} \label{eq:primal_recover_polyhedral2}
+  \hat c \in \argmin{c \in \Re^k} f_k(c).
+\end{equation}
+
+The following corollary simply asserts that the complexity results described in \autoref{sec-iteration-complexity} continue to hold for centrosymmetric atomic sets when using the essential span function.
+\begin{corollary}[Atom identification under centrosymmetry]
+    If the atomic set $\Ascr$ is centrosymmetric and polyhedral, then \autoref{prop:polyhedral} and \autoref{coro:polyhedral} hold with $\EssCone$ replaced by $\EssSpan$. 
+\end{corollary}
+
+
+\subsection{Primal-retrieval for spectral atomic sets} \label{sec:spectral}
+
+In this section we formalize a definition for the function $\EssCone_{\Ascr, k}$ for the case in which $\Ascr$ is a collection of rank-1 matrices, either asymmetric or symmetric, respectively:
+\begin{align} \label{eq:asymmetric}
+    \Ascr &= \{uv^T \mid u \in \mR^m,\ v \in \mR^n,\ \|u\|_2=\|v\|_2 = 1\}, \\ \label{eq:symmetric}
     \Ascr &= \{vv^T \mid v \in \mR^n,\ \|v\|_2 = 1\}.
-\end{align*}
-For simplicity, we will focus on $\Ascr = \{uv^T \mid u \in \mR^m,\ v \in \mR^n,\ \|u\|_2=\|v\|_2 = 1\}$. All our theoretical results can be easily generalized to $\Ascr = \{vv^T \mid v \in \mR^n,\ \|v\|_2 = 1\}$.
+\end{align}
+We mainly focus on the former atomic set of asymmetric matrices because all of our theoretical results easily specialize to the symmetric case. Note that this atomic set is centrosymmetric (cf. \autoref{eq-centro-symmetric}), and as we'll see below, the recovery problem is unconstrained. Later in \autoref{sec:symmetric-matrices} we'll describe the recovery problem for the atomic set of symmetric matrices, which is in fact a non-centrosymmetric set.
 
-We formalize the definition of the function \texttt{EssCone} under this setting. Given a feasible dual vector $y$, we first compute the singular value decomposition (SVD) for $M^*y$ as 
-\[ M^*y = 
+For this section only, we work with the linear operator $M:\Re^{m\times n}\to\Re^{p\times q}$, and replace the vector of observations $b$ with the $p$-by-$q$ matrix $B$. In this context, the dual variables for one of the corresponding dual problems is a matrix of the same dimension.
+
+Fix a feasible dual variable $Y$ and define the SVD for its product with the adjoint of $M$ by
+\begin{equation}\label{eq-svd}
+   M^*(Y) = 
 \begin{bmatrix}
     U_k & U_{-k}
 \end{bmatrix}
@@ -244,180 +286,168 @@ We formalize the definition of the function \texttt{EssCone} under this setting.
     V_k^T \\ 
     V_{-k}^T
 \end{bmatrix},
+\end{equation}
+where $\Sigma_k$ is the diagonal matrix consisting of top-$k$ singular values of $M^*(Y)$, the matrices $U_k$ and $V_k$ contain the corresponding left and right singular vectors, and the matrices $U_{-k}$, $V_{-k}$, and $\Sigma_{-k}$ contain the remaining singular vectors and values. Then the reduced atomic set by $U_k$ and $V_k$ can be expressed as 
+\[
+  \Ascr_k = \{ uv\T \mid u\in\range(U_k),\ v\in\range(V_k),\ \|u\|_2=\|v\|_2=1\} \subset \Ascr.
 \]
-where $\Sigma_k$ is the diagonal matrix consisting of top-$k$ singular values, and $U_k, V_k$ are the corresponding singular vectors. Then we construct $\Cscr_y$ as the convex cone generated from the selected singular vectors, i.e.,
+We construct the cone of essential atoms as the convex cone generated from the reduced atomic set $\Ascr_k$, i.e.,
 \begin{equation} \label{eq:cone_spectral}
-    \texttt{EssCone}_{\Ascr, M, k}(y) \coloneqq \{U_kWV_k^T \mid W \in \Re^{k\times k}, W \succcurlyeq 0\},
+    \EssCone_{\Ascr, k}(M^*(Y)) \coloneqq \cone(\Ascr_k) = \{U_k C V_k^T | C \in \Re^{k\times k}\}.
 \end{equation}
-which is an analogue to the argmax operator. The primal-retrieval problem \eqref{eq:primal_recover} then becomes
-\begin{equation} \label{eq:primal_recover_spectral} \tag{PR-Spec}
-\hat x = U_k\hat W V_k^T \text{where} \hat W = \argmin{W \in \mathbb{S}^k_{\succeq 0}} f\left( b - M(U_k W V_k^T) \right),
+Thus, the primal-retrieval computation in Step~3 of Algorithm~\ref{alg:primal_recover} is then given by 
+\begin{equation}\label{eq:unsymm-recovered-soln} 
+  \hat X = U_k\hat C V_k^T
 \end{equation}
-where $\mathbb{S}^k_{\succeq 0}$ denotes the set of all $k$-by-$k$ positive semidefinite matrices. 
+where
+\begin{equation}\label{eq-spectral-reduced}
+  \hat C \in \argmin{C\in\Re^{k\times k}} f_k(C), \text{with} f_k(C) \coloneqq f\left( B - M(U_k C V_k^T) \right),
+\end{equation}
+is a $k\times k$ matrix obtained by solving the reduced problem~\eqref{eq:primal_recover}, which is defined over the cone generated by the essential atoms identified through the top-$k$ singular triples of $M^*(Y)$, desribed by~\eqref{eq:cone_spectral}.
+
 
 \begin{example}[Low-rank matrix completion] \label{ex:mc}
-The low-rank matrix completion (LRMC) problem refers to the problem of recovering a low-rank matrix from partial observations, which arises in many real applications such as recommender system~\cite{rennie2005fast} and phase retrieval~\cite{candes2013phaselift}. Candes and Recht~\cite{canr:2009} proposed the following convex optimization problem for LRMC:
-\begin{equation} \label{eq:mc}
-\minimize{X\in\Re^{m\times n}}\enspace \|X\|_*  \enspace\text{subject to}\enspace X_{i,j} = B_{i,j} \enspace\forall (i,j) \in \Omega,
-\end{equation}
-where $\{B_{i,j} \mid (i,j) \in \Omega\}$ is the set of observations. In this case, the atomic set $\Ascr$ is the set of normalized rank-one matrices, i.e., $\Ascr = \{uv^T \mid u \in \mR^m,\ v \in \mR^n,\ \|u\|_2=\|v\|_2 = 1\}$ and the linear operator $M:\Re^{m\times n} \to \Re^{m\times n}$ is given by 
-\[ M(X)_{i,j} = 
-\begin{cases}
-    X_{i,j} &(i,j) \in \Omega; \\
-    0 &\mathrm{otherwise}.
-\end{cases}
-\]
-Same as in \autoref{ex:bpdn}, there are many dual methods that can generate iterates $Y^{(t)}$ converging to the dual solution of \eqref{eq:mc}, e.g., dual bundle method~\cite{fan2019bundle}. Then our proposed primal-retrieval strategy can be conducted by executing the following steps:
-\begin{itemize}
-    \item Find top-$k$ singular vectors of $M^*(Y^{(t)})$: $U^{(t)} \in \Re^{m \times k}$ and $V^{(t)} \in \Re^{n \times k}$.  
-    \item Solve the primal-retrieval problem
-    \begin{equation} \label{eq:mc_pr}
-        W^{(t)} = g(W) \coloneqq \argmin{W \in \mathbb{S}^k_{\succeq 0}} \sum_{(i,j) \in \Omega}  \frac{1}{2}\left([U^{(t)}W(V^{(t)})^\intercal]_{i,j} - B_{i,j}\right)^2, 
-    \end{equation}
-    Note that the primal-retrieval problem $\eqref{eq:mc_pr}$ can be solved to $\epsilon$-accuracy within $\BigOh(( k |\Omega| + (m+n)k + k^3 )\epsilon^{-0.5})$ flops with the FISTA \cite{beck2009fast} algorithm. Which is much cheaper than the original high-dimensional problem given $k \ll \min\{m,n\}$. 
-    \item If $g(W^{(t)}) \leq \epsilon$, where $\epsilon$ is some pre-defined tolerance, then we can terminate the algorithm and return the primal variable 
-    \[X^{(t)} = U^{(t)}W^{(t)}(V^{(t)})^\intercal.\]
-    Otherwise, we just proceed to the next iteration. 
-\end{itemize}
-We conduct numerical experiments for the low-rank matrix completion problem in \autoref{sec:lrmc}. 
+  The low-rank matrix completion (LRMC) problem aims to recover a low-rank matrix from partial observations, which arises in many real applications such as recommender systems~\cite{rennie2005fast} and in a convex formulation of the phase retrieval problem~\cite{candes2013phaselift}. The LRMC problem can be expressed as 
+  \begin{equation} \label{eq:lrmc}
+    \find X\in\Re^{m\times n} \sut \sum_{(i,j) \in \Omega}\tfrac{1}{2}\left(X_{i,j} - B_{i,j}\right)^2 \leq \alpha \tand \rank(X) \leq k,
+  \end{equation}
+  where $\{B_{i,j} \mid (i,j) \in \Omega\}$ is the set of observations over the index set $\Omega$. Problem~\eqref{eq:lrmc} corresponds to~\eqref{eq:main_prob} with the objective $f=\half\|\cdot\|_2^2$, the atomic set $\Ascr$ given by~\eqref{eq:asymmetric}, and the linear operator $M$ defined by the mask 
+  \[ M(X)_{i,j} = 
+  \begin{cases}
+      X_{i,j} &(i,j) \in \Omega, \\
+      0 &\mathrm{otherwise}.
+  \end{cases}
+  \]
+  Fazel~\cite{fazel1998approximations} popularized the convex relaxation of~\eqref{eq:lrmc} that minimizes the sum of singular values of $X$:
+  \begin{equation} \label{eq:mc}
+  \minimize{X\in\Re^{m\times n}}\enspace \|X\|_*  \enspace\text{subject to}\enspace \sum_{(i,j) \in \Omega}\tfrac{1}{2}\left(X_{i,j} - B_{i,j}\right)^2 \leq \alpha.
+  \end{equation}
+  This problem corresponds to formulation~\eqref{prob:primal3}. As with \autoref{ex:bpdn}, there are many dual methods that can generate dual feasible iterates $Y^{(t)}$ converging to the dual solution of~\eqref{eq:mc}, such as a dual bundle method~\cite{fan2019bundle}. The resulting primal-retrieval strategy for Step~3 of Algorithm~\ref{alg:primal_recover} can be implemented by executing the following steps:
+  \begin{itemize}
+      \item (Top-$k$ atoms) Compute the leading $k$ singular vectors of the matrix $M^*(Y^{(t)})$, given by $U_k^{(t)} \in \Re^{m \times k}$ and $V_k^{(t)} \in \Re^{n \times k}$ as defined by the SVD \eqref{eq-svd}.
+      \item (Retrieve coefficients) Solve the reduced problem~\eqref{eq-spectral-reduced}, where in this case,
+      \begin{equation} \label{eq:mc_pr}
+          C^{(t)} \in \argmin{C\in\Re^{k\times k}} f_k(C),
+          \text{with}
+          f_k(C) \coloneqq \sum_{(i,j) \in \Omega}  \tfrac{1}{2}\left([U_k^{(t)}C(V_k^{(t)})^\intercal]_{i,j} - B_{i,j}\right)^2. 
+      \end{equation}
+      This least squares problem can be solved to within $\epsilon$-accuracy in $\BigOh(( k |\Omega| + (m+n)k + k^3 )\epsilon^{-0.5})$ iterations, for example, with the FISTA algorithm~\cite{beck2009fast}. Typically, $k \ll \min\{m,n\}$, and so we expect that this reduced problem is significantly cheaper to solve than the original problem~\eqref{eq:mc}.
+      \item (Termination) Step~4 of Algorithm~\ref{alg:primal_recover} terminates when the value of the reduced objective satisifes the condition $f_k(C^{(t)}) \leq \alpha + \epsilon$, where $\epsilon$ is some pre-defined tolerance. In that case, the algorithm returns with the primal estimate constructed from the left and right singular vectors:
+      \[X^{(t)} = U_k^{(t)}C^{(t)}(V_k^{(t)})^\intercal.\]
+  \end{itemize}
+  We describe numerical experiments for the low-rank matrix completion problem in \autoref{sec:lrmc}. 
 \end{example}
 
-For the spectral atomic set, a key question is whether we can have finite-time atom-identification guarantee as for polyhedral atomic set. To illustrate the challenges, we consider the task to exactly identify the eigenspace of a low rank matrix $Z$. But it is hard to imagine a method that can achieve this a finite number of iterations since the rotational error in the range space can be arbitrary small. We formalize this intuition in the following 
-example. We show that the partial SVD of $M^*y$ is not able to give us a safe cover of $\Escr\As(M^* y^*)$ even when $\Escr\As(M^* y^*)$ is a singleton and $y$ arbitrarily close to $y^*$. 
+\subsubsection{Iteration complexity}
+
+In the polyhedral case, we were able to assert through \autoref{prop:polyhedral} that the optimal primal variable's atomic support could be identified in finite time. As we show here, however, finite-time identification is not possible for the spectral case. The following counterexample shows that the partial SVD of $M^*(Y)$, which we used in~\eqref{eq-svd}, is not able to give us a safe cover of the essential atoms in $\Escr\As(M^*(Y^*))$ even when this set is a singleton and $Y$ arbitrarily close to a dual solution $Y^*$.
 
 \begin{example}[Limitation of Partial SVD]\label{ex:partial-svd}
 	Consider the problem
-\begin{align}
-  \minimize{ X \in \mR^{n \times n} }\enspace \half \| X - Z \|_F^2 \enspace\text{subject to}\enspace \| X \|_* \leq 1, \label{eq:example_P}
+\begin{align} \label{eq:example_P}
+  \minimize{ X \in \mR^{n \times n} }\enspace \half \| X - B \|_F^2 \enspace\text{subject to}\enspace \| X \|_* \leq 1,
 \end{align} 
-where 
+where
 \[
-  Z = U \diag( 2, 0.1, \ldots, 0.1 ) V^T \text{and} U = V = \begin{bmatrix}
+  B = U \Diag( 2, 0.1, \ldots, 0.1 ) V^T \text{and} U = V = \begin{bmatrix}
     \sqrt{1 - \epsilon} &~ 0 &  ~\ldots  & -\sqrt{ \epsilon } \\
     0 & ~1  &  ~\ldots &  \\
     \vdots &  &~\ddots & \\
     \sqrt{ \epsilon } & 0 & & \sqrt{1 - \epsilon}
     \end{bmatrix}_{n \times n}
 \]
-for some $\epsilon \in (0,1)$. The dual problem is
+for some fixed $\epsilon \in (0,1)$. The dual problem is
 \begin{align}
-  \minimize{ Y \in \mR^{n \times n} }\enspace \half \| Y - Z \|_F^2 - \half \| Z \|_F^2 + \|Y\|_2. \label{eq:example_D}
-\end{align} 
+  \minimize{Y \in \mR^{n \times n} }\enspace \half \| Y - B \|_F^2 - \half \| B \|_F^2 + \|Y\|_2. \label{eq:example_D}
+\end{align}
 The solutions for the dual pair~\eqref{eq:example_P} and~\eqref{eq:example_D} are
 \[
-  X^* =  U \diag( 1, 0, \ldots, 0 ) V^T \text{and} Y^* = Z - X^* = U \diag( 1, 0.1, \ldots, 0.1 ) V^T.
+  X^* =  U \Diag( 1, 0, \ldots, 0 ) V^T \text{and} Y^* = B - X^* = U \Diag( 1, 0.1, \ldots, 0.1 ) V^T.
 \]
-Let $u_1$ and $v_1$, respectively, be the first columns of $U$ and $V$. Then obviously $\suppa(X^*) = \Escr\As(Y^*) = \{u_1 v_1^T\}$ is a singleton. We construct the following dual feasible solution
+
+In this pair of problems, the linear operator $M$ is simply the identity map, and the cone of essential atoms described by~\eqref{eq:cone_spectral} depends only on the dual variable $Y$.  Let $u_1$ and $v_1$, respectively, be the first columns of $U$ and $V$. Evidently, the support of $X^*$ coincides with the essential atoms of $Y^*$, and moreover, the support is a unique singleton. In other words,
 \[
-  \widehat{Y} = \diag(1, 0.1, \ldots, 0.1).
+  \suppa(X^*) = \Escr\As(Y^*) = \{u_1 v_1^T\}.
 \]
-Let $\widehat{U}$ and $\widehat{V}$ be the singular vectors of $\widehat{Y}$, then $\widehat{U} = \widehat{V} = [e_1, e_2, \ldots, e_n]$, where $e_i$ is the $n$-dimensional vector with 1 at the $i$th entry and 0 at other entries. In order to cover the leading singular vector $u_1 = [\sqrt{1 - \epsilon}, 0, \ldots, \sqrt{\epsilon}]^T$, we need both the top singular and bottom singular vectors $e_1$ and $e_n$, and therefore any top-$r$ SVD of $\widehat{Y}$ with $r < n$  will end up to be ``unsafe''. It's also easy to verify that $\| \widehat{Y} - Y^* \|_F = \BigOh( \sqrt{\epsilon} ) $. Note that our argument holds for any $\epsilon \in (0, 1)$. Therefore, $\forall \epsilon \in (0, 1)$ there exists $y \in \mathbb{B}(y^*, \epsilon)$ such that only full SVD of $M^*y$ can guarantee a safe coverage of $\Escr\As(M^*y^*)$. 
+We construct the following dual feasible solution
+\[
+  \widehat{Y} = \Diag(1, 0.1, \ldots, 0.1).
+\]
+Because $\widehat Y$ is diagonal, its left and right singular vectors $\widehat{U}$ and $\widehat{V}$ are given by $\widehat{U} = \widehat{V} = I = [e_1, e_2, \ldots, e_n]$. Note also that the top singular vector $u_1 = [\sqrt{1 - \epsilon}, 0, \ldots, \sqrt{\epsilon}]^T$ lies in the span of the basis vectors $e_1$ and $e_n$ that constitute the top and bottom singular vectors of $\widehat{Y}$. Therefore, any top-$r$ SVD of $\widehat{Y}$, with $r < n$, cannot be used to recover exactly a primal solution $X^*$. Moreover, $\| \widehat{Y} - Y^* \|_F = \BigOh( \sqrt{\epsilon} )$ for any $\epsilon\in(0,1)$, which in effect implies that it's impossible to recover exactly the true solution even with an arbitrarily accurate dual approximation $\widehat{Y}$.
 \end{example}
 
-Next, we study the approximation ability of the partial SVD of a given feasible dual solution $M^* y$ to $\Escr\As(M^* y^*)$. The next result measures the difference between $\suppa(x^*)$ and $\Cscr_y$ using one-sided Hausdorff distance and applies to each one of the dual pairs (P$_i$) and (D$_i$), $i=1,2,3$.
+This last example motivates our study of the quality with which a partial SVD of a given feasible dual solution $M^*(Y)$ can be used to approximate the support $\Escr\As(M^*(Y^*))$. The next result measures the difference between $\suppa(x^*)$ and $\EssCone_{\Ascr, k}(M^*(Y))$ using one-sided Hausdorff distance.
 
 \begin{proposition}[Error in truncated SVD] \label{thm:svd_approx_score}
-    Let $y$ be a dual feasible vector. Consider the SVD for $M^*y$ as 
-    \[ M^*y = 
-  \begin{bmatrix}
-      U_r & U_{-r}
-  \end{bmatrix}
-  \begin{bmatrix}
-      \Sigma_r &          \\ 
-               &  \Sigma_{-r}
-  \end{bmatrix}
-  \begin{bmatrix}
-      V_r^T \\ 
-      V_{-r}^T
-  \end{bmatrix}.
-  \] 
-  Let $\{\sigma_i\}_{i=1}^{\min\{n,m\}}$ be the singular values satisfying 
-  $\sigma_1 \geq \dots \geq \sigma_{\min\{n,m\}}$.
-  Let $\Cscr_y$ denote the cone generated according to equation \eqref{eq:cone_spectral}. Assume $\sigma_1 > \sigma_{r+1}$, then 
-    \[
-      \dist( \Escr\As( M^* y, \epsilon ), \Cscr_y  ) \leq \sqrt{ 2 \min\left\{ \frac{\epsilon}{ \sigma_1 - \sigma_{r+1} }, 1 \right\} },
+  Let $Y$ be feasible for one of the dual problems~\Drobi\ for $i=1,2,3$.
+Let $\{\sigma_j\}_{j=1}^{\min\{n,m\}}$ be the singular values satisfying 
+$\sigma_1 \geq \dots \geq \sigma_{\min\{n,m\}}$, where we assume $\sigma_1 > \sigma_{k+1}$. Let $Z:=M^*(Y)$ and let $\EssCone_{\Ascr, k}(Z)$ denote the cone generated according to equation~\eqref{eq:cone_spectral}. Then 
+  \[
+    \dist( \suppa(X^*),\  \EssCone_{\Ascr, k}(Z)) \leq
+    \dist( \Escr\As( Z, \epsilon_i ),\ \EssCone_{\Ascr, k}(Z)  ) \leq \sqrt{ 2 \min\left\{ \frac{\epsilon_i}{ \sigma_1 - \sigma_{k+1} }, 1 \right\} },
+  \]
+  where each $\epsilon_i$ is defined in \autoref{thm:p0} and the function 
+  \[  
+  \dist( \Ascr_1, \Ascr_2 ) \coloneqq \adjustlimits\sup_{a_1 \in \Ascr_1} \inf_{a_2 \in \Ascr_2 } \| a_1 - a_2 \|_F.
     \]
-    where $\epsilon = \epsilon_i$ for $i = 1, 2, 3$ as defined in \autoref{thm:p0} depending on the problem formulation and $\dist$ is the one-sided Hausdorff distance defined as 
-    \[  
-    \dist( \Ascr_1, \Ascr_2 ) \coloneqq \adjustlimits\sup_{a_1 \in \Ascr_1} \inf_{a_2 \in \Ascr_2 } \| a_1 - a_2 \|_F.
-      \]
+  is the one-sided Hausdorff distance between sets $\Ascr_1$ and $\Ascr_2$.
 \end{proposition}
 
-Oustry~\cite[Theorem~2.11]{Oustry00} developed a related result based on the two-sided Hausdorff distance. Directly applying Oustry's result to our context results in a bound that is $ \mathcal{O}( \sqrt{ \epsilon/( \sigma_r - \sigma_{r+1} ) } ) $, which is looser than the bound shown in \autoref{thm:svd_approx_score} because $\sigma_1 \geq \sigma_{r} \geq \sigma_{r+1}$. 
+Oustry~\cite[Theorem~2.11]{Oustry00} developed a related result based on the two-sided Hausdorff distance. Directly applying Oustry's result to our context results in a bound on the order $ \mathcal{O}( \sqrt{ \epsilon/( \sigma_k - \sigma_{k+1} ) } ) $, which is looser than the bound shown in \autoref{thm:svd_approx_score} because $\sigma_1 \geq \sigma_{k} \geq \sigma_{k+1}$. 
 
-Finally, we show the error bound for the primary recovery. 
+Finally, we show the error bound for primary recovery. 
 \begin{proposition} \label{prop:spectral}
-     Let $y$ be a dual feasible vector. Consider the SVD for $M^*y$ as 
-     \[ M^*y = 
-\begin{bmatrix}
-    U_r & U_{-r}
-\end{bmatrix}
-\begin{bmatrix}
-    \Sigma_r &          \\ 
-             &  \Sigma_{-r}
-\end{bmatrix}
-\begin{bmatrix}
-    V_r^T \\ 
-    V_{-r}^T
-\end{bmatrix}.
-\] 
-Let $\{\sigma_i\}_{i=1}^{\min\{n,m\}}$ be the singular values satisfying 
-$\sigma_1 \geq \dots \geq \sigma_{\min\{n,m\}}$.
-Let $\Cscr_y$ denote the cone generated according to equation \eqref{eq:cone_spectral}. Assume $\sigma_1 > \sigma_{r+1}$ and let $x^\dagger \coloneqq \arg\min_{ x \in \Cscr_y } f(b - Mx)$. Then
+     Let $X^*$ and $Y$, respectively, be primal optimal and dual feasible for one of the primal-dual pairs \Probi\ and \Drobi, for $i=1,2,3$.
+Let $\{\sigma_j\}_{j=1}^{\min\{n,m\}}$ be the singular values satisfying 
+$\sigma_1 \geq \dots \geq \sigma_{\min\{n,m\}}$, where we assume $\sigma_1 > \sigma_{k+1}$.  Let $\EssCone_{\Ascr, k}(M^*(Y))$ denote the cone generated according to equation~\eqref{eq:cone_spectral}. Let $\hat X$ be the solution recovered via~\eqref{eq:unsymm-recovered-soln}.
+Then
 \[
-    f( b - M x^\dagger ) = f( b - M x^* ) + \BigOh\left( \sqrt{ \frac{\epsilon}{ \sigma_1 - \sigma_{r+1} } } \right),
+    f( B - M (\hat X )) \le f( B - M (X^*) ) + \BigOh\left( \sqrt{ \frac{\epsilon_i}{ \sigma_1 - \sigma_{k+1} } } \right),
 \]
-where $\epsilon = \epsilon_i$ for $i = 1, 2, 3$ as defined in \autoref{thm:p0} depending on the problem formulation.
+where each $\epsilon_i$ is defined in \autoref{thm:p0}.
 \end{proposition}
 
-\autoref{prop:spectral} characterizes the error bound for our primal-retrieval strategy when $\Ascr$ is spectral. Our next corollary shows that Algorithm~\ref{alg:primal_recover} can terminate in polynomial time with any tolerance $\epsilon > 0$.
+\autoref{prop:spectral} characterizes the error bound for our primal-retrieval strategy when $\Ascr$ is spectral. Our next corollary shows that Algorithm~\ref{alg:primal_recover} can terminate in polynomial time with any tolerance $\epsilon > 0$. 
 
 \begin{corollary} \label{coro:spectral}
-    For each problem $i= 1, 2, 3$, suppose we have a dual oracle that can generate iterates $y^{(t)}$ converging to optimal variable $y_i^*$ with convergence rate
-    \[d_i(y_i^{(t)}) - d_i(y_i^*) \in \Oscr\left( t^{-\alpha} \right)\]
-    for some $\alpha > 0$. If the atomic set $\Ascr$ is spectral then Algorithm~\ref{alg:primal_recover} with $\epsilon>0$ will terminate in $\Oscr\left(\epsilon^{-4/\alpha}\right)$ iterations. 
+  For one of the problems \Drobi, $i=1,2,3$, suppose that a dual oracle generates iterates $Y^{(t)}$ converging to optimal variable $Y^*$ with convergence rate
+  \[d_i(Y^{(t)}) - d_i(Y^*) \in \Oscr\left( t^{-\alpha} \right)\]
+  for some $\alpha > 0$. If the atomic set $\Ascr$ is spectral then Algorithm~\ref{alg:primal_recover} with $\epsilon>0$ will terminate in $\Oscr\left(\epsilon^{-4/\alpha}\right)$ iterations. 
 \end{corollary}
 
-\section{Unconstrained primal-retrieval}
-In this section, we show that the computational complexity for the primal-retrieval problem, i.e., solving \eqref{eq:primal_recover}, can be further reduced when the atomic set $\Ascr$ is symmetric, i.e., 
-\[a\in\Ascr \iff -a\in\Ascr.\]
-The main idea is to replace the function \texttt{EssCone} with \texttt{EssSpan}, which will return the span of the essential atoms, so that the primal-retrieval problem will become unconstrained. 
+\subsubsection{Non-centrosymmetry and constrained primal recovery} \label{sec:symmetric-matrices}
 
-\subsection{Symmetric polyhedral atomic set}
-When the atomic set $\Ascr$ is symmetric and polyhedral, we can define the function \texttt{EssSpan} as 
-\[\texttt{EssSpan}(\Ascr, M, y, k) \coloneqq \left\{\sum_{i=1}^k c_i a_i ~\bigg\vert~ c_i \in \Re ~\forall i\right\},\]
-where $\{a_1, \dots, a_k\}$ are the top-$k$ atoms in $\Ascr$ with respect to the inner product with $M^*y$; see \eqref{eq:top-k}. Then the primal-retrieval problem \eqref{eq:primal_recover_polyhedral} can become much cheaper then the previous one, i.e.
-\begin{equation} \label{eq:primal_recover_polyhedral2} \tag{PR-Poly-Symm}
-\hat x = \sum_{i=1}^k \hat c_ia_i \text{where} \hat c = \argmin{c \in \Re^k} f\left( b - M\sum_{i=1}^k c_ia_i \right). 
+We now consider the case in which the atomic set $\Ascr$ given by \eqref{eq:symmetric}, which is not centrosymmetric. As we show below, the corresponding primal recovery problem is constrained.
+
+Fix a feasible dual variable $Y$ and define the eigenvalue decomposition for its product with the adjoint of $M$ by
+\begin{equation}
+   M^*(Y) = 
+\begin{bmatrix}
+    V_k & V_{-k}
+\end{bmatrix}
+\begin{bmatrix}
+    \Sigma_k &          \\ 
+             &  \Sigma_{-k}
+\end{bmatrix}
+\begin{bmatrix}
+    V_k\T \\ 
+    V_{-k}\T
+\end{bmatrix},
 \end{equation}
-For example, the primal-retrieval problem \eqref{eq:bpdn_pr} in the \autoref{ex:bpdn} (BPDN) will become 
-\begin{equation} \label{eq:bpdn_pr2}
-    c^{(t)} = \argmin{c \in \Re^k} g(c) \coloneqq \|M[s_{i_1}e_{i_1} \dots s_{i_k}e_{ik}]c - b\|,
-\end{equation}
-which is a unconstrained least square problem. 
-
-\begin{corollary}
-    If the atomic set $\Ascr$ is symmetric and polyhedral, then \autoref{prop:polyhedral} and \autoref{coro:polyhedral} still hold with \texttt{EssCone} replaced by \texttt{EssSpan}. 
-\end{corollary}
-
-\subsection{Symmetric spectral atomic set}
-When the atomic set $\Ascr$ is symmetric and spectral, we can define the function \texttt{EssSpan} as 
+where $V_k$ and the diagonal matrix $\Sigma_k$, respectively, contain the top-$k$ eigenvectors and eigenvalues of $M^*(Y)$, and $V_{-k}$ and the diagonal matrix $\Sigma_{-k}$, respectively, contain the remaining eigenvectors and eigenvalues. Then the reduced atomic set by $V_k$ can be expressed as 
 \[
-    \texttt{EssSpan}(\Ascr, M, y, k) \coloneqq \{U_kWV_k^T \mid W \in \Re^{k\times k}\},
+  \Ascr_k = \{ vv\T | v\in\range(V_k),\ \|v\|_2=1\} \subset \Ascr.
 \]
-where $U_k, V_k$ are the top-k singular vectors of $M^*y$. Then the primal-retrieval problem \eqref{eq:primal_recover_spectral} can become much cheaper then the previous one, i.e.
-\begin{equation} \label{eq:primal_recover_spectral2} \tag{PR-Spec-Symm}
-\hat x = U_k\hat W V_k^T \text{where} \hat W = \argmin{W \in \Re^{k\times k}} f\left( b - M(U_k W V_k^T) \right).
+The convex cone of essential atoms generated from the reduced atomic set $\Ascr_k$ is given by
+\begin{equation} \label{eq:cone_spectral2}
+    \EssCone_{\Ascr, k}(M^*(Y)) \coloneqq \cone(\Ascr_k) = \{V_k C V_k^T | C \in \Re^{k\times k},\ C \succeq 0\}.
 \end{equation}
-For example, the primal-retrieval problem \eqref{eq:mc_pr} in \autoref{ex:mc} (LRMC) will become 
-\begin{equation} \label{eq:mc_pr2}
-    W^{(t)} = \argmin{W \in \Re^{k\times k}} g(W) \coloneqq \sum_{(i,j) \in \Omega}  \frac{1}{2}\left([U^{(t)}W(V^{(t)})^\intercal]_{i,j} - B_{i,j}\right)^2,
-\end{equation}
-which is also a unconstrained least square problem. 
+The recovery problem \eqref{eq-spectral-reduced} then becomes constrained, i.e., 
+\[
+  \hat C \in \argmin{C\in\Re^{k\times k},\ C \succeq 0} f_k(C).
+\] 
 
-\begin{corollary}
-    If the atomic set $\Ascr$ is symmetric and spectral, then \autoref{prop:spectral} still holds with \texttt{EssCone} replaced by \texttt{EssSpan}. 
-\end{corollary}
+\section{Numerical experiments}
 
 We conduct several numerical experiments on both synthetic and real-world datasets to empirically verify the effectiveness of our proposed primal-retrieval strategy. In \autoref{sec:bpdn}, we conduct experiments on the basis pursuit denoising problem (\autoref{ex:bpdn}), which shows the performance of our strategy on polyhedral atomic set. In \autoref{sec:lrmc}, we apply our primal-retrieval technique to the low-rank matrix completion problem (\autoref{ex:mc}) and test the effectiveness of our proposed method on the spectral atomic set. In \autoref{sec:rpca}, we conduct experiment on 
 a image preprocessing problem, where the atomic set $\Ascr$ is the sum of a polyhedral atomic set and a spectral atomic set. This shows that our strategy can be applied to more complicated cases. The optimization problems are solved using the Julia package \texttt{AtomicOpt.jl} that will be introduced in \autoref{ch:App-AtomicOpt}. All the experiments are conducted on a Linux server with 8 CPUs and 64Gb memory.
@@ -429,7 +459,7 @@ As we can observe from \autoref{tab:bpdn}, the level-set algorithm equipped with
 
 \begin{table}[t]
     \centering
-    \begin{tabular}{cccccc}
+    \begin{tabular}{llllll}
         \toprule
         Problem             &   ID &    $m$ &   $n$ &   $\|b\|$ &   $M$\\
         \texttt{blocksig}   &   2  &    1024&   1024&   7.9e+1  &   wavelet\\
@@ -446,7 +476,7 @@ As we can observe from \autoref{tab:bpdn}, the level-set algorithm equipped with
 
 \begin{table}[t]
     \centering
-    \begin{tabular}{cccccc}
+    \begin{tabular}{lrrr}
         \toprule
         Problem             &   \texttt{nnz}(x) &    \texttt{nMat}(SPGL1) & \texttt{nMat}(level-set+PR)\\
         \texttt{blocksig}   &   71              &     22                  &   5\\
